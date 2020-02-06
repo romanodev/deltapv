@@ -1,5 +1,5 @@
-from IV import *
-from scales import *
+from .IV import *
+from .scales import *
 
 
 def Vincrement( Chi , Eg , Nc , Nv , Ndop , num_vals = 50 ):

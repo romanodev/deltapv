@@ -1,4 +1,4 @@
-from physics import *
+from .physics import *
 
 def SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
     _ni = ni( Eg , Nc , Nv )
@@ -19,6 +19,6 @@ def SHR_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
 
     DR_phin = ( ( _n * _p ) * denom - num * ( tp * _n ) ) * denom**-2
     DR_phip = ( ( - _n * _p ) * denom - num * ( - tn * _p ) ) * denom**-2
-    DR_phi = ( - num * ( tp * _n - tn * _p ) ) * denom**-2 
+    DR_phi = ( - num * ( tp * _n - tn * _p ) ) * denom**-2
 
     return DR_phin , DR_phip , DR_phi

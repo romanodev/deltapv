@@ -1,4 +1,4 @@
-from physics import *
+from .physics import *
 
 def pois( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0

@@ -1,4 +1,4 @@
-from poisson import *
+from .poisson import *
 
 def F_eq( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     return pois( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )

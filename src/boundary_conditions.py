@@ -1,5 +1,5 @@
-from physics import *
-from current import *
+from .physics import *
+from .current import *
 
 def contact_phin( phi_n , phi , dgrid , Chi , Nc , mn , Snl , Snr , neq_0 , neq_L ):
     _n = n( phi_n , phi , Chi , Nc )

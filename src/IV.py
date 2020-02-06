@@ -1,5 +1,5 @@
-from solve_eq import *
-from solve import *
+from .solve_eq import *
+from .solve import *
 
 def calc_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr ):
 

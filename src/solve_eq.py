@@ -1,4 +1,4 @@
-from F_eq import *
+from .F_eq import *
 
 def damp( move ):
     approx_sign = np.tanh( move )

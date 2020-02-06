@@ -1,5 +1,5 @@
-from scales import *
-from efficiency import *
+from .scales import *
+from .efficiency import *
 import matplotlib.pyplot as plt
 if USE_JAX:
     import jax.numpy as np

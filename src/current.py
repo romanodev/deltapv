@@ -1,4 +1,4 @@
-from scales import *
+from .scales import *
 if USE_JAX:
     import jax.numpy as np
 else:

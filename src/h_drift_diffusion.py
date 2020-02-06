@@ -1,5 +1,5 @@
-from SHR import *
-from current import *
+from .SHR import *
+from .current import *
 
 def ddp( phi_n , phi_p , phi , dgrid , Chi , Eg , Nc , Nv , Et , tn , tp , mp , G ):
     R = SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp )
