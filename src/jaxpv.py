@@ -104,8 +104,7 @@ class JAXPV( object ):
         plt.xlabel( 'Voltage (V)' )
         plt.ylabel( 'current (A.cm-2)' )
         plt.show()
-        quit()
-        plt.savefig(title)
+#        plt.savefig(title)
 
     def solve( self , V , equilibrium = False ):
         scale = scales()
