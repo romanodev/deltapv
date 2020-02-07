@@ -2,6 +2,8 @@ from .scales import *
 from .efficiency import *
 import matplotlib.pyplot as plt
 if USE_JAX:
+    from jax.config import config
+    config.update("jax_enable_x64", True)
     import jax.numpy as np
     from jax import grad , jit
 else:
