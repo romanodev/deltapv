@@ -120,8 +120,8 @@ class JAXPV( object ):
             result['phi'] = scale['E'] * phi_eq
             result['n'] = scale['n'] * n( np.zeros( self.grid.size ) , phi_eq , np.array( self.Chi ) , np.array( self.Nc ) )
             result['p'] = scale['n'] * p( np.zeros( self.grid.size ) , phi_eq , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
-            result['Jn'] = np.zeros( self.grid.size )
-            result['Jp'] = np.zeros( self.grid.size )
+            result['Jn'] = np.zeros( self.grid.size - 1 )
+            result['Jp'] = np.zeros( self.grid.size - 1 )
             return result
         else:
             Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
