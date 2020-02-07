@@ -1,5 +1,9 @@
 from .poisson import *
-
+if USE_JAX:
+    from jax.config import config
+    config.update("jax_enable_x64", True)
+    import jax
+    
 def F_eq( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     return pois( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
 

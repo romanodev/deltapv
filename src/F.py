@@ -2,6 +2,10 @@ from .e_drift_diffusion import *
 from .h_drift_diffusion import *
 from .poisson import *
 from .boundary_conditions import *
+if USE_JAX:
+    from jax.config import config
+    config.update("jax_enable_x64", True)
+    import jax
 
 def F( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
