@@ -94,7 +94,7 @@ class JAXPV( object ):
             print("TEST1")
             gradeff = grad( efficiency , argnums = ( 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 ) )
             print("TEST2")
-            return gradeff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ,dtype=float64) , np.array( self.eps ,dtype=float64) , np.array( self.Chi ,dtype=float64) , np.array( self.Eg ,dtype=float64) , np.array( self.Nc ,dtype=float64) , np.array( self.Nv ,dtype=float64) , np.array( self.Ndop ,dtype=float64) , np.array( self.Et ,dtype=float64) , np.array( self.tn ,dtype=float64) , np.array( self.tp ,dtype=float64) , np.array( self.mn ,dtype=float64) , np.array( self.mp ,dtype=float64) , np.array( self.G ,dtype=float64) , np.array( self.Snl ,dtype=float64) , np.array( self.Spl ,dtype=float64) , np.array( self.Snr ,dtype=float64) , np.array( self.Spr ,dtype=float64) )
+            return gradeff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ,dtype=np.float64) , np.array( self.eps ,dtype=np.float64) , np.array( self.Chi ,dtype=np.float64) , np.array( self.Eg ,dtype=np.float64) , np.array( self.Nc ,dtype=np.float64) , np.array( self.Nv ,dtype=np.float64) , np.array( self.Ndop ,dtype=np.float64) , np.array( self.Et ,dtype=np.float64) , np.array( self.tn ,dtype=np.float64) , np.array( self.tp ,dtype=np.float64) , np.array( self.mn ,dtype=np.float64) , np.array( self.mp ,dtype=np.float64) , np.array( self.G ,dtype=np.float64) , np.array( self.Snl ,dtype=np.float64) , np.array( self.Spl ,dtype=np.float64) , np.array( self.Snr ,dtype=np.float64) , np.array( self.Spr ,dtype=np.float64) )
         else:
             return "Error: JAX not loaded"
 
