@@ -167,8 +167,7 @@ class JAXPV( object ):
         plt.ylabel( 'energy (eV)' )
         plt.legend()
         plt.show()
-        quit()
-        plt.savefig(title)
+#        plt.savefig(title)
 
     def plot_concentration_profile( self , result , title='concentration_profile.pdf' ):
         scale = scales()
@@ -180,8 +179,7 @@ class JAXPV( object ):
         plt.ylabel( 'concentration (cm-3)' )
         plt.legend()
         plt.show()
-        quit()
-        plt.savefig(title)
+#        plt.savefig(title)
 
     def plot_current_profile( self , result , title='current_profile.pdf' ):
         scale = scales()
@@ -193,5 +191,4 @@ class JAXPV( object ):
         plt.ylabel( 'current (A.cm-2)' )
         plt.legend()
         plt.show()
-        quit()
-        plt.savefig(title)
+#        plt.savefig(title)
