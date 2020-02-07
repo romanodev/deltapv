@@ -12,7 +12,7 @@ else:
 class JAXPV( object ):
     """docstring for JAXPV."""
 
-    def __init__( self , grid , P_in=1 ):
+    def __init__( self , grid , P_in=1.0 ):
         scale = scales()
         self.grid = 1 / scale['d'] * grid
         self.P_in = P_in
@@ -86,7 +86,7 @@ class JAXPV( object ):
 
     def efficiency( self ):
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        return efficiency( Vincr , self.P_in , self.grid[1:] - self.grid[:-1] , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+        return efficiency( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
 
     def grad_efficiency( self ):
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
@@ -94,7 +94,7 @@ class JAXPV( object ):
             print("TEST1")
             gradeff = grad( efficiency , argnums = ( 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 ) )
             print("TEST2")
-            return gradeff( Vincr , self.P_in , self.grid[1:] - self.grid[:-1] , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+            return gradeff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
         else:
             return "Error: JAX not loaded"
 
