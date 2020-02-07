@@ -3,7 +3,7 @@ from .efficiency import *
 import matplotlib.pyplot as plt
 if USE_JAX:
     import jax.numpy as np
-    from jax import grad
+    from jax import grad , jit
 else:
     import numpy as np
 

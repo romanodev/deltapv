@@ -1,7 +1,7 @@
 import scipy.constants as sc
 import math
 
-USE_JAX = False
+USE_JAX = True
 
 def scales():
     T = 300
