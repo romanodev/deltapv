@@ -7,6 +7,35 @@ if USE_JAX:
     config.update("jax_enable_x64", True)
     import jax
 
+### Compute the system of equations to solve for the out of equilibrium potentials
+## Inputs :
+#      phi_n (array:N) -> e- quasi-Fermi energy
+#      phi_p (array:N) -> hole quasi-Fermi energy
+#      phi (array:N) -> electrostatic potential
+#      dgrid (array:N-1) -> array of distances between consecutive grid points
+#      eps(array:N) -> relative dieclectric constant
+#      Chi (array:N) -> electron affinity
+#      Eg (array:N) -> band gap
+#      Nc (array:N) -> e- density of states
+#      Nv (array:N) -> hole density of states
+#      Ndop (array:N) -> dopant density ( = donor density - acceptor density )
+#      Et (array:N) -> trap state energy level (SHR)
+#      tn (array:N) -> e- lifetime (SHR)
+#      tp (array:N) -> hole lifetime (SHR)
+#      mn (array:N) -> e- mobility
+#      mp (array:N) -> hole mobility
+#      G (array:N) -> electron-hole generation rate density
+#      Snl (scalar) -> e- surface recombination velocity at left boundary
+#      Spl (scalar) -> hole surface recombination velocity at left boundary
+#      Snr (scalar) -> e- surface recombination velocity at right boundary
+#      Spr (scalar) -> hole surface recombination velocity at right boundary
+#      neq_0 (scalar) -> e- density at left boundary
+#      neq_L (scalar) -> e- density at right boundary
+#      peq_0 (scalar) -> hole density at left boundary
+#      peq_L (scalar) -> hole density at right boundary
+## Outputs :
+#      1 (array:3N) -> out of equilibrium equation system at current value of potentials
+
 def F( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
     _ddn = ddn( phi_n , phi_p , phi , dgrid , Chi , Eg , Nc , Nv , Et , tn , tp , mn , G )
@@ -24,6 +53,39 @@ def F( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn ,
     result.append( ctct_L_phip )
     result.append( _pois[-1] )
     return np.array( result )
+
+
+
+
+
+### Compute the Jacobian of the system of equations to solve for the out of equilibrium potentials
+## Inputs :
+#      phi_n (array:N) -> e- quasi-Fermi energy
+#      phi_p (array:N) -> hole quasi-Fermi energy
+#      phi (array:N) -> electrostatic potential
+#      dgrid (array:N-1) -> array of distances between consecutive grid points
+#      eps(array:N) -> relative dieclectric constant
+#      Chi (array:N) -> electron affinity
+#      Eg (array:N) -> band gap
+#      Nc (array:N) -> e- density of states
+#      Nv (array:N) -> hole density of states
+#      Ndop (array:N) -> dopant density ( = donor density - acceptor density )
+#      Et (array:N) -> trap state energy level (SHR)
+#      tn (array:N) -> e- lifetime (SHR)
+#      tp (array:N) -> hole lifetime (SHR)
+#      mn (array:N) -> e- mobility
+#      mp (array:N) -> hole mobility
+#      G (array:N) -> electron-hole generation rate density
+#      Snl (scalar) -> e- surface recombination velocity at left boundary
+#      Spl (scalar) -> hole surface recombination velocity at left boundary
+#      Snr (scalar) -> e- surface recombination velocity at right boundary
+#      Spr (scalar) -> hole surface recombination velocity at right boundary
+#      neq_0 (scalar) -> e- density at left boundary
+#      neq_L (scalar) -> e- density at right boundary
+#      peq_0 (scalar) -> hole density at left boundary
+#      peq_L (scalar) -> hole density at right boundary
+## Outputs :
+#      1 (matrix:3Nx3N) -> Jacobian of the out of equilibrium equation system at current value of potentials
 
 def F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
