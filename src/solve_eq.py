@@ -32,7 +32,6 @@ def damp( move ):
 #      1 (scalar) -> error (largest component of displacement)
 #      2 (array:N) -> next electrostatic potential
 
-@jit
 def step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     Feq = F_eq( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv )
@@ -60,19 +59,14 @@ def step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
 ## Outputs :
 #      1 (array:N) -> equilibrium electrostatic potential
 
-def solve_eq( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
+@jit
+def solve_eq( phi_ini , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
 
-    phi_ini_left = - Chi[0] - Eg[0] - np.log( np.abs( Ndop[0] ) / Nv[0] )
-    if ( Ndop[0] > 0 ):
-        phi_ini_left = - Chi[0] + np.log( ( Ndop[0] ) / Nc[0] )
-    phi_ini_right = - Chi[-1] - Eg[-1] - np.log( np.abs( Ndop[-1] ) / Nv[-1] )
-    if ( Ndop[-1] > 0 ):
-        phi_ini_right = - Chi[-1] + np.log( ( Ndop[-1] ) / Nc[-1] )
-    phi = np.linspace( phi_ini_left , phi_ini_right , dgrid.size + 1 )
+    phi = phi_ini
 
 #    error = 1
 #    while (error > 1e-6):
-    for i in range( 50 ):
+    for i in range( 30 ):
 #        new_error , next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
         next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi

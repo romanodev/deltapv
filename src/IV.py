@@ -1,6 +1,6 @@
 from .solve_eq import *
 from .solve import *
-    
+
 ### Compute I-V curve
 ## Inputs :
 #      Vincrement (scalar) -> increment voltage for I-V curve
@@ -26,7 +26,15 @@ from .solve import *
 
 def calc_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr ):
 
-    phi_eq = solve_eq( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
+    phi_ini_left = - Chi[0] - Eg[0] - np.log( np.abs( Ndop[0] ) / Nv[0] )
+    if ( Ndop[0] > 0 ):
+        phi_ini_left = - Chi[0] + np.log( ( Ndop[0] ) / Nc[0] )
+    phi_ini_right = - Chi[-1] - Eg[-1] - np.log( np.abs( Ndop[-1] ) / Nv[-1] )
+    if ( Ndop[-1] > 0 ):
+        phi_ini_right = - Chi[-1] + np.log( ( Ndop[-1] ) / Nc[-1] )
+    phi_ini = np.linspace( phi_ini_left , phi_ini_right , dgrid.size + 1 )
+
+    phi_eq = solve_eq( phi_ini , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
 
     phi_n = [ np.zeros( dgrid.size + 1 ) ]
     phi_p = [ np.zeros( dgrid.size + 1 ) ]
