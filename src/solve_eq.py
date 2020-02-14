@@ -72,7 +72,7 @@ def solve_eq( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
 
 #    error = 1
 #    while (error > 1e-6):
-    for i in range( 20 ):
+    for i in range( 50 ):
 #        new_error , next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
         next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
