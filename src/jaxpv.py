@@ -69,9 +69,9 @@ class JAXPV( object ):
             if 'Nv' in properties:
                 self.Nv[ subgrid[ i ] ] = np.float64( 1 / scale['n'] * properties['Nv'] )
             if 'mn' in properties:
-                self.mn[ subgrid[ i ] ] = np.float64( 1 / scales['m'] * properties['mn'] )
+                self.mn[ subgrid[ i ] ] = np.float64( 1 / scale['m'] * properties['mn'] )
             if 'mp' in properties:
-                self.mp[ subgrid[ i ] ] = np.float64( 1 / scales['m'] * properties['mp'] )
+                self.mp[ subgrid[ i ] ] = np.float64( 1 / scale['m'] * properties['mp'] )
             if 'Et' in properties:
                 self.Et[ subgrid[ i ] ] = np.float64( 1 / scale['E'] * properties['Et'] )
             if 'tn' in properties:
