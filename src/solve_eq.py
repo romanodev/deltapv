@@ -1,4 +1,6 @@
 from .F_eq import *
+if USE_JAX:
+    from jax import jit
 
 ### Compute the damped displacement of electrostatic potential based on the Newton step
 ## Inputs :
@@ -30,6 +32,7 @@ def damp( move ):
 #      1 (scalar) -> error (largest component of displacement)
 #      2 (array:N) -> next electrostatic potential
 
+@jit
 def step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     Feq = F_eq( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv )

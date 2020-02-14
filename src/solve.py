@@ -50,6 +50,7 @@ def damp( move ):
 #      3 (array:N) -> next electrostatic potential
 #      4 (scalar) -> error
 
+@jit
 def step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
     _F = F( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
@@ -102,7 +103,6 @@ def step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , t
 #      2 (array:N) -> hole quasi-Fermi energy
 #      3 (array:N) -> electrostatic potential
 
-@jit
 def solve( phi_n_ini , phi_p_ini , phi_ini , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
     phi_n = phi_n_ini
     phi_p = phi_p_ini
