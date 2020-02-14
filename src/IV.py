@@ -1,6 +1,6 @@
 from .solve_eq import *
 from .solve import *
-
+    
 ### Compute I-V curve
 ## Inputs :
 #      Vincrement (scalar) -> increment voltage for I-V curve
@@ -51,7 +51,7 @@ def calc_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp
         phi_n.append(new_phi_n)
         phi_p.append(new_phi_p)
         if USE_JAX:
-            phi.append( jax.ops.index_update( new_phi , -1 , phi_eq[-1] + v ) )
+            phi.append( ops.index_update( new_phi , -1 , phi_eq[-1] + v ) )
         else:
             new_phi[-1] = phi_eq[-1] + v
             phi.append( new_phi )
