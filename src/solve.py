@@ -112,7 +112,7 @@ def solve( phi_n_ini , phi_p_ini , phi_ini , dgrid , eps , Chi , Eg , Nc , Nv , 
 #    while (error > 1e-6):
 #        next_phi_n , next_phi_p , next_phi , error_new = step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
     for i in range( 50 ):
-        next_phi_n , next_phi_p , next_phi , error_new = step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
+        next_phi_n , next_phi_p , next_phi = step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
         phi_n = next_phi_n
         phi_p = next_phi_p
         phi = next_phi
