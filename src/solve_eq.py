@@ -37,13 +37,13 @@ def step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     Feq = F_eq( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv )
     move = np.linalg.solve( gradFeq , - Feq )
-    error = max( np.abs( move ) )
+#    error = max( np.abs( move ) )
 
     damp_move = damp(move)
     phi_new = phi + damp_move
 
-    return error , phi_new
-
+#    return error , phi_new
+    return phi_new
 
 
 
@@ -70,10 +70,12 @@ def solve_eq( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
         phi_ini_right = - Chi[-1] + np.log( ( Ndop[-1] ) / Nc[-1] )
     phi = np.linspace( phi_ini_left , phi_ini_right , dgrid.size + 1 )
 
-    error = 1
-    while (error > 1e-6):
-        new_error , next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
+#    error = 1
+#    while (error > 1e-6):
+    for i in range( 20 ):
+#        new_error , next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
+        next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
-        error = new_error
+#        error = new_error
 
     return phi

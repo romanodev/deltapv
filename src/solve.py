@@ -1,6 +1,4 @@
 from .F import *
-if USE_JAX:
-    from jax import jit
 
 ### Compute the damped displacement of potentials based on the Newton step
 ## Inputs :
@@ -50,7 +48,6 @@ def damp( move ):
 #      3 (array:N) -> next electrostatic potential
 #      4 (scalar) -> error
 
-@jit
 def step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
     _F = F( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
