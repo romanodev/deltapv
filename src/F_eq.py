@@ -2,7 +2,7 @@ from .poisson import *
 if USE_JAX:
     from jax.config import config
     config.update("jax_enable_x64", True)
-    import jax
+    from jax import ops
 
 ### Compute the system of equations to solve for the equilibrium electrostatic potential
 ### (i.e. the poisson equation)
@@ -46,7 +46,7 @@ def F_eq_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv ):
 
     result = np.zeros( ( phi.size , phi.size ) )
     if USE_JAX:
-        return jax.ops.index_update( result , ( row , col ) , dpois )
+        return ops.index_update( result , ( row , col ) , dpois )
     else:
         for i in range( len( row ) ):
             result[ row[ i ] , col[ i ] ] = dpois[ i ]

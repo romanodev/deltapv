@@ -5,7 +5,7 @@ from .boundary_conditions import *
 if USE_JAX:
     from jax.config import config
     config.update("jax_enable_x64", True)
-    import jax
+    from jax import ops
 
 ### Compute the system of equations to solve for the out of equilibrium potentials
 ## Inputs :
@@ -176,7 +176,7 @@ def F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , 
 
     result = np.zeros( ( 3 * N , 3 * N ) )
     if USE_JAX:
-        return jax.ops.index_update( result , ( row , col ) , dF )
+        return ops.index_update( result , ( row , col ) , dF )
     else:
         for i in range( len( row ) ):
             result[ row[ i ] , col[ i ] ] = dF[ i ]
