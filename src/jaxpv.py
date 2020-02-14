@@ -224,7 +224,16 @@ class JAXPV( object ):
 
     def solve( self , V , equilibrium = False ):
         scale = scales()
-        phi_eq = solve_eq( np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+
+        phi_ini_left = - self.Chi[0] - self.Eg[0] - np.log( np.abs( self.Ndop[0] ) / self.Nv[0] )
+        if ( self.Ndop[0] > 0 ):
+            phi_ini_left = - self.Chi[0] + np.log( ( self.Ndop[0] ) / self.Nc[0] )
+        phi_ini_right = - self.Chi[-1] - self.Eg[-1] - np.log( np.abs( self.Ndop[-1] ) / self.Nv[-1] )
+        if ( self.Ndop[-1] > 0 ):
+            phi_ini_right = - self.Chi[-1] + np.log( ( self.Ndop[-1] ) / self.Nc[-1] )
+        phi_ini = np.linspace( phi_ini_left , phi_ini_right , self.grid.size )
+
+        phi_eq = solve_eq( phi_ini , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
         result = {}
 
