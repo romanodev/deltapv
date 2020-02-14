@@ -3,6 +3,7 @@ if USE_JAX:
     from jax.config import config
     config.update("jax_enable_x64", True)
     import jax.numpy as np
+    from jax import jit
 else:
     import numpy as np
 
@@ -15,6 +16,7 @@ else:
 ## Outputs :
 #      1 (array:N) -> e- density
 
+@jit
 def n( phi_n , phi , Chi , Nc ):
     return Nc * np.exp( Chi + phi_n + phi )
 

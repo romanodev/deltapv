@@ -134,9 +134,10 @@ class JAXPV( object ):
     #      1 (scalar) -> efficiency for the system
 
     def efficiency( self ):
-        jit_eff = jit( efficiency )
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        return jit_eff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+#        jit_eff = jit( efficiency )
+#        return jit_eff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+        return efficiency( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
 
     ### Compute derivatives of efficiency w.r.t. material properties
     ## Outputs :
@@ -162,8 +163,9 @@ class JAXPV( object ):
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
         if USE_JAX:
             gradeff = grad( efficiency , argnums = ( 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 ) )
-            jit_grad_eff = jit( gradeff )
-            deriv = jit_grad_eff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+#            jit_grad_eff = jit( gradeff )
+#            deriv = jit_grad_eff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+            deriv = gradeff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
             result = {}
             result['eps'] = deriv[0]
             result['Chi'] = deriv[1]
