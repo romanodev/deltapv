@@ -1,4 +1,6 @@
 from .F_eq import *
+if USE_JAX:
+    from jax import jit
 
 ### Compute the damped displacement of electrostatic potential based on the Newton step
 ## Inputs :
