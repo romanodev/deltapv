@@ -253,7 +253,7 @@ class JAXPV( object ):
                 phi_n.append(new_phi_n)
                 phi_p.append(new_phi_p)
                 if USE_JAX:
-                    phi.append( jax.ops.index_update( new_phi , -1 , phi_eq[-1] + v ) )
+                    phi.append( ops.index_update( new_phi , -1 , phi_eq[-1] + v ) )
                 else:
                     new_phi[-1] = phi_eq[-1] + v
                     phi.append( new_phi )
