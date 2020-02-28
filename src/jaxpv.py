@@ -250,9 +250,9 @@ class JAXPV( object ):
             Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
             num_steps = math.floor( V / Vincr )
 
-#            phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
-            neq = n( np.zeros( N ) , phi_eq , self.Chi , self.Nc )
-            peq = p( np.zeros( N ) , phi_eq , self.Chi , self.Eg , self.Nv )
+            phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
+            neq = n( np.zeros( N ) , phi_eq , np.array( self.Chi ) , np.array( self.Nc ) )
+            peq = p( np.zeros( N ) , phi_eq , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
 
 
 #            neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
