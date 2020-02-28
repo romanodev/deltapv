@@ -55,7 +55,7 @@ def calc_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp
 
     while cond and ( iter < max_iter ):
         sol = solve( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
-        current.append( Jn( sol[0:N-1] , sol[2*N:-1] , dgrid , Chi , Nc , mn )[0] + Jp( sol[N:2*N-1] , sol[2*N:-1] , dgrid , Chi , Eg , Nv , mp )[0] )
+        current.append( Jn( sol[0:N] , sol[2*N:] , dgrid , Chi , Nc , mn )[0] + Jp( sol[N:2*N] , sol[2*N:] , dgrid , Chi , Eg , Nv , mp )[0] )
         if ( len( current ) > 1 ):
             cond = ( current[-2] * current[-1] > 0 )
 
@@ -196,7 +196,7 @@ def grad_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp
         sol = solve( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
         gradsol = grad_solve( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
 
-        current.append( Jn( sol[0:N] , sol[2*N:-1] , dgrid , Chi , Nc , mn )[0] + Jp( sol[N:2*N] , sol[2*N:-1] , dgrid , Chi , Eg , Nv , mp )[0] )
+        current.append( Jn( sol[0:N] , sol[2*N:] , dgrid , Chi , Nc , mn )[0] + Jp( sol[N:2*N] , sol[2*N:] , dgrid , Chi , Eg , Nv , mp )[0] )
 
         jac_phis['eps'] = gradsol[1] + np.dot( gradsol[0] , jac_phis['eps'] )
         jac_phis['Chi'] = gradsol[2] + np.dot( gradsol[17] , dneq0_dChi ) + np.dot( gradsol[18] , dneqL_dChi ) + np.dot( gradsol[19] , dpeq0_dChi ) + np.dot( gradsol[20] , dpeqL_dChi ) + np.dot( gradsol[0] , jac_phis['Chi'] )
