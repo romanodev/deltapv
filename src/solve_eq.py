@@ -8,7 +8,6 @@ if USE_JAX:
 ## Outputs :
 #      1 (array:N) -> damped change in electrostatic potential
 
-@jit
 def damp( move ):
     approx_sign = np.tanh( move )
     approx_abs = approx_sign * move

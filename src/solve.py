@@ -8,7 +8,6 @@ if USE_JAX:
 ## Outputs :
 #      1 (array:3N) -> damped change in potentials
 
-@jit
 def damp( move ):
     approx_sign = np.tanh( move )
     approx_abs = approx_sign * move
@@ -51,7 +50,6 @@ def damp( move ):
 #      3 (array:N) -> next electrostatic potential
 #      4 (scalar) -> error
 
-@jit
 def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
     N = dgrid.size + 1
@@ -59,7 +57,7 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
     gradF = F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
 
     move = np.linalg.solve( gradF , - _F )
-    error = max( np.abs( move ) )
+    error = np.linalg.norm( move )
     damp_move = damp( move )
     phis = phis + damp_move
 
