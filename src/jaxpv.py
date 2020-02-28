@@ -231,7 +231,7 @@ class JAXPV( object ):
             phi_ini_right = - self.Chi[-1] - self.Eg[-1] - np.log( - self.Ndop[-1] / self.Nv[-1] )
         phi_ini = np.linspace( phi_ini_left , phi_ini_right , self.grid.size )
 
-        phi_eq = solve_eq( phi_ini , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+        phi_eq = solve_eq( np.array( self.grid[1:] - self.grid[:-1] ) , phi_ini , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
         result = {}
 
@@ -258,7 +258,7 @@ class JAXPV( object ):
             volt.append( V )
 
             for v in volt:
-                sol = solve( phis , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq_0 , neq_L , peq_0 , peq_L )
+                sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq_0 , neq_L , peq_0 , peq_L )
                 if USE_JAX:
                     phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
                 else:
