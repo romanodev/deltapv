@@ -135,8 +135,6 @@ class JAXPV( object ):
 
     def efficiency( self ):
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-#        jit_eff = jit( efficiency )
-#        return jit_eff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
         return efficiency( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
 
     ### Compute derivatives of efficiency w.r.t. material properties
@@ -163,8 +161,6 @@ class JAXPV( object ):
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
         if USE_JAX:
             gradeff = grad( efficiency , argnums = ( 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 ) )
-#            jit_grad_eff = jit( gradeff )
-#            deriv = jit_grad_eff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
             deriv = gradeff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
             result = {}
             result['eps'] = deriv[0]
@@ -225,13 +221,15 @@ class JAXPV( object ):
     def solve( self , V , equilibrium = False ):
         scale = scales()
 
-        phi_ini_left = - self.Chi[0] - self.Eg[0] - np.log( np.abs( self.Ndop[0] ) / self.Nv[0] )
-        if ( self.Ndop[0] > 0 ):
-            phi_ini_left = - self.Chi[0] + np.log( ( self.Ndop[0] ) / self.Nc[0] )
-        phi_ini_right = - self.Chi[-1] - self.Eg[-1] - np.log( np.abs( self.Ndop[-1] ) / self.Nv[-1] )
-        if ( self.Ndop[-1] > 0 ):
-            phi_ini_right = - self.Chi[-1] + np.log( ( self.Ndop[-1] ) / self.Nc[-1] )
-        phi_ini = np.linspace( phi_ini_left , phi_ini_right , self.grid.size )
+        if ( Ndop[0] > 0 ):
+            phi_ini_left = - Chi[0] + np.log( ( Ndop[0] ) / Nc[0] )
+        else:
+            phi_ini_left = - Chi[0] - Eg[0] - np.log( - Ndop[0] / Nv[0] )
+        if ( Ndop[-1] > 0 ):
+            phi_ini_right = - Chi[-1] + np.log( ( Ndop[-1] ) / Nc[-1] )
+        else:
+            phi_ini_right = - Chi[-1] - Eg[-1] - np.log( - Ndop[-1] / Nv[-1] )
+        phi_ini = np.linspace( phi_ini_left , phi_ini_right , N )
 
         phi_eq = solve_eq( phi_ini , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
@@ -253,21 +251,23 @@ class JAXPV( object ):
             phi_n = [ np.zeros( self.grid.size ) ]
             phi_p = [ np.zeros( self.grid.size ) ]
             phi = [ phi_eq ]
-            neq = n( phi_n[-1] , phi[-1] , np.array( self.Chi ) , np.array( self.Nc ) )
-            peq = p( phi_p[-1] , phi[-1] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
+            neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
+            neq_L = self.Nc[-1] * np.exp( self.Chi[-1] + phi_eq[-1] )
+            peq_0 = self.Nv[0] * np.exp( - self.Chi[0] - self.Eg[0] - phi_eq[0] )
+            peq_L = self.Nv[-1] * np.exp( - self.Chi[-1] - self.Eg[-1] - phi_eq[-1] )
 
             volt = [ i * Vincr for i in range( num_steps ) ]
             volt.append( V )
 
             for v in volt:
-                new_phi_n , new_phi_p , new_phi = solve( phi_n[-1] , phi_p[-1] , phi[-1] , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq[0] , neq[-1] , peq[0] , peq[-1] )
-                phi_n.append(new_phi_n)
-                phi_p.append(new_phi_p)
+                sol = solve( phi_n[-1] , phi_p[-1] , phi[-1] , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq_0 , neq_L , peq_0 , peq_L )
+                phi_n.append( sol[0:N] )
+                phi_p.append( sol[N:2*N] )
                 if USE_JAX:
-                    phi.append( ops.index_update( new_phi , -1 , phi_eq[-1] + v ) )
+                    phi.append( ops.index_update( sol[2*N:-1] , -1 , phi_eq[-1] + v ) )
                 else:
-                    new_phi[-1] = phi_eq[-1] + v
-                    phi.append( new_phi )
+                    sol[-1] = phi_eq[-1] + v
+                    phi.append( sol[2*N:-1] )
 
             result['phi_n'] = scale['E'] * phi_n[-1]
             result['phi_p'] = scale['E'] * phi_p[-1]

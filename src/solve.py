@@ -8,6 +8,7 @@ if USE_JAX:
 ## Outputs :
 #      1 (array:3N) -> damped change in potentials
 
+@jit
 def damp( move ):
     approx_sign = np.tanh( move )
     approx_abs = approx_sign * move
@@ -50,22 +51,19 @@ def damp( move ):
 #      3 (array:N) -> next electrostatic potential
 #      4 (scalar) -> error
 
-def step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
+@jit
+def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
-    _F = F( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
+    N = dgrid.size + 1
+    _F = F( phis[0:N] , phis[N:2*N] , phis[2*N:-1] , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
     gradF = F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
 
     move = np.linalg.solve( gradF , - _F )
-#    error = max( np.abs( move ) )
-
+    error = max( np.abs( move ) )
     damp_move = damp( move )
+    phis = phis + damp_move
 
-    N = phi_n.size
-    phi_n_new = phi_n + damp_move[0:3*N:3]
-    phi_p_new = phi_p + damp_move[1:3*N:3]
-    phi_new = phi + damp_move[2:3*N:3]
-
-    return phi_n_new , phi_p_new , phi_new #, error
+    return phis , error
 
 
 
@@ -73,9 +71,7 @@ def step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , t
 
 ### Solve for the e-/hole quasi-Fermi energies and electrostatic potential using the Newton method
 ## Inputs :
-#      phi_n_ini (array:N) -> initial guess for the e- quasi-Fermi energy
-#      phi_p_ini (array:N) -> initial guess for the hole quasi-Fermi energy
-#      phi_ini (array:N) -> initial guess for the electrostatic potential (with applied voltage boundary condition)
+#      phis (array:3N) -> initial guess for the e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential (with applied voltage boundary condition)
 #      dgrid (array:N-1) -> array of distances between consecutive grid points
 #      eps(array:N) -> relative dieclectric constant
 #      Chi (array:N) -> electron affinity
@@ -98,24 +94,17 @@ def step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , t
 #      peq_0 (scalar) -> hole density at left boundary
 #      peq_L (scalar) -> hole density at right boundary
 ## Outputs :
-#      1 (array:N) -> e- quasi-Fermi energy
-#      2 (array:N) -> hole quasi-Fermi energy
-#      3 (array:N) -> electrostatic potential
+#      1 (array:3N) -> e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential
 
 @jit
-def solve( phi_n_ini , phi_p_ini , phi_ini , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
-    phi_n = phi_n_ini
-    phi_p = phi_p_ini
-    phi = phi_ini
+def solve( dgrid , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
+    N = dgrid.size + 1
+    phis = phis_ini
     error = 1
 
-#    while (error > 1e-6):
-#        next_phi_n , next_phi_p , next_phi , error_new = step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
-    for i in range( 30 ):
-        next_phi_n , next_phi_p , next_phi = step( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
-        phi_n = next_phi_n
-        phi_p = next_phi_p
-        phi = next_phi
-#        error = error_new
+    while (error > 1e-6):
+        next_phis , error_new = step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
+        phis = next_phis
+        error = error_new
 
-    return phi_n , phi_p , phi
+    return phis

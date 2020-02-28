@@ -8,6 +8,7 @@ if USE_JAX:
 ## Outputs :
 #      1 (array:N) -> damped change in electrostatic potential
 
+@jit
 def damp( move ):
     approx_sign = np.tanh( move )
     approx_abs = approx_sign * move
@@ -32,23 +33,24 @@ def damp( move ):
 #      1 (scalar) -> error (largest component of displacement)
 #      2 (array:N) -> next electrostatic potential
 
-def step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
+@jit
+def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     Feq = F_eq( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv )
     move = np.linalg.solve( gradFeq , - Feq )
-#    error = max( np.abs( move ) )
+    error = max( np.abs( move ) )
 
     damp_move = damp(move)
     phi_new = phi + damp_move
 
-#    return error , phi_new
-    return phi_new
+    return error , phi_new
 
 
 
 
 ### Solve for the equilibrium electrostatic potential using the Newton method
 ## Inputs :
+#      phi_ini (array:N) -> initial guess for the electrostatic potential
 #      dgrid (array:N-1) -> array of distances between consecutive grid points
 #      eps(array:N) -> relative dieclectric constant
 #      Chi (array:N) -> electron affinity
@@ -59,17 +61,12 @@ def step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
 ## Outputs :
 #      1 (array:N) -> equilibrium electrostatic potential
 
-@jit
-def solve_eq( phi_ini , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
+def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
 
-    phi = phi_ini
-
-#    error = 1
-#    while (error > 1e-6):
-    for i in range( 30 ):
-#        new_error , next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
-        next_phi = step_eq( phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
+    error = 1
+    while (error > 1e-6):
+        new_error , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
-#        error = new_error
+        error = new_error
 
     return phi
