@@ -54,7 +54,7 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
 
     N = dgrid.size + 1
     _F = F( phis[0:N] , phis[N:2*N] , phis[2*N:] , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
-    gradF = F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
+    gradF = F_deriv( phis[0:N] , phis[N:2*N] , phis[2*N:] , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
 
     move = np.linalg.solve( gradF , - _F )
     error = np.linalg.norm( move )
