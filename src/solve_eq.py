@@ -62,8 +62,8 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     phi = phi_ini
     error = 1
     iter = 0
-    print( 'Equilibrium     Iteration       |F(x)|                Residual' )
-    print( '--------------------------------------------------------------' )
+    print( 'Equilibrium     Iteration       |F(x)|                Residual     ' )
+    print( '-------------------------------------------------------------------' )
     while (error > 1e-6):
         error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi

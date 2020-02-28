@@ -61,7 +61,7 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
     error = np.linalg.norm( move )
     damp_move = damp( move )
 
-    return np.concatenate( ( phis[0:N] + damp_move[0:3*N:3] , phis[N:2*N] + damp_move[1:3*N:3] , phis[2*N:]+ damp_move[2:3*N:3] ) , axis = 0 ) , error
+    return error , np.linalg.norm(_F) , np.concatenate( ( phis[0:N] + damp_move[0:3*N:3] , phis[N:2*N] + damp_move[1:3*N:3] , phis[2*N:]+ damp_move[2:3*N:3] ) , axis = 0 )
 
 
 
@@ -97,11 +97,13 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
 def solve( dgrid , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
     phis = phis_ini
     error = 1
-
+    iter = 0
     while (error > 1e-6):
         print(error)
-        next_phis , error_new = step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
+        error_dx , error_F , next_phis = step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
         phis = next_phis
-        error = error_new
+        error = error_dx
+        iter += 1
+        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , error_F , error_dx ) )
 
     return phis
