@@ -237,8 +237,6 @@ class JAXPV( object ):
 
         result = {}
 
-        print(phi_eq)
-
         if equilibrium:
             result['phi_n'] = np.zeros( N )
             result['phi_p'] = np.zeros( N )
