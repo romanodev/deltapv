@@ -38,11 +38,9 @@ def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     gradFeq = F_eq_deriv( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv )
     move = np.linalg.solve( gradFeq , - Feq )
     error = np.linalg.norm( move )
-
     damp_move = damp(move)
-    phi_new = phi + damp_move
 
-    return error , phi_new
+    return error , np.linalg.norm( Feq ) , phi + damp_move
 
 
 
@@ -63,10 +61,14 @@ def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
 def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     phi = phi_ini
     error = 1
+    iter = 0
+    print( 'Equilibrium     Iteration     |F(x)|     Residual' )
+    print( '-------------------------------------------------' )
     while (error > 1e-6):
-        print(error)
-        new_error , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
+        error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
-        error = new_error
+        error = error_dx
+        iter += 1
+        print( '                ' + str( iter ) + '              ' + str( error_F ) + '           ' + str( error_dx ) )
 
     return phi
