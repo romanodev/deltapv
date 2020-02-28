@@ -58,7 +58,7 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
     gradF = F_deriv( phis[0:N] , phis[N:2*N] , phis[2*N:] , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
 
     move = np.linalg.solve( gradF , - _F )
-    error = max( np.abs( move ) )
+    error = np.linalg.norm( move )
     damp_move = damp( move )
     phis = phis + damp_move
 
