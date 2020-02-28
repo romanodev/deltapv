@@ -50,6 +50,7 @@ def damp( move ):
 #      3 (array:N) -> next electrostatic potential
 #      4 (scalar) -> error
 
+@jit
 def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
     N = dgrid.size + 1
@@ -94,7 +95,6 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
 ## Outputs :
 #      1 (array:3N) -> e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential
 
-@jit
 def solve( dgrid , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
     N = dgrid.size + 1
     phis = phis_ini
