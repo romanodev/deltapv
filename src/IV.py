@@ -216,7 +216,6 @@ def grad_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp
         jac_phis['Spr'] = gradsol[16] + np.dot( gradsol[0] , jac_phis['Spr'] )
 
         new_current_jac = {}
-        new_current_jac['eps'] = 
 
         current_jac.append( new_current_jac )
 
