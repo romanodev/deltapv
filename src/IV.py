@@ -27,7 +27,7 @@ if USE_JAX:
 #      1 (array:M<=max_iter) -> array of (total) currents, if length M < max_iter, current switched signs
 
 def calc_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr ):
-
+    scale = scales()
     N = dgrid.size + 1
 
     if ( Ndop[0] > 0 ):
@@ -54,7 +54,7 @@ def calc_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp
     v = 0
 
     while cond and ( iter < max_iter ):
-        print( 'V = {0:.7f}   Iteration       |F(x)|                Residual     '.format( v ) )
+        print( 'V = {0:.7f}   Iteration       |F(x)|                Residual     '.format( scale['E'] * v ) )
         print( '-------------------------------------------------------------------' )
         sol = solve( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
         current.append( Jn( sol[0:N] , sol[2*N:] , dgrid , Chi , Nc , mn )[0] + Jp( sol[N:2*N] , sol[2*N:] , dgrid , Chi , Eg , Nv , mp )[0] )
