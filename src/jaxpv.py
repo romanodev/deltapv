@@ -268,12 +268,12 @@ class JAXPV( object ):
                     phis = sol
 
             result['phi_n'] = scale['E'] * phis[0:N]
-            result['phi_p'] = scale['E'] * phi_p[N:2*N]
-            result['phi'] = scale['E'] * phi[2*N:]
-            result['n'] = scale['n'] * n( phis[0:N] , phi[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) )
-            result['p'] = scale['n'] * p( phi_p[N:2*N] , phi[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  )
-            result['Jn'] = scale['J'] * Jn( phis[0:N] , phi[2*N:] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn )  )
-            result['Jp'] = scale['J'] * Jp( phi_p[N:2*N] , phi[2*N:] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  , np.array( self.mp )  )
+            result['phi_p'] = scale['E'] * phis[N:2*N]
+            result['phi'] = scale['E'] * phis[2*N:]
+            result['n'] = scale['n'] * n( phis[0:N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) )
+            result['p'] = scale['n'] * p( phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  )
+            result['Jn'] = scale['J'] * Jn( phis[0:N] , phis[2*N:] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn )  )
+            result['Jp'] = scale['J'] * Jp( phis[N:2*N] , phis[2*N:] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  , np.array( self.mp )  )
             return result
 
     ### Plot band diagram from previous calculation of system state (equilibrium or at given voltage)
