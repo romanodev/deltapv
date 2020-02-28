@@ -251,20 +251,16 @@ class JAXPV( object ):
             num_steps = math.floor( V / Vincr )
 
             phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
-            neq = n( np.zeros( N ) , phi_eq , np.array( self.Chi ) , np.array( self.Nc ) )
-            peq = p( np.zeros( N ) , phi_eq , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
-
-
-#            neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
-#            neq_L = self.Nc[-1] * np.exp( self.Chi[-1] + phi_eq[-1] )
-#            peq_0 = self.Nv[0] * np.exp( - self.Chi[0] - self.Eg[0] - phi_eq[0] )
-#            peq_L = self.Nv[-1] * np.exp( - self.Chi[-1] - self.Eg[-1] - phi_eq[-1] )
+            neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
+            neq_L = self.Nc[-1] * np.exp( self.Chi[-1] + phi_eq[-1] )
+            peq_0 = self.Nv[0] * np.exp( - self.Chi[0] - self.Eg[0] - phi_eq[0] )
+            peq_L = self.Nv[-1] * np.exp( - self.Chi[-1] - self.Eg[-1] - phi_eq[-1] )
 
             volt = [ i * Vincr for i in range( num_steps ) ]
             volt.append( V )
 
             for v in volt:
-                sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq[0] , neq[-1] , peq[0] , peq[-1] )
+                sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq_0 , neq_L , peq_0 , peq_L )
                 if USE_JAX:
                     phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
                 else:

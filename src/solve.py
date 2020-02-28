@@ -59,7 +59,10 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
     move = np.linalg.solve( gradF , - _F )
     error = max( np.abs( move ) )
     damp_move = damp( move )
-    phis_new = phis + damp_move
+    phis_new = phis
+    phis_new[0:N] += damp_move[0:3*N:3]
+    phis_new[N:2*N] += damp_move[1:3*N:3]
+    phis_new[2*N:] += damp_move[2:3*N:3]
 
     return phis_new , error
 
