@@ -101,6 +101,7 @@ def solve( dgrid , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , m
     error = 1
 
     while (error > 1e-6):
+        print(error)
         next_phis , error_new = step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
         phis = next_phis
         error = error_new
