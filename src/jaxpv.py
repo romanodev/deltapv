@@ -221,6 +221,8 @@ class JAXPV( object ):
     def solve( self , V , equilibrium = False ):
         scale = scales()
 
+        N = self.grid.size
+
         if ( self.Ndop[0] > 0 ):
             phi_ini_left = - self.Chi[0] + np.log( ( self.Ndop[0] ) / self.Nc[0] )
         else:
@@ -229,26 +231,26 @@ class JAXPV( object ):
             phi_ini_right = - self.Chi[-1] + np.log( ( self.Ndop[-1] ) / self.Nc[-1] )
         else:
             phi_ini_right = - self.Chi[-1] - self.Eg[-1] - np.log( - self.Ndop[-1] / self.Nv[-1] )
-        phi_ini = np.linspace( phi_ini_left , phi_ini_right , self.grid.size )
+        phi_ini = np.linspace( phi_ini_left , phi_ini_right , N )
 
         phi_eq = solve_eq( np.array( self.grid[1:] - self.grid[:-1] ) , phi_ini , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
         result = {}
 
         if equilibrium:
-            result['phi_n'] = np.zeros( self.grid.size )
-            result['phi_p'] = np.zeros( self.grid.size )
+            result['phi_n'] = np.zeros( N )
+            result['phi_p'] = np.zeros( N )
             result['phi'] = scale['E'] * phi_eq
-            result['n'] = scale['n'] * n( np.zeros( self.grid.size ) , phi_eq , np.array( self.Chi ) , np.array( self.Nc ) )
-            result['p'] = scale['n'] * p( np.zeros( self.grid.size ) , phi_eq , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
-            result['Jn'] = np.zeros( self.grid.size - 1 )
-            result['Jp'] = np.zeros( self.grid.size - 1 )
+            result['n'] = scale['n'] * n( np.zeros( N ) , phi_eq , np.array( self.Chi ) , np.array( self.Nc ) )
+            result['p'] = scale['n'] * p( np.zeros( N ) , phi_eq , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
+            result['Jn'] = np.zeros( N - 1 )
+            result['Jp'] = np.zeros( N - 1 )
             return result
         else:
             Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
             num_steps = math.floor( V / Vincr )
 
-            phis = np.concatenate( ( np.zeros( 2*self.grid.size ) , phi_eq ) , axis = 0 )
+            phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
             neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
             neq_L = self.Nc[-1] * np.exp( self.Chi[-1] + phi_eq[-1] )
             peq_0 = self.Nv[0] * np.exp( - self.Chi[0] - self.Eg[0] - phi_eq[0] )
@@ -265,13 +267,13 @@ class JAXPV( object ):
                     sol[-1] = phi_eq[-1] + v
                     phis = sol
 
-            result['phi_n'] = scale['E'] * phi_n[-1]
-            result['phi_p'] = scale['E'] * phi_p[-1]
-            result['phi'] = scale['E'] * phi[-1]
-            result['n'] = scale['n'] * n( phi_n[-1] , phi[-1] , np.array( self.Chi ) , np.array( self.Nc ) )
-            result['p'] = scale['n'] * p( phi_p[-1] , phi[-1] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  )
-            result['Jn'] = scale['J'] * Jn( phi_n[-1] , phi[-1] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn )  )
-            result['Jp'] = scale['J'] * Jp( phi_p[-1] , phi[-1] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  , np.array( self.mp )  )
+            result['phi_n'] = scale['E'] * phis[0:N]
+            result['phi_p'] = scale['E'] * phi_p[N:2*N]
+            result['phi'] = scale['E'] * phi[2*N:]
+            result['n'] = scale['n'] * n( phis[0:N] , phi[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) )
+            result['p'] = scale['n'] * p( phi_p[N:2*N] , phi[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  )
+            result['Jn'] = scale['J'] * Jn( phis[0:N] , phi[2*N:] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn )  )
+            result['Jp'] = scale['J'] * Jp( phi_p[N:2*N] , phi[2*N:] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  , np.array( self.mp )  )
             return result
 
     ### Plot band diagram from previous calculation of system state (equilibrium or at given voltage)
