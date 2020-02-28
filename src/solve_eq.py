@@ -37,7 +37,7 @@ def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     Feq = F_eq( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( np.zeros( phi.size ) , np.zeros( phi.size ) , phi , dgrid , eps , Chi , Eg , Nc , Nv )
     move = np.linalg.solve( gradFeq , - Feq )
-    error = np.linalg.norm( move )
+    error = max( np.abs( move ) )
 
     damp_move = damp(move)
     phi_new = phi + damp_move

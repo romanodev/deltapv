@@ -221,14 +221,14 @@ class JAXPV( object ):
     def solve( self , V , equilibrium = False ):
         scale = scales()
 
-        if ( Ndop[0] > 0 ):
-            phi_ini_left = - Chi[0] + np.log( ( Ndop[0] ) / Nc[0] )
+        if ( self.Ndop[0] > 0 ):
+            phi_ini_left = - self.Chi[0] + np.log( ( self.Ndop[0] ) / self.Nc[0] )
         else:
-            phi_ini_left = - Chi[0] - Eg[0] - np.log( - Ndop[0] / Nv[0] )
-        if ( Ndop[-1] > 0 ):
-            phi_ini_right = - Chi[-1] + np.log( ( Ndop[-1] ) / Nc[-1] )
+            phi_ini_left = - self.Chi[0] - self.Eg[0] - np.log( - self.Ndop[0] / self.Nv[0] )
+        if ( self.Ndop[-1] > 0 ):
+            phi_ini_right = - self.Chi[-1] + np.log( ( self.Ndop[-1] ) / self.Nc[-1] )
         else:
-            phi_ini_right = - Chi[-1] - Eg[-1] - np.log( - Ndop[-1] / Nv[-1] )
+            phi_ini_right = - self.Chi[-1] - self.Eg[-1] - np.log( - self.Ndop[-1] / self.Nv[-1] )
         phi_ini = np.linspace( phi_ini_left , phi_ini_right , N )
 
         phi_eq = solve_eq( phi_ini , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
@@ -248,9 +248,7 @@ class JAXPV( object ):
             Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
             num_steps = math.floor( V / Vincr )
 
-            phi_n = [ np.zeros( self.grid.size ) ]
-            phi_p = [ np.zeros( self.grid.size ) ]
-            phi = [ phi_eq ]
+            phis = np.concatenate( ( np.zeros( 2*self.grid.size ) , phi_eq ) , axis = 0 )
             neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
             neq_L = self.Nc[-1] * np.exp( self.Chi[-1] + phi_eq[-1] )
             peq_0 = self.Nv[0] * np.exp( - self.Chi[0] - self.Eg[0] - phi_eq[0] )
@@ -260,14 +258,12 @@ class JAXPV( object ):
             volt.append( V )
 
             for v in volt:
-                sol = solve( phi_n[-1] , phi_p[-1] , phi[-1] , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq_0 , neq_L , peq_0 , peq_L )
-                phi_n.append( sol[0:N] )
-                phi_p.append( sol[N:2*N] )
+                sol = solve( phis , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq_0 , neq_L , peq_0 , peq_L )
                 if USE_JAX:
-                    phi.append( ops.index_update( sol[2*N:-1] , -1 , phi_eq[-1] + v ) )
+                    phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
                 else:
                     sol[-1] = phi_eq[-1] + v
-                    phi.append( sol[2*N:-1] )
+                    phis = sol
 
             result['phi_n'] = scale['E'] * phi_n[-1]
             result['phi_p'] = scale['E'] * phi_p[-1]
