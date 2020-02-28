@@ -251,6 +251,8 @@ class JAXPV( object ):
             num_steps = math.floor( V / Vincr )
 
             phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
+            print( np.zeros( N ) + phi_eq )
+            quit()
             neq = n( np.zeros( N ) , phi_eq , self.Chi , self.Nc )
             peq = p( np.zeros( N ) , phi_eq , self.Chi , self.Eg , self.Nv )
 
