@@ -95,12 +95,11 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
 #      1 (array:3N) -> e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential
 
 def solve( dgrid , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
-    N = dgrid.size + 1
     phis = phis_ini
     error = 1
 
     print(phis)
-    
+
     while (error > 1e-6):
         print(error)
         next_phis , error_new = step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
