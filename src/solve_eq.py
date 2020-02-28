@@ -69,6 +69,6 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
         phi = next_phi
         error = error_dx
         iter += 1
-        print( '                ' + str( iter ) + '              ' + str( error_F ) + '           ' + str( error_dx ) )
+        print( '                {1:02d}              {2:.9f}           {3:.9f}'.format( iter , error_F , error_dx ) )
 
     return phi
