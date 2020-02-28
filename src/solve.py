@@ -50,6 +50,7 @@ def damp( move ):
 #      3 (array:N) -> next electrostatic potential
 #      4 (scalar) -> error
 
+@jit
 def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
 
     N = dgrid.size + 1
@@ -57,7 +58,7 @@ def step( dgrid , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , m
     gradF = F_deriv( phis[0:N] , phis[N:2*N] , phis[2*N:] , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L )
 
     move = np.linalg.solve( gradF , - _F )
-    error = max( np.abs( move ) )
+    error = np.linalg.norm( move )
     damp_move = damp( move )
 
     return np.concatenate( ( phis[0:N] + damp_move[0:3*N:3] , phis[N:2*N] + damp_move[1:3*N:3] , phis[2*N:]+ damp_move[2:3*N:3] ) , axis = 0 ) , error
