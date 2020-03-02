@@ -56,7 +56,7 @@ def Jn_deriv( phi_n , phi , dgrid , Chi , Nc , mn ):
     fm_deriv_upperdiag = np.exp( phi_n[1:] )
 
     Dpsin_Dexppsin_deriv_maindiag = - np.exp( psi_n[:-1] ) * ( 1 + Dpsin - np.exp( Dpsin ) ) * ( 1 - np.exp( Dpsin ) )**(-2)
-    Dpsin_Dexppsin_deriv_upperdiag = - np.exp( psi_n[1:] ) * ( 1 - Dpsin - np.exp( - Dpsin ) ) * ( 1 - np.exp( Dpsin ) )**(-2)
+    Dpsin_Dexppsin_deriv_upperdiag = - np.exp( psi_n[1:] ) * ( 1 - Dpsin - np.exp( - Dpsin ) ) * ( 1 - np.exp( - Dpsin ) )**(-2)
 
     dJn_phin_maindiag = mn[:-1] * Dpsin_Dexppsin / dgrid * fm_deriv_maindiag
     dJn_phin_upperdiag = mn[:-1] * Dpsin_Dexppsin / dgrid * fm_deriv_upperdiag
@@ -130,3 +130,32 @@ def Jp_deriv( phi_p , phi , dgrid , Chi , Eg , Nv , mp ):
     dJp_phi_upperdiag = mp[:-1] * fm / dgrid * Dpsip_Dexppsin_deriv_upperdiag
 
     return dJp_phip_maindiag , dJp_phip_upperdiag , dJp_phi_maindiag , dJp_phi_upperdiag
+
+
+
+
+
+def total_current( phi_n , phi_p , phi , dgrid , Chi , Eg , Nc , Nv , mn , mp ):
+    psin0 = Chi[0] + np.log( Nc[0] ) + phi[0]
+    psin1 = Chi[1] + np.log( Nc[1] ) + phi[1]
+    psip0 = Chi[0] + Eg[0] - np.log( Nv[0] ) + phi[0]
+    psip1 = Chi[1] + Eg[1] - np.log( Nv[1] ) + phi[1]
+    Dpsin = psin0 - psin1
+    Dpsip = psip0 - psip1
+
+    fmn = np.exp( phi_n[1] ) - np.exp( phi_n[0] )
+    Dpsin_Dexppsin = np.exp( psin0 ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
+
+    Dpsin_Dexppsin_dpsin0 = - np.exp( psin0 ) * ( 1 + Dpsin - np.exp( Dpsin ) ) * ( 1 - np.exp( Dpsin ) )**(-2)
+    Dpsin_Dexppsin_dpsin1 = - np.exp( Chi[1] + np.log( Nc[1] ) + phi[1] ) * ( 1 - Dpsin - np.exp( - Dpsin ) ) * ( 1 - np.exp( Dpsin ) )**(-2)
+
+    fmp = np.exp( - phi_p[1] ) - np.exp( - phi_p[0] )
+    Dpsip_Dexppsin = np.exp( - psip0 ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
+    Dpsip_Dexppsin_dpsip0 = - np.exp( - ( Chi[0] + Eg[0] - np.log( Nv[0] ) + phi[0] ) ) * ( 1 - Dpsip - np.exp( - Dpsip ) ) * ( 1 - np.exp( - Dpsip ) )**(-2)
+    Dpsip_Dexppsin_dpsip1 = np.exp( - ( Chi[1] + Eg[1] - np.log( Nv[1] ) + phi[1] ) ) * ( 1 - Dpsip * np.exp( - Dpsip ) - np.exp( - Dpsip ) ) * ( 1 - np.exp( - Dpsip ) )**(-2)
+
+    Fcurrent = mp[0] * Dpsip_Dexppsin * fmp / dgrid + mn[0] * Dpsin_Dexppsin * fmn / dgrid
+
+    dFcurr_dChi0 = mp[0] * fmp / dgrid * Dpsin_Dexppsin_dpsin0 *  + mn[0] * fmn / dgrid *
+    dFcurr_dmn0 = Dpsin_Dexppsin * fmn / dgrid
+    dFcurr_dmp0 = Dpsip_Dexppsin * fmp / dgrid

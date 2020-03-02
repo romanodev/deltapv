@@ -67,7 +67,7 @@ def calc_IV( Vincrement , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp
             phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
         else:
             sol[-1] = phi_eq[-1] + v
-            phi = sol
+            phis = sol
 
     return np.array( current , dtype = np.float64 )
 
