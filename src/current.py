@@ -55,8 +55,8 @@ def Jn_deriv( phi_n , phi , dgrid , Chi , Nc , mn ):
     fm_deriv_maindiag = - np.exp( phi_n[:-1] )
     fm_deriv_upperdiag = np.exp( phi_n[1:] )
 
-    Dpsin_Dexppsin_deriv_maindiag = - np.exp( psi_n[:-1] ) * ( 1 + Dpsin - np.exp( Dpsin ) ) * ( 1 - np.exp( Dpsin ) )**(-2)
-    Dpsin_Dexppsin_deriv_upperdiag = - np.exp( psi_n[1:] ) * ( 1 - Dpsin - np.exp( - Dpsin ) ) * ( 1 - np.exp( - Dpsin ) )**(-2)
+    Dpsin_Dexppsin_deriv_maindiag = np.exp( psi_n[:-1] ) * ( - Dpsin + np.exp( Dpsin ) - 1 ) * ( np.exp( Dpsin ) - 1 )**(-2)
+    Dpsin_Dexppsin_deriv_upperdiag = np.exp( psi_n[:-1] ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) * ( np.exp( Dpsin ) - 1 )**(-2)
 
     dJn_phin_maindiag = mn[:-1] * Dpsin_Dexppsin / dgrid * fm_deriv_maindiag
     dJn_phin_upperdiag = mn[:-1] * Dpsin_Dexppsin / dgrid * fm_deriv_upperdiag
