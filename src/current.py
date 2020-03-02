@@ -156,6 +156,6 @@ def total_current( phi_n , phi_p , phi , dgrid , Chi , Eg , Nc , Nv , mn , mp ):
 
     Fcurrent = mp[0] * Dpsip_Dexppsin * fmp / dgrid + mn[0] * Dpsin_Dexppsin * fmn / dgrid
 
-    dFcurr_dChi0 = mp[0] * fmp / dgrid * Dpsin_Dexppsin_dpsin0 *  + mn[0] * fmn / dgrid *
+#    dFcurr_dChi0 = mp[0] * fmp / dgrid * Dpsin_Dexppsin_dpsin0 *  + mn[0] * fmn / dgrid *
     dFcurr_dmn0 = Dpsin_Dexppsin * fmn / dgrid
     dFcurr_dmp0 = Dpsip_Dexppsin * fmp / dgrid
