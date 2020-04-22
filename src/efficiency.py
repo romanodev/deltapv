@@ -103,4 +103,5 @@ def efficiency( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp ,
     current = calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used )
     voltages = np.linspace( start = 0 , stop = len(current) * Vincrement , num = len(current) )
     Pmax = np.max( scale['E'] * voltages * scale['J'] * current ) * 1e4 # W/m2
-    return Pmax / np.sum( P_in )
+    # P_in is normalized to : np.sum( P_in ) = 1000 W/m2 = 1 sun
+    return Pmax / 1e3
