@@ -324,6 +324,7 @@ class JAXPV( object ):
             e-/hole pair generation rate density ( only used if user defined G )
 
         """
+        scale = scales()        
         self.opt = type
         if ( type is 'user' ):
             self.G = np.float64( 1 / scale['U'] * G )
