@@ -324,7 +324,7 @@ class JAXPV( object ):
             e-/hole pair generation rate density ( only used if user defined G )
 
         """
-        scale = scales()        
+        scale = scales()
         self.opt = type
         if ( type is 'user' ):
             self.G = np.float64( 1 / scale['U'] * G )
@@ -345,7 +345,7 @@ class JAXPV( object ):
         """
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
-        if ( opt is 'user' ):
+        if ( self.opt is 'user' ):
             G_used = np.array( self.G )
         else:
             G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
@@ -392,7 +392,7 @@ class JAXPV( object ):
         """
         scale = scales()
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        if ( opt is 'user' ):
+        if ( self.opt is 'user' ):
             G_used = np.array( self.G )
         else:
             G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
@@ -457,6 +457,8 @@ class JAXPV( object ):
 
 
 
+
+
     def IV_curve( self , title = None ):
         """
         Computes the IV curve for the system.
@@ -476,7 +478,7 @@ class JAXPV( object ):
         """
         scale = scales()
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        if ( opt is 'user' ):
+        if ( self.opt is 'user' ):
             G_used = np.array( self.G )
         else:
             G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
@@ -522,7 +524,7 @@ class JAXPV( object ):
         """
         scale = scales()
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        if ( opt is 'user' ):
+        if ( self.opt is 'user' ):
             G_used = np.array( self.G )
         else:
             G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
