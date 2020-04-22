@@ -1,5 +1,9 @@
+import sys
 from .scales import *
 from .efficiency import *
+from .optical import *
+from .sun import *
+from .initial_guess import *
 import matplotlib.pyplot as plt
 if USE_JAX:
     from jax.config import config
@@ -9,20 +13,83 @@ if USE_JAX:
 else:
     import numpy as np
 
-### Class for defining the system and computing photovoltaic properties
 
 class JAXPV( object ):
-    """docstring for JAXPV."""
+    """
+    Object associated with a jaxpv simulation.
 
-    ### Initialization defines the grid
-    ## Inputs :
-    #      grid (array:N) -> grid points
+    Attributes
+    ----------
+        grid   : numpy array , shape = ( N )
+            array of positions of grid points
+        eps    : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi    : numpy array , shape = ( N )
+            electron affinity
+        Eg     : numpy array , shape = ( N )
+            band gap
+        Nc     : numpy array , shape = ( N )
+            e- density of states
+        Nv     : numpy array , shape = ( N )
+            hole density of states
+        Ndop   : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
+        mn     : numpy array , shape = ( N )
+            e- mobility
+        mp     : numpy array , shape = ( N )
+            hole mobility
+        Et     : numpy array , shape = ( N )
+            SHR trap state energy level
+        tn     : numpy array , shape = ( N )
+            SHR e- lifetime
+        tp     : numpy array , shape = ( N )
+            SHR hole lifetime
+        Br     : numpy array , shape = ( N )
+            radiative recombination coefficient
+        Cn     : numpy array , shape = ( N )
+            electron Auger coefficient
+        Cp     : numpy array , shape = ( N )
+            hole Auger coefficient
+        Snl    : float
+            e- surface recombination velocity at left boundary
+        Spl    : float
+            hole surface recombination velocity at left boundary
+        Snr    : float
+            e- surface recombination velocity at right boundary
+        Spr    : float
+            hole surface recombination velocity at right boundary
+        Lambda : numpy array , shape = ( M )
+            array of light wavelengths
+        P_in   : numpy array , shape = ( M )
+            array of incident power for every wavelength
+        A      : numpy array , shape = ( N )
+            array of coefficients for direct band gap absorption coefficient model
+        G      : numpy array , shape = ( N )
+            e-/hole pair generation rate density ( only used if user defined G )
+        opt    : string
+            describes which type of generation density should be used
 
-    def __init__( self , grid , P_in = 1.0 ):
+    """
+
+
+
+
+
+    def __init__( self , grid ):
+        """
+        Initialization method for the jaxpv class.
+
+        Parameters
+        ----------
+            grid   : numpy array , shape = ( N )
+                array of positions of grid points
+
+        """
         scale = scales()
+
         self.grid = np.float64( 1 / scale['d'] * grid )
-        self.P_in = np.float64( P_in )
         N = grid.size
+
         self.eps = [ 0.0 for i in range( N ) ]
         self.Chi = [ 0.0 for i in range( N ) ]
         self.Eg = [ 0.0 for i in range( N ) ]
@@ -31,31 +98,58 @@ class JAXPV( object ):
         self.mn = [ 0.0 for i in range( N ) ]
         self.mp = [ 0.0 for i in range( N ) ]
         self.Ndop = [ 0.0 for i in range( N ) ]
+
         self.Et = [ 0.0 for i in range( N ) ]
         self.tn = [ 0.0 for i in range( N ) ]
         self.tp = [ 0.0 for i in range( N ) ]
+        self.Br = [ 0.0 for i in range( N ) ]
+        self.Cn = [ 0.0 for i in range( N ) ]
+        sefl.Cp = [ 0.0 for i in range( N ) ]
+
         self.Snl = 0.0
         self.Snr = 0.0
         self.Spl = 0.0
         self.Spr = 0.0
-        self.G = [ 0.0 for i in range( N ) ]
 
-    ### Initialization defines the grid
-    ## Inputs :
-    #      properties (dictionnary:P<10keys) -> material properties (scalars)
-    #            'eps' -> relative dieclectric constant
-    #            'Chi' -> electron affinity
-    #            'Eg' -> band gap
-    #            'Nc'  -> e- density of states
-    #            'Nv' -> hole density of states
-    #            'Et' -> trap state energy level (SHR)
-    #            'tn' -> e- lifetime (SHR)
-    #            'tp' -> hole lifetime (SHR)
-    #            'mn' -> e- mobility
-    #            'mp' -> hole mobility
-    #      subgrid (array:M<N) -> list of grid point indices for which the material is defined
+        self.Lambda = [ 0.0 ]
+        self.P_in = [ 0.0 ]
+        self.A = [ 0.0 for i in range( N ) ]
+        self.G = [ 0.0 for i in range( N ) ]
+        self.opt = 'user'
+
+
+
+
 
     def add_material( self , properties , subgrid ):
+        """
+        Define material properties for a subset of the grid.
+
+        The properties dictionnary need not define all possible material properties.
+
+        Parameters
+        ----------
+            properties : dictionnary of floats ( 15 keys )
+                dictionnary of the properties of the material
+                'eps'  -> relative dieclectric constant
+                'Chi'  -> electron affinity
+                'Eg'   -> band gap
+                'Nc'   -> e- density of states
+                'Nv'   -> hole density of states
+                'Ndop' -> dopant density
+                'mn'   -> e- mobility
+                'mp'   -> hole mobility
+                'Et'   -> trap state energy level (SHR)
+                'tn'   -> e- lifetime (SHR)
+                'tp'   -> hole lifetime (SHR)
+                'Br'   -> radiative recombination coefficient
+                'Cn'   -> electron Auger coefficient
+                'Cp'   -> hole Auger coefficient
+                'A'    -> array of coefficients for direct band gap absorption coefficient model
+            subgrid    : numpy array , shape = ( L <= N )
+                array of indices of the grid where we define the material
+
+        """
         scale = scales()
         for i in range( len( subgrid ) ):
             if 'eps' in properties:
@@ -78,38 +172,59 @@ class JAXPV( object ):
                 self.tn[ subgrid[ i ] ] = np.float64( 1 / scale['t'] * properties['tn'] )
             if 'tp' in properties:
                 self.tp[ subgrid[ i ] ] = np.float64( 1 / scale['t'] * properties['tp'] )
+            if 'Br' in properties:
+                self.Br[ subgrid[ i ] ] = np.float64( scale['t'] * scale['n'] * properties['Br'] )
+            if 'Cn' in properties:
+                self.Cn[ subgrid[ i ] ] = np.float64( scale['t'] * scale['n'] * scale['n'] * properties['Cn'] )
+            if 'Cp' in properties:
+                self.Cp[ subgrid[ i ] ] = np.float64( scale['t'] * scale['n'] * scale['n'] * properties['Cp'] )
+            if 'A' in properties:
+                self.A[ subgrid[ i ] ] = np.float64( scale['d'] * properties['A'] )
 
-    ### Initialization of recombination velocities at contact
-    ## Inputs :
-    #      Snl (scalar) -> e- surface recombination velocity at left boundary
-    #      Spl (scalar) -> hole surface recombination velocity at left boundary
-    #      Snr (scalar) -> e- surface recombination velocity at right boundary
-    #      Spr (scalar) -> hole surface recombination velocity at right boundary
+
+
+
 
     def contacts( self , Snl , Snr , Spl , Spr ):
+        """
+        Define recombination velocities for carriers at the contacts.
+
+        Parameters
+        ----------
+        Snl    : float
+            e- surface recombination velocity at left boundary
+        Spl    : float
+            hole surface recombination velocity at left boundary
+        Snr    : float
+            e- surface recombination velocity at right boundary
+        Spr    : float
+            hole surface recombination velocity at right boundary
+
+        """
         scale = scales()
         self.Snl = np.float64( 1 / scale['v'] * Snl )
         self.Snr = np.float64( 1 / scale['v'] * Snr )
         self.Spl = np.float64( 1 / scale['v'] * Spl )
         self.Spr = np.float64( 1 / scale['v'] * Spr )
 
-    ### Initialization of generation rate density
-    ## Inputs :
-    #      G (array:M<N) -> electron-hole generation rate density
-    #      subgrid (array:M<N) -> list of grid point indices for which G is defined
 
-    def generation_rate( self , G , subgrid ):
-        scale = scales()
-        for i in range( len( subgrid ) ):
-            self.G[ subgrid[ i ] ] = np.float64( 1 / scale['U'] * G[ i ] )
 
-    ### Initialization of doping profile in the case of a single p-n junction
-    ## Inputs :
-    #      Nleft (scalar) -> left side doping density
-    #      Nright (scalar) -> right side doping density
-    #      junction_position (scalar) -> junction boundary position (cm)
+
 
     def single_pn_junction( self , Nleft , Nright , junction_position ):
+        """
+        Define the doping profile as a single pn junction.
+
+        Parameters
+        ----------
+            Nleft             : float
+                dopant density at the left of the junction ( positive for donors , negative for acceptors )
+            Nright            : float
+                dopant density at the right of the junction ( positive for donors , negative for acceptors )
+            junction_position : float
+                position of the junction
+
+        """
         scale = scales()
         index = 0
         while ( self.grid[ index ] < 1 / scale['d'] * junction_position ):
@@ -118,50 +233,205 @@ class JAXPV( object ):
         for i in range( index , self.grid.size ):
             self.Ndop[ i ] = np.float64( 1 / scale['n'] * Nright )
 
-    ### Initialization of doping profile
-    ## Inputs :
-    #      doping (array:M<N) -> doping density = donor density - acceptor density
-    #                            (i.e. Ndop > 0 for n-type doping and < 0 for p-type doping)
-    #      subgrid (array:M<N) -> list of grid point indices for which Ndop is defined
+
+
+
 
     def doping_profile( self , doping , subgrid ):
+        """
+        Define a general doping profile over a subset of the grid.
+
+        Parameters
+        ----------
+            doping  : numpy array , shape = ( L <= N )
+                array dopant density ( positive for donors , negative for acceptors )
+            subgrid : numpy array , shape = ( L <= N )
+                array of indices of the grid where we define the material
+
+        """
         scale = scales()
         for i in range( len( subgrid ) ):
             self.Ndop[ subgrid[ i ] ] = np.float64( 1 / scale['n'] * doping[ i ] )
 
-    ### Compute efficiency
-    ## Outputs :
-    #      1 (scalar) -> efficiency for the system
+
+
+
+
+    def incident_light( self , type = 'sun' , Lambda = None , P_in = None ):
+        """
+        Define the incident light on the system.
+
+        The light can be defined either as the sun light, white light, monochromatic or user-derfined.
+        In all cases, the total power is normalized to 1 sun = 1000 W/m2.
+
+        sun light     -> Lambda / P_in not required
+        white         -> if Lambda not defined, defaults to visible range ; else Lambda is used
+        monochromatic -> if Lambda not defined, defaults to blue ; else Lambda is used
+        user          -> uses Lambda and P_in
+
+        Parameters
+        ----------
+        type   : string
+            type of incident light : sun , white , monochromatic , user ( default : sun )
+        Lambda : numpy array , shape = ( M )
+            array of light wavelengths
+        P_in   : numpy array , shape = ( M )
+            array of incident power for every wavelength
+
+        """
+        if ( type == 'sun' ):
+            Lambda_sun , P_in_sun = sun()
+            self.Lambda = Lambda_sun
+            self.P_in = P_in_sun
+        else if ( type == 'white' ):
+            if ( Lambda is None ):
+                self.Lambda = np.linspace( 400.0 , 800.0 , num = 5 )
+                self.P_in = np.linspace( 200.0 , 200.0 , num = 5 )
+            else:
+                self.Lambda = Lambda
+                power = 1000.0 / Lambda.size
+                self.P_in = np.linspace( power , power , num = Lambda.size )
+        else if ( type == 'monochromatic' ):
+            if ( Lambda is None ):
+                self.Lambda = np.array( [ 400.0 ] )
+            else:
+                self.Lambda = Lambda
+            self.P_in = np.array( [ 1000.0 ] )
+        else if ( type == 'user' ):
+            if ( ( Lambda is None ) or ( P_in is None ) ):
+                print( 'Lambda or Pin not defined' )
+                sys.exit()
+            else:
+                self.Lambda = Lambda
+                self.P_in = 1000.0 / np.sum( P_in ) * P_in
+
+
+
+
+
+    def optical_G( self , type = 'direct' , G = None ):
+        """
+        Define how the generation rate density is computed.
+
+        Currently, G can either be user defined ( type = user ) or can be computed
+        in the case of a direct band gap semi-conductor model from material parameters
+        ( type = direct ).
+
+        Parameters
+        ----------
+        type    : string
+            describes which type of generation density should be used
+        G      : numpy array , shape = ( N )
+            e-/hole pair generation rate density ( only used if user defined G )
+
+        """
+        self.opt = type
+        if ( type = 'user' ):
+            self.G = np.float64( 1 / scale['U'] * G )
+
+
+
+
 
     def efficiency( self ):
-        Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        return efficiency( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+        """
+        Computes the efficiency of the system.
 
-    ### Compute derivatives of efficiency w.r.t. material properties
-    ## Outputs :
-    #      1 (dictionnary:) -> efficiency for the system
-    #            'eps' -> derivative w.r.t. relative dieclectric constant
-    #            'Chi' -> derivative w.r.t. electron affinity
-    #            'Eg' -> derivative w.r.t. band gap
-    #            'Nc'  -> derivative w.r.t. e- density of states
-    #            'Nv' -> derivative w.r.t. hole density of states
-    #            'Ndop' -> derivative w.r.t. doping density
-    #            'Et' -> derivative w.r.t. trap state energy level (SHR)
-    #            'tn' -> derivative w.r.t. e- lifetime (SHR)
-    #            'tp' -> derivative w.r.t. hole lifetime (SHR)
-    #            'mn' -> derivative w.r.t. e- mobility
-    #            'mp' -> derivative w.r.t. hole mobility
-    #            'G' -> derivative w.r.t. generation rate density
-    #            'Snl' -> derivative w.r.t. e- surface recombination velocity at left boundary
-    #            'Spl' -> derivative w.r.t. hole surface recombination velocity at left boundary
-    #            'Snr' -> derivative w.r.t. e- surface recombination velocity at right boundary
-    #            'Spr' -> derivative w.r.t. hole surface recombination velocity at right boundary
+        Returns
+        -------
+            float
+                efficiency of the system
 
-    def grad_efficiency( self ):
+        """
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        if USE_JAX:
-            gradeff = grad( efficiency , argnums = ( 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 ) )
-            deriv = gradeff( Vincr , self.P_in , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+
+        if ( opt is 'user' ):
+            G_used = np.array( self.G )
+        else:
+            G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
+
+        return efficiency( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
+
+
+
+
+
+    def grad_efficiency( self , jit = 'true' ):
+        """
+        Computes the gradient of the efficiency of the system.
+
+        Parameters
+        ----------
+            jit : boolean
+                use jit for the calculation ( defaut : true )
+
+        Returns
+        -------
+            dictionnary of numpy arrays , shape = ( N ) or ( 1 ) ( 19 keys )
+                dictionnary of the derivatives of the efficiency
+                'eps'  -> derivative with respect to the relative dieclectric constant
+                'Chi'  -> derivative with respect to the electron affinity
+                'Eg'   -> derivative with respect to the band gap
+                'Nc'   -> derivative with respect to the e- density of states
+                'Nv'   -> derivative with respect to the hole density of states
+                'Ndop' -> derivative with respect to the dopant density
+                'mn'   -> derivative with respect to the e- mobility
+                'mp'   -> derivative with respect to the hole mobility
+                'Et'   -> derivative with respect to the trap state energy level (SHR)
+                'tn'   -> derivative with respect to the e- lifetime (SHR)
+                'tp'   -> derivative with respect to the hole lifetime (SHR)
+                'Br'   -> derivative with respect to the radiative recombination coefficient
+                'Cn'   -> derivative with respect to the electron Auger coefficient
+                'Cp'   -> derivative with respect to the hole Auger coefficient
+                'Snl'  -> derivative with respect to left-side e- recombination velocity
+                'Spl'  -> derivative with respect to left-side hole recombination velocity
+                'Snr'  -> derivative with respect to right-side e- recombination velocity
+                'Spr'  -> derivative with respect to right-side hole recombination velocity
+                'G'    -> derivative with respect to the generation rate density
+
+        """
+        scale = scales()
+        Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+        if ( opt is 'user' ):
+            G_used = np.array( self.G )
+        else:
+            G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
+
+        if jit:
+            cur , cur_grad = grad_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
+            voltages = np.linspace( start = 0 , stop = len(current) * Vincrement , num = len(current) )
+            coef = scale['E'] * scale['J'] * 1e4 / np.sum( P_in )
+            P = coef * voltages * current
+            Pmax = np.max( P )
+            index = np.where( P == Pmax )
+            efficiency = Pmax
+            result = {}
+            result['eps'] = cur_grad['eps'][ index ] * coef * voltages[ index ]
+            result['Chi'] = cur_grad['Chi'][ index ] * coef * voltages[ index ]
+            result['Eg'] = cur_grad['Eg'][ index ] * coef * voltages[ index ]
+            result['Nc'] = cur_grad['Nc'][ index ] * coef * voltages[ index ]
+            result['Nv'] = cur_grad['Nv'][ index ] * coef * voltages[ index ]
+            result['Ndop'] = cur_grad['Ndop'][ index ] * coef * voltages[ index ]
+            result['mn'] = cur_grad['mn'][ index ] * coef * voltages[ index ]
+            result['mp'] = cur_grad['mp'][ index ] * coef * voltages[ index ]
+            result['Et'] = cur_grad['Et'][ index ] * coef * voltages[ index ]
+            result['tn'] = cur_grad['tn'][ index ] * coef * voltages[ index ]
+            result['tp'] = cur_grad['tp'][ index ] * coef * voltages[ index ]
+            result['Br'] = cur_grad['Br'][ index ] * coef * voltages[ index ]
+            result['Cn'] = cur_grad['Cn'][ index ] * coef * voltages[ index ]
+            result['Cp'] = cur_grad['Cp'][ index ] * coef * voltages[ index ]
+            result['Snl'] = cur_grad['Snl'][ index ] * coef * voltages[ index ]
+            result['Spl'] = cur_grad['Spl'][ index ] * coef * voltages[ index ]
+            result['Snr'] = cur_grad['Snr'][ index ] * coef * voltages[ index ]
+            result['Spr'] = cur_grad['Spr'][ index ] * coef * voltages[ index ]
+            result['G'] = cur_grad['G'][ index ] * coef * voltages[ index ]
+
+            print( efficiency )
+            print( result )
+
+        else:
+            gradeff = grad( efficiency , argnums = ( 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 ) )
+            deriv = gradeff( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
             result = {}
             result['eps'] = deriv[0]
             result['Chi'] = deriv[1]
@@ -169,31 +439,49 @@ class JAXPV( object ):
             result['Nc'] = deriv[3]
             result['Nv'] = deriv[4]
             result['Ndop'] = deriv[5]
-            result['Et'] = deriv[6]
-            result['tn'] = deriv[7]
-            result['tp'] = deriv[8]
-            result['mn'] = deriv[9]
-            result['mp'] = deriv[10]
-            result['G'] = deriv[11]
-            result['Snl'] = deriv[12]
-            result['Spl'] = deriv[13]
-            result['Snr'] = deriv[14]
-            result['Spr'] = deriv[15]
-            return result
-        else:
-            return "Error: JAX not loaded"
+            result['mn'] = deriv[6]
+            result['mp'] = deriv[7]
+            result['Et'] = deriv[9]
+            result['tn'] = deriv[10]
+            result['tp'] = deriv[11]
+            result['Br'] = deriv[12]
+            result['Cn'] = deriv[13]
+            result['Cp'] = deriv[14]
+            result['Snl'] = deriv[15]
+            result['Spl'] = deriv[16]
+            result['Snr'] = deriv[17]
+            result['Spr'] = deriv[18]
+            result['G'] = deriv[19]
 
-    ### Compute the I-V curve for the system and plots it (current are current densities)
-    ## Inputs :
-    #      title (string ; optional) -> if defined, saves the plot to the file named 'title'
-    ## Outputs :
-    #      1 (array:M) -> voltage array
-    #      2 (array:M) -> (total) current array
+            print( result )
+
+
 
     def IV_curve( self , title = None ):
+        """
+        Computes the IV curve for the system.
+
+        Parameters
+        ----------
+            title    : string
+                if defined, the IV plot is saved to this filename
+
+        Returns
+        -------
+            voltages : numpy array , shape = ( L )
+                values of the voltage over which the current is computed
+            current  : numpy array , shape = ( L )
+                total current
+
+        """
         scale = scales()
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        current = scale['J'] * calc_IV( Vincr , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) )
+        if ( opt is 'user' ):
+            G_used = np.array( self.G )
+        else:
+            G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
+
+        current = scale['J'] * calc_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
         voltages = scale['E'] * np.linspace( start = 0 , stop = len( current ) * Vincr , num = len( current ) )
         fig = plt.figure()
         plt.plot( voltages , current , color='blue' , marker='.' )
@@ -204,34 +492,44 @@ class JAXPV( object ):
             plt.savefig( title )
         return voltages , current
 
-    ### Solve for the potentials for the system at a given voltage or at equilibrium
-    ## Inputs :
-    #      V (scalar) -> Voltage ; not used if equilibrium is selected
-    #      equilibrium (boolean) -> if defined as True, computes equilibrium
-    ## Outputs :
-    #      1 (dictionnary:7keys) -> outputs for system state
-    #            'phi_n' -> e- quai-Fermi energy (array:N)
-    #            'phi_p' -> ehole quai-Fermi energy (array:N)
-    #            'phi' -> electrostatic potential (array:N)
-    #            'n' -> e- density (array:N)
-    #            'p' -> hole density (array:N)
-    #            'Jn' -> e- current (array:N)
-    #            'Jp' -> hole current (array:N)
+
+
+
 
     def solve( self , V , equilibrium = False ):
+        """
+        Solves the solar cell equations and outputs common observables.
+
+        Parameters
+        ----------
+            V   : float
+                value of the voltage ( not used if computing for te equilibrium of the system )
+            equilibrium      : boolean
+                defines if solving the equilibrium problem ( default : False )
+
+        Returns
+        -------
+            dictionnary of numpy arrays , shape = ( N ) ( 7 keys )
+                dictionnary of the observables outputed
+                'phi_n' -> e- quasi-Fermi energy
+                'phi_p' -> e- quasi-Fermi energy
+                'phi'   -> e- quasi-Fermi energy
+                'n'     -> e- density
+                'p'     -> hole density
+                'Jn'    -> e- current
+                'Jp'    -> hole current
+
+        """
         scale = scales()
+        Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+        if ( opt is 'user' ):
+            G_used = np.array( self.G )
+        else:
+            G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
 
         N = self.grid.size
 
-        if ( self.Ndop[0] > 0 ):
-            phi_ini_left = - self.Chi[0] + np.log( ( self.Ndop[0] ) / self.Nc[0] )
-        else:
-            phi_ini_left = - self.Chi[0] - self.Eg[0] - np.log( - self.Ndop[0] / self.Nv[0] )
-        if ( self.Ndop[-1] > 0 ):
-            phi_ini_right = - self.Chi[-1] + np.log( ( self.Ndop[-1] ) / self.Nc[-1] )
-        else:
-            phi_ini_right = - self.Chi[-1] - self.Eg[-1] - np.log( - self.Ndop[-1] / self.Nv[-1] )
-        phi_ini = np.linspace( phi_ini_left , phi_ini_right , N )
+        phi_ini = phi_ini = eq_init_phi( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
         phi_eq = solve_eq( np.array( self.grid[1:] - self.grid[:-1] ) , phi_ini , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
@@ -247,7 +545,6 @@ class JAXPV( object ):
             result['Jp'] = np.zeros( N - 1 )
             return result
         else:
-            Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
             num_steps = math.floor( V / Vincr )
 
             phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
@@ -262,7 +559,7 @@ class JAXPV( object ):
             for v in volt:
                 print( 'V = {0:.7f}   Iteration       |F(x)|                Residual     '.format( scale['E'] * v ) )
                 print( '-------------------------------------------------------------------' )
-                sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.G ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , neq_0 , neq_L , peq_0 , peq_L )
+                sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , neq_0 , neq_L , peq_0 , peq_L , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
                 if USE_JAX:
                     phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
                 else:
@@ -273,17 +570,36 @@ class JAXPV( object ):
             result['phi_p'] = scale['E'] * phis[N:2*N]
             result['phi'] = scale['E'] * phis[2*N:]
             result['n'] = scale['n'] * n( phis[0:N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) )
-            result['p'] = scale['n'] * p( phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  )
-            result['Jn'] = scale['J'] * Jn( phis[0:N] , phis[2*N:] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn )  )
-            result['Jp'] = scale['J'] * Jp( phis[N:2*N] , phis[2*N:] , self.grid[1:] - self.grid[:-1] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv )  , np.array( self.mp )  )
+            result['p'] = scale['n'] * p( phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
+            result['Jn'] = scale['J'] * Jn( np.array( self.grid[1:] - self.grid[:-1] ) , phis[0:N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn ) )
+            result['Jp'] = scale['J'] * Jp( np.array( self.grid[1:] - self.grid[:-1] ) , phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) , np.array( self.mp ) )
             return result
 
-    ### Plot band diagram from previous calculation of system state (equilibrium or at given voltage)
-    ## Inputs :
-    #      result (dictionnary:7keys) -> output dictionnary from member function solve
-    #      title (string ; optional) -> if defined, saves the plot to the file named 'title'
+
+
+
 
     def plot_band_diagram( self , result , title = None ):
+        """
+        Plots the band diagram of the system.
+
+        This function requires as a parameter the output of the solve method.
+
+        Parameters
+        ----------
+            result : dictionnary of numpy arrays , shape = ( N ) ( 7 keys )
+                dictionnary of the observables outputed from the solve method
+                'phi_n' -> e- quasi-Fermi energy
+                'phi_p' -> e- quasi-Fermi energy
+                'phi'   -> e- quasi-Fermi energy
+                'n'     -> e- density
+                'p'     -> hole density
+                'Jn'    -> e- current
+                'Jp'    -> hole current
+            title  : string
+                if defined, the band diagram plot is saved to this filename
+
+        """
         scale = scales()
         Ec = - scale['E'] * np.array( self.Chi ) - result['phi']
         Ev = - scale['E'] * np.array( self.Chi ) - scale['E'] * np.array( self.Eg ) - result['phi']
@@ -299,12 +615,31 @@ class JAXPV( object ):
         if title is not None:
             plt.savefig( title )
 
-    ### Plot concentration profile from previous calculation of system state (equilibrium or at given voltage)
-    ## Inputs :
-    #      result (dictionnary:7keys) -> output dictionnary from member function solve
-    #      title (string ; optional) -> if defined, saves the plot to the file named 'title'
+
+
+
 
     def plot_concentration_profile( self , result , title = None ):
+        """
+        Plots the concentration profile of carriers in the system.
+
+        This function requires as a parameter the output of the solve method.
+
+        Parameters
+        ----------
+            result : dictionnary of numpy arrays , shape = ( N ) ( 7 keys )
+                dictionnary of the observables outputed from the solve method
+                'phi_n' -> e- quasi-Fermi energy
+                'phi_p' -> e- quasi-Fermi energy
+                'phi'   -> e- quasi-Fermi energy
+                'n'     -> e- density
+                'p'     -> hole density
+                'Jn'    -> e- current
+                'Jp'    -> hole current
+            title  : string
+                if defined, the concentration profile plot is saved to this filename
+
+        """
         scale = scales()
         fig = plt.figure()
         plt.yscale('log')
@@ -317,12 +652,31 @@ class JAXPV( object ):
         if title is not None:
             plt.savefig( title )
 
-    ### Plot current profile from previous calculation of system state (equilibrium or at given voltage)
-    ## Inputs :
-    #      result (dictionnary:7keys) -> output dictionnary from member function solve
-    #      title (string ; optional) -> if defined, saves the plot to the file named 'title'
+
+
+
 
     def plot_current_profile( self , result , title = None ):
+        """
+        Plots the current profile in the system.
+
+        This function requires as a parameter the output of the solve method.
+
+        Parameters
+        ----------
+            result : dictionnary of numpy arrays , shape = ( N ) ( 7 keys )
+                dictionnary of the observables outputed from the solve method
+                'phi_n' -> e- quasi-Fermi energy
+                'phi_p' -> e- quasi-Fermi energy
+                'phi'   -> e- quasi-Fermi energy
+                'n'     -> e- density
+                'p'     -> hole density
+                'Jn'    -> e- current
+                'Jp'    -> hole current
+            title  : string
+                if defined, the current profile plot is saved to this filename
+
+        """
         scale = scales()
         fig = plt.figure()
         plt.plot( scale['d'] * 0.5 * ( self.grid[1:] + self.grid[:-1] ) , result['Jn'] , color='red' , label = 'e-' )

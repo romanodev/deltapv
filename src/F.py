@@ -7,93 +7,163 @@ if USE_JAX:
     config.update("jax_enable_x64", True)
     from jax import ops
 
-### Compute the system of equations to solve for the out of equilibrium potentials
-## Inputs :
-#      phi_n (array:N) -> e- quasi-Fermi energy
-#      phi_p (array:N) -> hole quasi-Fermi energy
-#      phi (array:N) -> electrostatic potential
-#      dgrid (array:N-1) -> array of distances between consecutive grid points
-#      eps(array:N) -> relative dieclectric constant
-#      Chi (array:N) -> electron affinity
-#      Eg (array:N) -> band gap
-#      Nc (array:N) -> e- density of states
-#      Nv (array:N) -> hole density of states
-#      Ndop (array:N) -> dopant density ( = donor density - acceptor density )
-#      Et (array:N) -> trap state energy level (SHR)
-#      tn (array:N) -> e- lifetime (SHR)
-#      tp (array:N) -> hole lifetime (SHR)
-#      mn (array:N) -> e- mobility
-#      mp (array:N) -> hole mobility
-#      G (array:N) -> electron-hole generation rate density
-#      Snl (scalar) -> e- surface recombination velocity at left boundary
-#      Spl (scalar) -> hole surface recombination velocity at left boundary
-#      Snr (scalar) -> e- surface recombination velocity at right boundary
-#      Spr (scalar) -> hole surface recombination velocity at right boundary
-#      neq_0 (scalar) -> e- density at left boundary
-#      neq_L (scalar) -> e- density at right boundary
-#      peq_0 (scalar) -> hole density at left boundary
-#      peq_L (scalar) -> hole density at right boundary
-## Outputs :
-#      1 (array:3N) -> out of equilibrium equation system at current value of potentials
+def F( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+    """
+    Computes the system of equations to solve for the out of equilibrium potentials.
 
-def F( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
+    Parameters
+    ----------
+        dgrid    : numpy array , shape = ( N - 1 )
+            array of distances between consecutive grid points
+        neq0     : float
+            e- equilibrium density at left boundary
+        neqL     : float
+            e- equilibrium density at right boundary
+        peq0     : float
+            hole equilibrium density at left boundary
+        peqL     : float
+            hole equilibrium density at right boundary
+        phi_n    : numpy array , shape = ( N )
+            e- quasi-Fermi energy
+        phi_p    : numpy array , shape = ( N )
+            hole quasi-Fermi energy
+        phi      : numpy array , shape = ( N )
+            electrostatic potential
+        eps      : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi      : numpy array , shape = ( N )
+            electron affinity
+        Eg       : numpy array , shape = ( N )
+            band gap
+        Nc       : numpy array , shape = ( N )
+            e- density of states
+        Nv       : numpy array , shape = ( N )
+            hole density of states
+        Ndop     : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
+        mn       : numpy array , shape = ( N )
+            e- mobility
+        mp       : numpy array , shape = ( N )
+            hole mobility
+        Et       : numpy array , shape = ( N )
+            SHR trap state energy level
+        tn       : numpy array , shape = ( N )
+            SHR e- lifetime
+        tp       : numpy array , shape = ( N )
+            SHR hole lifetime
+        Br       : numpy array , shape = ( N )
+            radiative recombination coefficient
+        Cn       : numpy array , shape = ( N )
+            electron Auger coefficient
+        Cp       : numpy array , shape = ( N )
+            hole Auger coefficient
+        Snl      : float
+            e- surface recombination velocity at left boundary
+        Spl      : float
+            hole surface recombination velocity at left boundary
+        Snr      : float
+            e- surface recombination velocity at right boundary
+        Spr      : float
+            hole surface recombination velocity at right boundary
+        G        : numpy array , shape = ( N )
+            e-/hole pair generation rate density
 
-    _ddn = ddn( phi_n , phi_p , phi , dgrid , Chi , Eg , Nc , Nv , Et , tn , tp , mn , G )
-    _ddp = ddp( phi_n , phi_p , phi , dgrid , Chi , Eg , Nc , Nv , Et , tn , tp , mp , G )
-    _pois = pois( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
-    ctct_0_phin , ctct_L_phin = contact_phin( phi_n , phi , dgrid , Chi , Nc , mn , Snl , Snr , neq_0 , neq_L )
-    ctct_0_phip , ctct_L_phip = contact_phip( phi_p , phi , dgrid , Chi , Eg , Nv , mp , Spl , Spr , peq_0 , peq_L )
+    Returns
+    -------
+        numpy array , shape = ( 3N )
+            out of equilibrium equation system at current value of potentials
 
-    result = [ ctct_0_phin , ctct_0_phip , _pois[0] ]
+    """
+    _ddn = ddn( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , Et , tn , tp , Br , Cn , Cp , G )
+    _ddp = ddp( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mp , Et , tn , tp , Br , Cn , Cp , G )
+    _pois = pois( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop )
+    ctct_0_phin , ctct_L_phin = contact_phin( dgrid , neq_0 , neq_L , phi_n , phi , Chi , Nc , mn , Snl , Snr )
+    ctct_0_phip , ctct_L_phip = contact_phip( dgrid , peq_0 , peq_L , phi_p , phi , Chi , Eg , Nv , mp , Spl , Spr )
+
+    result = [ ctct_0_phin , ctct_0_phip , 0.0 ]
     for i in range( len(_pois) - 2 ):
         result.append( _ddn[i] )
         result.append( _ddp[i] )
-        result.append( _pois[i+1] )
-    result.append( ctct_L_phin )
-    result.append( ctct_L_phip )
-    result.append( _pois[-1] )
+        result.append( _pois[i] )
+    result = result + [ ctct_L_phin , ctct_L_phip , 0.0 ]
     return np.array( result )
 
 
 
 
 
-### Compute the Jacobian of the system of equations to solve for the out of equilibrium potentials
-## Inputs :
-#      phi_n (array:N) -> e- quasi-Fermi energy
-#      phi_p (array:N) -> hole quasi-Fermi energy
-#      phi (array:N) -> electrostatic potential
-#      dgrid (array:N-1) -> array of distances between consecutive grid points
-#      eps(array:N) -> relative dieclectric constant
-#      Chi (array:N) -> electron affinity
-#      Eg (array:N) -> band gap
-#      Nc (array:N) -> e- density of states
-#      Nv (array:N) -> hole density of states
-#      Ndop (array:N) -> dopant density ( = donor density - acceptor density )
-#      Et (array:N) -> trap state energy level (SHR)
-#      tn (array:N) -> e- lifetime (SHR)
-#      tp (array:N) -> hole lifetime (SHR)
-#      mn (array:N) -> e- mobility
-#      mp (array:N) -> hole mobility
-#      G (array:N) -> electron-hole generation rate density
-#      Snl (scalar) -> e- surface recombination velocity at left boundary
-#      Spl (scalar) -> hole surface recombination velocity at left boundary
-#      Snr (scalar) -> e- surface recombination velocity at right boundary
-#      Spr (scalar) -> hole surface recombination velocity at right boundary
-#      neq_0 (scalar) -> e- density at left boundary
-#      neq_L (scalar) -> e- density at right boundary
-#      peq_0 (scalar) -> hole density at left boundary
-#      peq_L (scalar) -> hole density at right boundary
-## Outputs :
-#      1 (matrix:3Nx3N) -> Jacobian of the out of equilibrium equation system at current value of potentials
+def F_deriv( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+    """
+    Computes the Jacobian of the system of equations to solve for the out of equilibrium potentials.
 
-def F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , tp , mn , mp , G , Snl , Spl , Snr , Spr , neq_0 , neq_L , peq_0 , peq_L ):
+    Parameters
+    ----------
+        dgrid    : numpy array , shape = ( N - 1 )
+            array of distances between consecutive grid points
+        neq0     : float
+            e- equilibrium density at left boundary
+        neqL     : float
+            e- equilibrium density at right boundary
+        peq0     : float
+            hole equilibrium density at left boundary
+        peqL     : float
+            hole equilibrium density at right boundary
+        phi_n    : numpy array , shape = ( N )
+            e- quasi-Fermi energy
+        phi_p    : numpy array , shape = ( N )
+            hole quasi-Fermi energy
+        phi      : numpy array , shape = ( N )
+            electrostatic potential
+        eps      : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi      : numpy array , shape = ( N )
+            electron affinity
+        Eg       : numpy array , shape = ( N )
+            band gap
+        Nc       : numpy array , shape = ( N )
+            e- density of states
+        Nv       : numpy array , shape = ( N )
+            hole density of states
+        Ndop     : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
+        mn       : numpy array , shape = ( N )
+            e- mobility
+        mp       : numpy array , shape = ( N )
+            hole mobility
+        Et       : numpy array , shape = ( N )
+            SHR trap state energy level
+        tn       : numpy array , shape = ( N )
+            SHR e- lifetime
+        tp       : numpy array , shape = ( N )
+            SHR hole lifetime
+        Br       : numpy array , shape = ( N )
+            radiative recombination coefficient
+        Cn       : numpy array , shape = ( N )
+            electron Auger coefficient
+        Cp       : numpy array , shape = ( N )
+            hole Auger coefficient
+        Snl      : float
+            e- surface recombination velocity at left boundary
+        Spl      : float
+            hole surface recombination velocity at left boundary
+        Snr      : float
+            e- surface recombination velocity at right boundary
+        Spr      : float
+            hole surface recombination velocity at right boundary
+        G        : numpy array , shape = ( N )
+            e-/hole pair generation rate density
 
-    dde_phin_ , dde_phin__ , dde_phin___ , dde_phip__ , dde_phi_ , dde_phi__ , dde_phi___ = ddn_deriv( phi_n , phi_p , phi , dgrid , Chi , Eg , Nc , Nv , Et , tn , tp , mn , G )
-    ddp_phin__ , ddp_phip_ , ddp_phip__ , ddp_phip___ , ddp_phi_ , ddp_phi__ , ddp_phi___ = ddp_deriv( phi_n , phi_p , phi , dgrid , Chi , Eg , Nc , Nv , Et , tn , tp , mp , G )
-    row_pois , col_pois , dpois = pois_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , False )
-    dctct_phin = contact_phin_deriv( phi_n , phi , dgrid , Chi , Nc , mn , Snl , Snr )
-    dctct_phip = contact_phip_deriv( phi_p , phi , dgrid , Chi , Eg , Nv , mp , Spl , Spr )
+    Returns
+    -------
+        numpy array , shape = ( 3N x 3N )
+            Jacobian matrix of the out of equilibrium equation system at current value of potentials
+
+    """
+    dde_phin_ , dde_phin__ , dde_phin___ , dde_phip__ , dde_phi_ , dde_phi__ , dde_phi___ = ddn_deriv( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , Et , tn , tp , Br , Cn , Cp , G )
+    ddp_phin__ , ddp_phip_ , ddp_phip__ , ddp_phip___ , ddp_phi_ , ddp_phi__ , ddp_phi___ = ddp_deriv( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mp , Et , tn , tp , Br , Cn , Cp , G )
+    dpois_phi_ , dpois_phi__ , dpois_phi___ , dpois_dphin__ , dpois_dphip__ = pois_deriv( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv )
+    dctct_phin = contact_phin_deriv( dgrid , phi_n , phi , Chi , Nc , mn , Snl , Snr )
+    dctct_phip = contact_phip_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp , Spl , Spr )
 
     N = phi.size
 
@@ -105,6 +175,10 @@ def F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , 
     col = np.concatenate( ( col , np.array( [ 1 , 2 , 4 , 5 ] ) ) )
     dF =  np.concatenate( ( dF , np.array( [ dctct_phip[0] , dctct_phip[4] , dctct_phip[1] , dctct_phip[5] ] ) ) )
 
+    row = np.concatenate( ( row , np.array( [ 2 ] ) ) )
+    col = np.concatenate( ( col , np.array( [ 2 ] ) ) )
+    dF =  np.concatenate( ( dF , np.array( [ 1.0 ] ) ) )
+
     row = np.concatenate( ( row , np.array( [ 3 * ( N - 1 ) , 3 * ( N - 1 ) , 3 * ( N - 1 ) , 3 * ( N - 1 ) ] ) ) )
     col = np.concatenate( ( col , np.array( [ 3 * ( N - 2 ) , 3 * ( N - 2 ) + 2 , 3 * ( N - 1 ) , 3 * ( N - 1 ) + 2 ] ) ) )
     dF = np.concatenate( ( dF , np.array( [ dctct_phin[2] , dctct_phin[6] , dctct_phin[3] , dctct_phin[7] ] ) ) )
@@ -112,6 +186,10 @@ def F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , 
     row = np.concatenate( ( row , np.array( [ 3 * ( N - 1 ) + 1 , 3 * ( N - 1 ) + 1 , 3 * ( N - 1 ) + 1 , 3 * ( N - 1 ) + 1 ] ) ) )
     col = np.concatenate( ( col , np.array( [ 3 * ( N - 2 ) + 1 , 3 * ( N - 2 ) + 2 , 3 * ( N - 1 ) + 1 , 3 * ( N - 1 ) + 2 ] ) ) )
     dF = np.concatenate( ( dF , np.array( [ dctct_phip[2] , dctct_phip[6] , dctct_phip[3] , dctct_phip[7] ] ) ) )
+
+    row = np.concatenate( ( row , np.array( [ 3 * ( N - 1 ) + 2 ] ) ) )
+    col = np.concatenate( ( col , np.array( [ 3 * ( N - 1 ) + 2 ] ) ) )
+    dF =  np.concatenate( ( dF , np.array( [ 1.0 ] ) ) )
 
 
     row = np.concatenate( ( row , np.arange( 3 , 3 * ( N - 1 ) , 3 ) ) )
@@ -170,9 +248,25 @@ def F_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Et , tn , 
     col = np.concatenate( ( col , np.arange( 8 , 3 * N + 2 , 3 ) ) )
     dF = np.concatenate( ( dF , ddp_phi___ ) )
 
-    row = np.concatenate( ( row , row_pois ) )
-    col = np.concatenate( ( col , col_pois ) )
-    dF = np.concatenate( ( dF , dpois ) )
+    row = np.concatenate( ( row , np.arange( 5 , 3 * ( N - 1 ) + 2 , 3 ) ) )
+    col = np.concatenate( ( col , np.arange( 2 , 3 * ( N - 2 ) + 2 , 3 ) ) )
+    dF = np.concatenate( ( dF , dpois_phi_ ) )
+
+    row = np.concatenate( ( row , np.arange( 5 , 3 * ( N - 1 ) + 2 , 3 ) ) )
+    col = np.concatenate( ( col , np.arange( 5 , 3 * ( N - 1 ) + 2 , 3 ) ) )
+    dF = np.concatenate( ( dF , dpois_phi__ ) )
+
+    row = np.concatenate( ( row , np.arange( 5 , 3 * ( N - 1 ) + 2 , 3 ) ) )
+    col = np.concatenate( ( col , np.arange( 8 , 3 * N + 2 , 3 ) ) )
+    dF = np.concatenate( ( dF , dpois_phi___ ) )
+
+    row = np.concatenate( ( row , np.arange( 5 , 3 * ( N - 1 ) + 2 , 3 ) ) )
+    col = np.concatenate( ( col , np.arange( 3 , 3 * ( N - 1 ) , 3 ) ) )
+    dF = np.concatenate( ( dF , dpois_dphin__ ) )
+
+    row = np.concatenate( ( row , np.arange( 5 , 3 * ( N - 1 ) + 2 , 3 ) ) )
+    col = np.concatenate( ( col , np.arange( 4 , 3 * ( N - 1 ) + 1 , 3 ) ) )
+    dF = np.concatenate( ( dF , dpois_dphip__ ) )
 
     result = np.zeros( ( 3 * N , 3 * N ) )
     if USE_JAX:

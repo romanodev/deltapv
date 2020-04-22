@@ -4,47 +4,103 @@ if USE_JAX:
     config.update("jax_enable_x64", True)
     from jax import ops
 
-### Compute the system of equations to solve for the equilibrium electrostatic potential
-### (i.e. the poisson equation)
-## Inputs :
-#      phi_n (array:N) -> e- quasi-Fermi energy
-#      phi_p (array:N) -> hole quasi-Fermi energy
-#      phi (array:N) -> electrostatic potential
-#      dgrid (array:N-1) -> array of distances between consecutive grid points
-#      eps(array:N) -> relative dieclectric constant
-#      Chi (array:N) -> electron affinity
-#      Eg (array:N) -> band gap
-#      Nc (array:N) -> e- density of states
-#      Nv (array:N) -> hole density of states
-#      Ndop (array:N) -> dopant density ( = donor density - acceptor density )
-## Outputs :
-#      1 (array:N) -> equilibrium equation system at current value of potentials
+def F_eq( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
+    """
+    Computes the system of equations to solve for the equilibrium electrostatic potential (i.e. the poisson equation).
 
-def F_eq( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
-    return pois( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
+    Parameters
+    ----------
+        dgrid : numpy array , shape = ( N - 1 )
+            array of distances between consecutive grid points
+        phi_n : numpy array , shape = ( N )
+            e- quasi-Fermi energy
+        phi_p : numpy array , shape = ( N )
+            hole quasi-Fermi energy
+        phi   : numpy array , shape = ( N )
+            electrostatic potential
+        eps   : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi   : numpy array , shape = ( N )
+            electron affinity
+        Eg    : numpy array , shape = ( N )
+            band gap
+        Nc    : numpy array , shape = ( N )
+            e- density of states
+        Nv    : numpy array , shape = ( N )
+            hole density of states
+        Ndop  : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
+
+    Returns
+    -------
+        numpy array , shape = ( N )
+            equilibrium equation system at current value of potentials
+
+    """
+    _pois = pois( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop )
+    return np.concatenate( ( np.array( [ 0.0 ] ) , _pois , np.array( [ 0.0 ] ) ) )
 
 
 
 
 
-### Compute the Jacobian of the system of equations to solve for the equilibrium electrostatic potential
-## Inputs :
-#      phi_n (array:N) -> e- quasi-Fermi energy
-#      phi_p (array:N) -> hole quasi-Fermi energy
-#      phi (array:N) -> electrostatic potential
-#      dgrid (array:N-1) -> array of distances between consecutive grid points
-#      eps(array:N) -> relative dieclectric constant
-#      Chi (array:N) -> electron affinity
-#      Eg (array:N) -> band gap
-#      Nc (array:N) -> e- density of states
-#      Nv (array:N) -> hole density of states
-## Outputs :
-#      1 (matrix:NxN) -> Jacobian of equilibrium equation system at current value of potentials
+def F_eq_deriv( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
+    """
+    Computes the Jacobian of the system of equations to solve for the equilibrium electrostatic potential.
 
-def F_eq_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv ):
-    row , col , dpois = pois_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv , True )
+    Parameters
+    ----------
+        dgrid : numpy array , shape = ( N - 1 )
+            array of distances between consecutive grid points
+        phi_n : numpy array , shape = ( N )
+            e- quasi-Fermi energy
+        phi_p : numpy array , shape = ( N )
+            hole quasi-Fermi energy
+        phi   : numpy array , shape = ( N )
+            electrostatic potential
+        eps   : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi   : numpy array , shape = ( N )
+            electron affinity
+        Eg    : numpy array , shape = ( N )
+            band gap
+        Nc    : numpy array , shape = ( N )
+            e- density of states
+        Nv    : numpy array , shape = ( N )
+            hole density of states
+        Ndop  : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
 
-    result = np.zeros( ( phi.size , phi.size ) )
+    Returns
+    -------
+        numpy array , shape = ( N x N )
+            Jacobian matrix of equilibrium equation system at current value of potentials
+
+    """
+    N = phi.size
+    dpois_phi_ , dpois_phi__ , dpois_phi___ = pois_deriv_eq( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv )
+
+    row = np.array( [ 0 ] )
+    col = np.array( [ 0 ] )
+    dFeq = np.array( [ 1.0 ] )
+
+    row = np.concatenate( ( row , np.arange( 1 , N - 1 , 1 ) ) )
+    col = np.concatenate( ( col , np.arange( 0 , N - 2 , 1 ) ) )
+    dFeq = np.concatenate( ( dFeq , dpois_phi_ ) )
+
+    row = np.concatenate( ( row , np.arange( 1 , N - 1 , 1 ) ) )
+    col = np.concatenate( ( col , np.arange( 1 , N - 1 , 1 ) ) )
+    dFeq = np.concatenate( ( dFeq , dpois_phi__ ) )
+
+    row = np.concatenate( ( row , np.arange( 1 , N - 1 , 1 ) ) )
+    col = np.concatenate( ( col , np.arange( 2 , N , 1 ) ) )
+    dFeq = np.concatenate( ( dFeq , dpois_phi___ ) )
+
+    row = np.concatenate( ( row , np.array( [ N - 1 ] ) ) )
+    col = np.concatenate( ( col , np.array( [ N - 1 ] ) ) )
+    dFeq = np.concatenate( ( dFeq , np.array( [ 1.0 ] ) ) )
+
+    result = np.zeros( ( N , N ) )
     if USE_JAX:
         return ops.index_update( result , ( row , col ) , dpois )
     else:

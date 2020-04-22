@@ -1,8 +1,8 @@
 from .physics import *
 
-def SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
+def rad( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ):
     """
-    Computes the Schokley-Read-Hall bulk recombination rate density.
+    Computes the radiative bulk recombination rate density.
 
     Parameters
     ----------
@@ -20,35 +20,29 @@ def SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
             e- density of states
         Nv    : numpy array , shape = ( N )
             hole density of states
-        Et    : numpy array , shape = ( N )
-            SHR trap state energy level
-        tn    : numpy array , shape = ( N )
-            SHR e- lifetime
-        tp    : numpy array , shape = ( N )
-            SHR hole lifetime
+        Br    : numpy array , shape = ( N )
+            radiative recombination coefficient
 
     Returns
     -------
         numpy array , shape = ( N )
-            SHR recombination rate density
+            Auger recombination rate density
 
     """
     _ni = ni( Eg , Nc , Nv )
     _n = n( phi_n , phi , Chi , Nc )
     _p = p( phi_p , phi , Chi , Eg , Nv )
-    nR = _ni * np.exp( Et ) + _n
-    pR = _ni * np.exp( - Et ) + _p
-    return ( _n * _p - _ni**2 ) / ( tp * nR + tn * pR )
+    return B * ( _n * _p - _ni**2 )
 
 
 
 
 
-def SHR_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
+def rad_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ):
     """
-    Computes the derivatives of the Schokley-Read-Hall bulk recombination rate density.
+    Computes the derivatives of the Auger bulk recombination rate density.
 
-    This function returns the derivative of the SHR recombination with respect to the different potientials
+    This function returns the derivative of the Auger recombination with respect to the different potientials
     ( e- and hole quasi-Fermi energy and electrostatic potential ).
 
     Parameters
@@ -67,33 +61,24 @@ def SHR_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
             e- density of states
         Nv      : numpy array , shape = ( N )
             hole density of states
-        Et      : numpy array , shape = ( N )
-            SHR trap state energy level
-        tn      : numpy array , shape = ( N )
-            SHR e- lifetime
-        tp      : numpy array , shape = ( N )
-            SHR hole lifetime
+        Br      : numpy array , shape = ( N )
+            radiative recombination coefficient
 
     Returns
     -------
         DR_phin : numpy array , shape = ( N )
-            derivative of SHR recombination at point i w.r.t phi_n[i]
+            derivative of Auger recombination at point i w.r.t phi_n[i]
         DR_phip : numpy array , shape = ( N )
-            derivative of SHR recombination at point i w.r.t phi_p[i]
+            derivative of Auger recombination at point i w.r.t phi_p[i]
         DR_phi  : numpy array , shape = ( N )
-            derivative of SHR recombination at point i w.r.t phi[i]
+            derivative of Auger recombination at point i w.r.t phi[i]
 
     """
-    _ni = ni( Eg , Nc , Nv )
     _n = n( phi_n , phi , Chi , Nc )
     _p = p( phi_p , phi , Chi , Eg , Nv )
-    nR = _ni * np.exp( Et ) + _n
-    pR = _ni * np.exp( - Et ) + _p
-    num = _n * _p - _ni**2
-    denom = ( tp * nR + tn * pR )
 
-    DR_phin = ( ( _n * _p ) * denom - num * ( tp * _n ) ) * denom**-2
-    DR_phip = ( ( - _n * _p ) * denom - num * ( - tn * _p ) ) * denom**-2
-    DR_phi = ( - num * ( tp * _n - tn * _p ) ) * denom**-2
+    DR_phin = B * ( n * p )
+    DR_phip = B * ( - n * p )
+    DR_phi = np.zeros( phi.size )
 
     return DR_phin , DR_phip , DR_phi

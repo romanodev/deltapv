@@ -1,4 +1,4 @@
-import scipy.constants as sc
+import scipy.constants as const
 import math
 
 USE_JAX = True
@@ -13,25 +13,28 @@ USE_JAX = True
 ## Snl , Snr , Spl , Spr : cm / s
 ## G : cm^(-3) / s
 
-### Define the scaling coefficients for all dimensional variables
-## Inputs :
-#      None
-# Outputs :
-#      1 (dictionnary:7keys) -> scaling coefficients
-#            'd' -> scaling coefficient for the grid (cm)
-#            'E' -> scaling coefficient for energies (eV = J / C = V)
-#            'n' -> scaling coefficient for densities (cm^(-3))
-#            'J' -> scaling coefficient for current densities (A / cm^2)
-#            'm' -> scaling coefficient for mobilities (cm^2 / V / s)
-#            'U' -> scaling coefficient for generation rates (cm^(-3) / s)
-#            't' -> scaling coefficient for e-/hole lifetimes (s)
-#            'v' -> scaling coefficient for recombination velocities (cm / s)
-
 def scales():
+    """
+    Defines the scaling parameters for dimensional variables.
+
+    Returns
+    -------
+        dictionnary ( 7 keys )
+            Scaling parameters for dimensional variables.
+            'd' -> scaling coefficient for the grid ( cm )
+            'E' -> scaling coefficient for energies ( eV = J / C = V )
+            'n' -> scaling coefficient for densities ( cm^(-3) )
+            'J' -> scaling coefficient for current densities ( A / cm^2 )
+            'm' -> scaling coefficient for mobilities ( cm^2 / V / s )
+            'U' -> scaling coefficient for generation rates ( cm^(-3) / s )
+            't' -> scaling coefficient for e-/hole lifetimes ( s )
+            'v' -> scaling coefficient for recombination velocities ( cm / s )
+
+    """
     T = 300
-    KB = sc.k
-    q , _ , _ = sc.physical_constants['elementary charge']
-    eps_0 = sc.epsilon_0 * 1e-2 # C * V-1 * m-1 -> C * V-1 * cm-1
+    KB = const.k
+    q , _ , _ = const.physical_constants['elementary charge']
+    eps_0 = const.epsilon_0 * 1e-2 # C * V-1 * m-1 -> C * V-1 * cm-1
 
     scales = {}
 
