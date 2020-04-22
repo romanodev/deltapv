@@ -305,7 +305,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         + tot_current_derivs['dphin1'] * jac_phis['Chi'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Chi'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Chi'][2*N+1,:]
-        new_current_jac['Chi'] = ops.index_add( new_current_jac['Chi'] , 0:1 , np.array( [ tot_current_derivs['dChi0'] , tot_current_derivs['dChi1'] ] ) )
+        new_current_jac['Chi'] = ops.index_add( new_current_jac['Chi'] , [0:1] , np.array( [ tot_current_derivs['dChi0'] , tot_current_derivs['dChi1'] ] ) )
 
         new_current_jac['Eg'] = \
         tot_current_derivs['dphin0'] * jac_phis['Eg'][0,:] \
@@ -315,7 +315,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         + tot_current_derivs['dphi0'] * jac_phis['Eg'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Eg'][2*N+1,:] \
         + np.dot( dJ_dG * dG_dEg )
-        new_current_jac['Eg'] = ops.index_add( new_current_jac['Eg'] , 0:1 , np.array( [ tot_current_derivs['dEg0'] , tot_current_derivs['dEg1'] ] ) )
+        new_current_jac['Eg'] = ops.index_add( new_current_jac['Eg'] , [0:1] , np.array( [ tot_current_derivs['dEg0'] , tot_current_derivs['dEg1'] ] ) )
 
         new_current_jac['Nc'] = \
         tot_current_derivs['dphin0'] * jac_phis['Nc'][0,:] \
@@ -324,7 +324,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         + tot_current_derivs['dphin1'] * jac_phis['Nc'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Nc'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Nc'][2*N+1,:]
-        new_current_jac['Nc'] = ops.index_add( new_current_jac['Nc'] , 0:1 , np.array( [ tot_current_derivs['dNc0'] , tot_current_derivs['dNc1'] ] ) )
+        new_current_jac['Nc'] = ops.index_add( new_current_jac['Nc'] , [0:1] , np.array( [ tot_current_derivs['dNc0'] , tot_current_derivs['dNc1'] ] ) )
 
         new_current_jac['Nv'] = \
         tot_current_derivs['dphin0'] * jac_phis['Nv'][0,:] \
@@ -333,7 +333,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         + tot_current_derivs['dphin1'] * jac_phis['Nv'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Nv'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Nv'][2*N+1,:]
-        new_current_jac['Nv'] = ops.index_add( new_current_jac['Nv'] , 0:1 , np.array( [ tot_current_derivs['dNv0'] , tot_current_derivs['dNv1'] ] ) )
+        new_current_jac['Nv'] = ops.index_add( new_current_jac['Nv'] , [0:1] , np.array( [ tot_current_derivs['dNv0'] , tot_current_derivs['dNv1'] ] ) )
 
         new_current_jac['Ndop'] = \
         tot_current_derivs['dphin0'] * jac_phis['Ndop'][0,:] \
@@ -342,6 +342,24 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         + tot_current_derivs['dphin1'] * jac_phis['Ndop'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Ndop'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Ndop'][2*N+1,:]
+
+        new_current_jac['mn'] = \
+        tot_current_derivs['dphin0'] * jac_phis['mn'][0,:] \
+        + tot_current_derivs['dphin1'] * jac_phis['mn'][1,:] \
+        + tot_current_derivs['dphin0'] * jac_phis['mn'][N,:] \
+        + tot_current_derivs['dphin1'] * jac_phis['mn'][N+1,:]
+        + tot_current_derivs['dphi0'] * jac_phis['mn'][2*N,:] \
+        + tot_current_derivs['dphi1'] * jac_phis['mn'][2*N+1,:]
+        new_current_jac['mn'] = ops.index_add( new_current_jac['mn'] , [0:1] , np.array( [ tot_current_derivs['dmn0'] , tot_current_derivs['dmn1'] ] ) )
+
+        new_current_jac['mp'] = \
+        tot_current_derivs['dphin0'] * jac_phis['mp'][0,:] \
+        + tot_current_derivs['dphin1'] * jac_phis['mp'][1,:] \
+        + tot_current_derivs['dphin0'] * jac_phis['mp'][N,:] \
+        + tot_current_derivs['dphin1'] * jac_phis['mp'][N+1,:]
+        + tot_current_derivs['dphi0'] * jac_phis['mp'][2*N,:] \
+        + tot_current_derivs['dphi1'] * jac_phis['mp'][2*N+1,:]
+        new_current_jac['mp'] = ops.index_add( new_current_jac['mp'] , [0:1] , np.array( [ tot_current_derivs['dmp0'] , tot_current_derivs['dmp1'] ] ) )
 
         new_current_jac['Et'] = \
         tot_current_derivs['dphin0'] * jac_phis['Et'][0,:] \
@@ -390,24 +408,6 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         + tot_current_derivs['dphin1'] * jac_phis['Cp'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Cp'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Cp'][2*N+1,:]
-
-        new_current_jac['mn'] = \
-        tot_current_derivs['dphin0'] * jac_phis['mn'][0,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['mn'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['mn'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['mn'][N+1,:]
-        + tot_current_derivs['dphi0'] * jac_phis['mn'][2*N,:] \
-        + tot_current_derivs['dphi1'] * jac_phis['mn'][2*N+1,:]
-        new_current_jac['mn'] = ops.index_add( new_current_jac['mn'] , 0:1 , np.array( [ tot_current_derivs['dmn0'] , tot_current_derivs['dmn1'] ] ) )
-
-        new_current_jac['mp'] = \
-        tot_current_derivs['dphin0'] * jac_phis['mp'][0,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['mp'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['mp'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['mp'][N+1,:]
-        + tot_current_derivs['dphi0'] * jac_phis['mp'][2*N,:] \
-        + tot_current_derivs['dphi1'] * jac_phis['mp'][2*N+1,:]
-        new_current_jac['mp'] = ops.index_add( new_current_jac['mp'] , 0:1 , np.array( [ tot_current_derivs['dmp0'] , tot_current_derivs['dmp1'] ] ) )
 
         new_current_jac['Snl'] = \
         tot_current_derivs['dphin0'] * jac_phis['Snl'][0,:] \
