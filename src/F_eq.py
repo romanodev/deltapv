@@ -102,8 +102,8 @@ def F_eq_deriv( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
 
     result = np.zeros( ( N , N ) )
     if USE_JAX:
-        return ops.index_update( result , ( row , col ) , dpois )
+        return ops.index_update( result , ( row , col ) , dFeq )
     else:
         for i in range( len( row ) ):
-            result[ row[ i ] , col[ i ] ] = dpois[ i ]
+            result[ row[ i ] , col[ i ] ] = dFeq[ i ]
         return result
