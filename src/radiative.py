@@ -77,8 +77,8 @@ def rad_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ):
     _n = n( phi_n , phi , Chi , Nc )
     _p = p( phi_p , phi , Chi , Eg , Nv )
 
-    DR_phin = Br * ( n * p )
-    DR_phip = Br * ( - n * p )
+    DR_phin = Br * ( _n * _p )
+    DR_phip = Br * ( - _n * _p )
     DR_phi = np.zeros( phi.size )
 
     return DR_phin , DR_phip , DR_phi
