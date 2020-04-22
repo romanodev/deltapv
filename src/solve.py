@@ -109,7 +109,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
 
 
-def solve( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
     """
     Solves for the e-/hole quasi-Fermi energies and electrostatic potential using the Newton method.
 
@@ -125,7 +125,7 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv ,
             hole equilibrium density at left boundary
         peqL     : float
             hole equilibrium density at right boundary
-        phis     : numpy array , shape = ( 3N )
+        phis_ini : numpy array , shape = ( 3N )
             current potentials ( e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential )
         eps      : numpy array , shape = ( N )
             relative dieclectric constant
