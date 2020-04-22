@@ -404,7 +404,7 @@ class JAXPV( object ):
             P = coef * voltages * current
             Pmax = np.max( P )
             index = np.where( P == Pmax )
-            efficiency = Pmax
+            eff = Pmax
             result = {}
             result['eps'] = cur_grad['eps'][ index ] * coef * voltages[ index ]
             result['Chi'] = cur_grad['Chi'][ index ] * coef * voltages[ index ]
@@ -426,7 +426,7 @@ class JAXPV( object ):
             result['Spr'] = cur_grad['Spr'][ index ] * coef * voltages[ index ]
             result['G'] = cur_grad['G'][ index ] * coef * voltages[ index ]
 
-            print( efficiency )
+            print( eff )
             print( result )
 
         else:
