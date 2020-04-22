@@ -101,7 +101,7 @@ def pois_deriv_eq( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
 
 
 
-def pois_deriv( phi_n , phi_p , phi , dgrid , eps , Chi , Eg , Nc , Nv ):
+def pois_deriv( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
     """
     Computes the derivatives of the left side term of the Poisson equation.
 
