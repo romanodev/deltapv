@@ -325,7 +325,7 @@ class JAXPV( object ):
 
         """
         self.opt = type
-        if ( type = 'user' ):
+        if ( type is 'user' ):
             self.G = np.float64( 1 / scale['U'] * G )
 
 
