@@ -278,7 +278,7 @@ def total_current( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , mp ):
     deriv['dNc1'] = 1 / Nc[1] * mn[0] * fmn / dgrid * Dpsin_Dexppsin_dpsin1
     deriv['dNv0'] = - 1 / Nv[0] * mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip0
     deriv['dNv1'] = - 1 / Nv[1] * mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip1
-    deriv['dmn0'] = Dpsin_Dexppsip * fmn / dgrid
+    deriv['dmn0'] = Dpsin_Dexppsin * fmn / dgrid
     deriv['dmp0'] = Dpsip_Dexppsip * fmp / dgrid
 
     deriv['dphin0'] = mn[0] * Dpsin_Dexppsin / dgrid * dfmn_dphin0
