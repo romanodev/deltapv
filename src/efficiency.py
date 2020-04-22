@@ -44,7 +44,7 @@ def Vincrement( Chi , Eg , Nc , Nv , Ndop , num_vals = 50 ):
 
 
 
-def efficiency( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , Lambda , P_in , A , G , opt ):
+def efficiency( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
     """
     Compute the photovoltaic efficiency of the system.
 
@@ -90,16 +90,8 @@ def efficiency( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp ,
             e- surface recombination velocity at right boundary
         Spr        : float
             hole surface recombination velocity at right boundary
-        Lambda     : numpy array , shape = ( M )
-            array of light wavelengths
-        P_in       : numpy array , shape = ( M )
-            array of incident power for every wavelength
-        A          : numpy array , shape = ( N )
-            array of coefficients for direct band gap absorption coefficient model
-        G          : numpy array , shape = ( N )
-            e-/hole pair generation rate density ( only used if user defined G )
-        opt        : string
-            describes which type of generation density should be used
+        G_used     : numpy array , shape = ( N )
+            e-/hole pair generation rate density ( computed or user defined )
 
     Returns
     -------
