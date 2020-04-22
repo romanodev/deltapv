@@ -356,7 +356,7 @@ class JAXPV( object ):
 
 
 
-    def grad_efficiency( self , jit = 'true' ):
+    def grad_efficiency( self , jit = True ):
         """
         Computes the gradient of the efficiency of the system.
 
