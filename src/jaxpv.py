@@ -129,14 +129,13 @@ class JAXPV( object ):
 
         Parameters
         ----------
-            properties : dictionnary of floats ( 15 keys )
+            properties : dictionnary of floats ( 14 keys )
                 dictionnary of the properties of the material
                 'eps'  -> relative dieclectric constant
                 'Chi'  -> electron affinity
                 'Eg'   -> band gap
                 'Nc'   -> e- density of states
                 'Nv'   -> hole density of states
-                'Ndop' -> dopant density
                 'mn'   -> e- mobility
                 'mp'   -> hole mobility
                 'Et'   -> trap state energy level (SHR)
@@ -283,7 +282,7 @@ class JAXPV( object ):
             Lambda_sun , P_in_sun = sun()
             self.Lambda = Lambda_sun
             self.P_in = P_in_sun
-        else if ( type == 'white' ):
+        elif ( type == 'white' ):
             if ( Lambda is None ):
                 self.Lambda = np.linspace( 400.0 , 800.0 , num = 5 )
                 self.P_in = np.linspace( 200.0 , 200.0 , num = 5 )
@@ -291,13 +290,13 @@ class JAXPV( object ):
                 self.Lambda = Lambda
                 power = 1000.0 / Lambda.size
                 self.P_in = np.linspace( power , power , num = Lambda.size )
-        else if ( type == 'monochromatic' ):
+        elif ( type == 'monochromatic' ):
             if ( Lambda is None ):
                 self.Lambda = np.array( [ 400.0 ] )
             else:
                 self.Lambda = Lambda
             self.P_in = np.array( [ 1000.0 ] )
-        else if ( type == 'user' ):
+        elif ( type == 'user' ):
             if ( ( Lambda is None ) or ( P_in is None ) ):
                 print( 'Lambda or Pin not defined' )
                 sys.exit()
