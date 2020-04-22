@@ -104,7 +104,7 @@ class JAXPV( object ):
         self.tp = [ 0.0 for i in range( N ) ]
         self.Br = [ 0.0 for i in range( N ) ]
         self.Cn = [ 0.0 for i in range( N ) ]
-        sefl.Cp = [ 0.0 for i in range( N ) ]
+        self.Cp = [ 0.0 for i in range( N ) ]
 
         self.Snl = 0.0
         self.Snr = 0.0
