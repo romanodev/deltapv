@@ -1,4 +1,6 @@
 from .SHR import *
+from .auger import *
+from .radiative import *
 from .current import *
 
 def ddp( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mp , Et , tn , tp , Br , Cn , Cp , G ):
