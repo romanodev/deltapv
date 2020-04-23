@@ -109,7 +109,7 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     print( '-------------------------------------------------------------------' )
     num_steps = 10
 #    while (error > 1e-6):
-        for i in range( num_steps )
+    for i in range( num_steps )
         error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
         error = error_dx
