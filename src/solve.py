@@ -177,7 +177,7 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
     iter = 0
     num_steps = 10
 #    while (error > 1e-6):
-        for i in range( num_steps )
+    for i in range( num_steps ):
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
         error = error_dx
