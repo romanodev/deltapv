@@ -260,12 +260,20 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     cond = True
     v = 0
 
+    print( phis )
+
     while cond and ( iter < max_iter ):
         sol = solve_forgrad( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used )
         gradsol = grad_solve( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , Br , Cn , Cp , mn , mp , Snl , Spl , Snr , Spr , G_used )
 
+        print( sol )
+
         tot_current, tot_current_derivs = total_current( sol[0:N] , sol[N:2*N] , sol[2*N:] , dgrid , Chi , Eg , Nc , Nv , mn , mp )
         current.append( tot_current )
+
+        print( tot_current )
+        print( tot_current_derivs )
+        quit()
 
         current.append( tot_current )
 
