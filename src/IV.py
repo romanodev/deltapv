@@ -306,8 +306,10 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         + tot_current_derivs['dphin1'] * jac_phis['Chi'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Chi'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Chi'][2*N+1,:]
-        new_current_jac['Chi'] = ops.index_add( new_current_jac['Chi'] , ops.index[0] , tot_current_derivs['dChi0'] )
-        new_current_jac['Chi'] = ops.index_add( new_current_jac['Chi'] , ops.index[1] , tot_current_derivs['dChi1'] )
+        print( new_current_jac['Chi'] )
+        print( tot_current_derivs['dChi0'] )
+        new_current_jac['Chi'] = ops.index_add( new_current_jac['Chi'] , 0 , tot_current_derivs['dChi0'] )
+        new_current_jac['Chi'] = ops.index_add( new_current_jac['Chi'] , 1 , tot_current_derivs['dChi1'] )
 
         new_current_jac['Eg'] = \
         tot_current_derivs['dphin0'] * jac_phis['Eg'][0,:] \
