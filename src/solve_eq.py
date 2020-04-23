@@ -26,6 +26,7 @@ def damp( move ):
 
 
 
+@jit
 def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Computes the next electrostatic potential in the Newton method iterative scheme.
@@ -73,6 +74,48 @@ def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
 
 
 @jit
+def step_eq_forgrad( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
+    """
+    Computes the next electrostatic potential in the Newton method iterative scheme.
+
+    This function is to be used for gradient calculations with JAX. It doesn't return prints.
+
+    Parameters
+    ----------
+        dgrid : numpy array , shape = ( N - 1 )
+            array of distances between consecutive grid points
+        phi   : numpy array , shape = ( N )
+            current electrostatic potential
+        eps   : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi   : numpy array , shape = ( N )
+            electron affinity
+        Eg    : numpy array , shape = ( N )
+            band gap
+        Nc    : numpy array , shape = ( N )
+            e- density of states
+        Nv    : numpy array , shape = ( N )
+            hole density of states
+        Ndop  : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
+
+    Returns
+    -------
+        numpy array , shape = ( N )
+            next electrostatic potential
+
+    """
+    Feq = F_eq( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv , Ndop )
+    gradFeq = F_eq_deriv( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv )
+    move = np.linalg.solve( gradFeq , - Feq )
+    damp_move = damp(move)
+
+    return phi + damp_move
+
+
+
+
+
 def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Solves for the equilibrium electrostatic potential using the Newton method.
@@ -102,18 +145,62 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
             equilibrium electrostatic potential
 
     """
-    phi = phi_ini
     error = 1
     iter = 0
-    to_print = 'Equilibrium     Iteration       |F(x)|                Residual     \n'
-    to_print += '-------------------------------------------------------------------\n'
-    num_steps = 10
-#    while (error > 1e-6):
-    for i in range( num_steps ):
+    print( 'Equilibrium     Iteration       |F(x)|                Residual     ' )
+    print( '-------------------------------------------------------------------' )
+
+    phi = phi_ini
+    while (error > 1e-6):
         error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
         error = error_dx
         iter += 1
-        to_print += '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , error_F , error_dx )
+        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , error_F , error_dx ) )
+
+    return phi
+
+
+
+
+
+@jit
+def solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
+    """
+    Solves for the equilibrium electrostatic potential using the Newton method and computes derivatives.
+
+    This function is to be used for gradient calculations with JAX. It doesn't print variables.
+
+    Parameters
+    ----------
+        dgrid   : numpy array , shape = ( N - 1 )
+            array of distances between consecutive grid points
+        phi_ini : numpy array , shape = ( N )
+            initial guess for the electrostatic potential
+        eps     : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi     : numpy array , shape = ( N )
+            electron affinity
+        Eg      : numpy array , shape = ( N )
+            band gap
+        Nc      : numpy array , shape = ( N )
+            e- density of states
+        Nv      : numpy array , shape = ( N )
+            hole density of states
+        Ndop    : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
+
+    Returns
+    -------
+        phi     : numpy array , shape = ( N )
+            equilibrium electrostatic potential
+
+    """
+    step_nums = 10
+
+    phi = phi_ini
+    for i in range( step_nums ):
+        next_phi = step_eq_forgrad( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
+        phi = next_phi
 
     return phi

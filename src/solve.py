@@ -26,6 +26,7 @@ def damp( move ):
 
 
 
+@jit
 def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
     """
     Computes the next potentials in the Newton method iterative scheme.
@@ -109,6 +110,84 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
 
 @jit
+def step_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+    """
+    Computes the next potentials in the Newton method iterative scheme.
+
+    This function is to be used for gradient calculations with JAX. It doesn't print variables.
+
+    Parameters
+    ----------
+        dgrid    : numpy array , shape = ( N - 1 )
+            array of distances between consecutive grid points
+        neq0     : float
+            e- equilibrium density at left boundary
+        neqL     : float
+            e- equilibrium density at right boundary
+        peq0     : float
+            hole equilibrium density at left boundary
+        peqL     : float
+            hole equilibrium density at right boundary
+        phis     : numpy array , shape = ( 3N )
+            current potentials ( e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential )
+        eps      : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi      : numpy array , shape = ( N )
+            electron affinity
+        Eg       : numpy array , shape = ( N )
+            band gap
+        Nc       : numpy array , shape = ( N )
+            e- density of states
+        Nv       : numpy array , shape = ( N )
+            hole density of states
+        Ndop     : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
+        mn       : numpy array , shape = ( N )
+            e- mobility
+        mp       : numpy array , shape = ( N )
+            hole mobility
+        Et       : numpy array , shape = ( N )
+            SHR trap state energy level
+        tn       : numpy array , shape = ( N )
+            SHR e- lifetime
+        tp       : numpy array , shape = ( N )
+            SHR hole lifetime
+        Br       : numpy array , shape = ( N )
+            radiative recombination coefficient
+        Cn       : numpy array , shape = ( N )
+            electron Auger coefficient
+        Cp       : numpy array , shape = ( N )
+            hole Auger coefficient
+        Snl      : float
+            e- surface recombination velocity at left boundary
+        Spl      : float
+            hole surface recombination velocity at left boundary
+        Snr      : float
+            e- surface recombination velocity at right boundary
+        Spr      : float
+            hole surface recombination velocity at right boundary
+        G        : numpy array , shape = ( N )
+            e-/hole pair generation rate density
+
+    Returns
+    -------
+        numpy array , shape = ( 3N )
+            next potentials ( e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential )
+
+    """
+    N = dgrid.size + 1
+    _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
+    gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
+
+    move = np.linalg.solve( gradF , - _F )
+    damp_move = damp( move )
+
+    return np.concatenate( ( phis[0:N] + damp_move[0:3*N:3] , phis[N:2*N] + damp_move[1:3*N:3] , phis[2*N:]+ damp_move[2:3*N:3] ) , axis = 0 )
+
+
+
+
+
 def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
     """
     Solves for the e-/hole quasi-Fermi energies and electrostatic potential using the Newton method.
@@ -173,15 +252,93 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
 
     """
     phis = phis_ini
-#    error = 1
+    error = 1
     iter = 0
-    num_steps = 10
-#    while (error > 1e-6):
+    while (error > 1e-6):
     for i in range( num_steps ):
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
         error = error_dx
         iter += 1
         print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , error_F , error_dx ) )
+
+    return phis
+
+
+
+
+
+@jit
+def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+    """
+    Solves for the e-/hole quasi-Fermi energies and electrostatic potential using the Newton method and computes derivatives.
+
+    This function is to be used for gradient calculations with JAX. It doesn't print variables.
+
+    Parameters
+    ----------
+        dgrid    : numpy array , shape = ( N - 1 )
+            array of distances between consecutive grid points
+        neq0     : float
+            e- equilibrium density at left boundary
+        neqL     : float
+            e- equilibrium density at right boundary
+        peq0     : float
+            hole equilibrium density at left boundary
+        peqL     : float
+            hole equilibrium density at right boundary
+        phis_ini : numpy array , shape = ( 3N )
+            current potentials ( e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential )
+        eps      : numpy array , shape = ( N )
+            relative dieclectric constant
+        Chi      : numpy array , shape = ( N )
+            electron affinity
+        Eg       : numpy array , shape = ( N )
+            band gap
+        Nc       : numpy array , shape = ( N )
+            e- density of states
+        Nv       : numpy array , shape = ( N )
+            hole density of states
+        Ndop     : numpy array , shape = ( N )
+            dopant density ( positive for donors , negative for acceptors )
+        mn       : numpy array , shape = ( N )
+            e- mobility
+        mp       : numpy array , shape = ( N )
+            hole mobility
+        Et       : numpy array , shape = ( N )
+            SHR trap state energy level
+        tn       : numpy array , shape = ( N )
+            SHR e- lifetime
+        tp       : numpy array , shape = ( N )
+            SHR hole lifetime
+        Br       : numpy array , shape = ( N )
+            radiative recombination coefficient
+        Cn       : numpy array , shape = ( N )
+            electron Auger coefficient
+        Cp       : numpy array , shape = ( N )
+            hole Auger coefficient
+        Snl      : float
+            e- surface recombination velocity at left boundary
+        Spl      : float
+            hole surface recombination velocity at left boundary
+        Snr      : float
+            e- surface recombination velocity at right boundary
+        Spr      : float
+            hole surface recombination velocity at right boundary
+        G        : numpy array , shape = ( N )
+            e-/hole pair generation rate density
+
+    Returns
+    -------
+        phis     : numpy array , shape = ( 3N )
+            solution for the e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential
+
+    """
+    step_nums = 10
+
+    phis = phis_ini
+    for i in range( step_nums ):
+        next_phis = step_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
+        phis = next_phis
 
     return phis
