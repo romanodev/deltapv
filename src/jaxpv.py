@@ -405,6 +405,7 @@ class JAXPV( object ):
             print( coef )
             print( voltages )
             print( cur )
+            print( voltages[ 0 ] * cur[ 0 ] )
             P = coef * voltages * cur
             Pmax = np.max( P )
             index = np.where( P == Pmax )
