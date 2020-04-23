@@ -26,7 +26,6 @@ def damp( move ):
 
 
 
-@jit
 def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
     """
     Computes the next potentials in the Newton method iterative scheme.
@@ -109,6 +108,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
 
 
+@jit
 def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
     """
     Solves for the e-/hole quasi-Fermi energies and electrostatic potential using the Newton method.
@@ -173,9 +173,11 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
 
     """
     phis = phis_ini
-    error = 1
+#    error = 1
     iter = 0
-    while (error > 1e-6):
+    num_steps = 10
+#    while (error > 1e-6):
+        for i in range( num_steps )
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
         error = error_dx

@@ -315,6 +315,7 @@ class JAXPV( object ):
         Currently, G can either be user defined ( type = user ) or can be computed
         in the case of a direct band gap semi-conductor model from material parameters
         ( type = direct ).
+        Furthermore, the user must ensure that the total incident power is 1000 W/m2 = 1 sun.
 
         Parameters
         ----------

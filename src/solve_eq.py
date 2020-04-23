@@ -26,7 +26,6 @@ def damp( move ):
 
 
 
-@jit
 def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Computes the next electrostatic potential in the Newton method iterative scheme.
@@ -73,6 +72,7 @@ def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
 
 
 
+@jit
 def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Solves for the equilibrium electrostatic potential using the Newton method.
@@ -107,7 +107,9 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     iter = 0
     print( 'Equilibrium     Iteration       |F(x)|                Residual     ' )
     print( '-------------------------------------------------------------------' )
-    while (error > 1e-6):
+    num_steps = 10
+#    while (error > 1e-6):
+        for i in range( num_steps )
         error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
         error = error_dx
