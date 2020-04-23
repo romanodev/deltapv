@@ -179,6 +179,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     grad_phieq = jit( jacfwd( solve_eq_forgrad , argnums = ( 1 , 2 , 3 , 4 , 5 , 6 , 7 ) ) )
     grad_solve = jit( jacfwd( solve_forgrad , argnums = ( 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23 , 24 ) ) )
 
+    print( "grad start" )
+
     N = dgrid.size + 1
 
     phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
@@ -270,10 +272,10 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         current.append( tot_current )
 
         jac_phis['eps'] = gradsol[5] + np.dot( gradsol[4] , jac_phis['eps'] )
-        jac_phis['Chi'] = gradsol[6] + np.dot( gradsol[0] , dneq0_dChi ) + np.dot( gradsol[1] , dneqL_dChi ) + np.dot( gradsol[2] , dpeq0_dChi ) + np.dot( gradsol[3] , dpeqL_dChi ) + np.dot( gradsol[4] , jac_phis['Chi'] )
-        jac_phis['Eg'] = gradsol[7] + np.dot( gradsol[0] , dneq0_dEg ) + np.dot( gradsol[1] , dneqL_dEg ) + np.dot( gradsol[2] , dpeq0_dEg ) + np.dot( gradsol[3] , dpeqL_dEg )+ np.dot( gradsol[4] , jac_phis['Eg'] )
-        jac_phis['Nc'] = gradsol[8] + np.dot( gradsol[0] , dneq0_dNc ) + np.dot( gradsol[1] , dneqL_dNc ) + np.dot( gradsol[2] , dpeq0_dNc ) + np.dot( gradsol[3] , dpeqL_dNc )+ np.dot( gradsol[4] , jac_phis['Nc'] )
-        jac_phis['Nv'] = gradsol[9] + np.dot( gradsol[0] , dneq0_dNv ) + np.dot( gradsol[1] , dneqL_dNv ) + np.dot( gradsol[2] , dpeq0_dNv ) + np.dot( gradsol[3] , dpeqL_dNv )+ np.dot( gradsol[4] , jac_phis['Nv'] )
+        jac_phis['Chi'] = gradsol[6] + np.dot( gradsol[0] , dneq0_dChi.transpose() ) + np.dot( gradsol[1] , dneqL_dChi.transpose() ) + np.dot( gradsol[2] , dpeq0_dChi.transpose() ) + np.dot( gradsol[3] , dpeqL_dChi.transpose() ) + np.dot( gradsol[4] , jac_phis['Chi'] )
+        jac_phis['Eg'] = gradsol[7] + np.dot( gradsol[0] , dneq0_dEg.transpose() ) + np.dot( gradsol[1] , dneqL_dEg.transpose() ) + np.dot( gradsol[2] , dpeq0_dEg.transpose() ) + np.dot( gradsol[3] , dpeqL_dEg.transpose() )+ np.dot( gradsol[4] , jac_phis['Eg'] )
+        jac_phis['Nc'] = gradsol[8] + np.dot( gradsol[0] , dneq0_dNc.transpose() ) + np.dot( gradsol[1] , dneqL_dNc.transpose() ) + np.dot( gradsol[2] , dpeq0_dNc.transpose() ) + np.dot( gradsol[3] , dpeqL_dNc.transpose() )+ np.dot( gradsol[4] , jac_phis['Nc'] )
+        jac_phis['Nv'] = gradsol[9] + np.dot( gradsol[0] , dneq0_dNv.transpose() ) + np.dot( gradsol[1] , dneqL_dNv.transpose() ) + np.dot( gradsol[2] , dpeq0_dNv.transpose() ) + np.dot( gradsol[3] , dpeqL_dNv.transpose() )+ np.dot( gradsol[4] , jac_phis['Nv'] )
         jac_phis['Ndop'] = gradsol[10] + np.dot( gradsol[0] , dneq0_dNdop ) + np.dot( gradsol[1] , dneqL_dNdop ) + np.dot( gradsol[2] , dpeq0_dNdop ) + np.dot( gradsol[3] , dpeqL_dNdop )+ np.dot( gradsol[4] , jac_phis['Ndop'] )
         jac_phis['Et'] = gradsol[11] + np.dot( gradsol[4] , jac_phis['Et'] )
         jac_phis['tn'] = gradsol[12] + np.dot( gradsol[4] , jac_phis['tn'] )
