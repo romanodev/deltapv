@@ -247,10 +247,10 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     jac_phis['Cp'] = np.zeros( ( 3*N , N ) )
     jac_phis['mn'] = np.zeros( ( 3*N , N ) )
     jac_phis['mp'] = np.zeros( ( 3*N , N ) )
-    jac_phis['Snl'] = np.zeros( ( 3*N , N ) )
-    jac_phis['Spl'] = np.zeros( ( 3*N , N ) )
-    jac_phis['Snr'] = np.zeros( ( 3*N , N ) )
-    jac_phis['Spr'] = np.zeros( ( 3*N , N ) )
+    jac_phis['Snl'] = np.zeros( ( 3*N , 1 ) )
+    jac_phis['Spl'] = np.zeros( ( 3*N , 1 ) )
+    jac_phis['Snr'] = np.zeros( ( 3*N , 1 ) )
+    jac_phis['Spr'] = np.zeros( ( 3*N , 1 ) )
     jac_phis['G'] = np.zeros( ( 3*N , N ) )
 
     max_iter = 100
