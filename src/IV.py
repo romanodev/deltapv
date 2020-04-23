@@ -3,6 +3,7 @@ from .solve_eq import *
 from .solve import *
 if USE_JAX:
     from jax import jacfwd
+    from jax import ops
 
 def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
     """
@@ -183,7 +184,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
     dphi_ini_dChi0 , dphi_ini_dEg0 , dphi_ini_dNc0 , dphi_ini_dNv0 , dphi_ini_dNdop0 , dphi_ini_dChiL , dphi_ini_dEgL , dphi_ini_dNcL , dphi_ini_dNvL , dphi_ini_dNdopL = eq_init_phi_deriv( Chi , Eg , Nc , Nv , Ndop )
 
-    phi_eq = solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
+    phi_eq = solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
     neq_0 = Nc[0] * np.exp( Chi[0] + phi_eq[0] )
     neq_L = Nc[-1] * np.exp( Chi[-1] + phi_eq[-1] )
     peq_0 = Nv[0] * np.exp( - Chi[0] - Eg[0] - phi_eq[0] )
@@ -193,20 +194,20 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
 
     dphi_eq_deps = gradphieq[ 1 ]
     dphi_eq_dChi = gradphieq[ 2 ]
-    dphi_eq_dChi = ops.index_add( dphi_eq_dChi , jax.ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dChi0 ) )
-    dphi_eq_dChi = ops.index_add( dphi_eq_dChi , jax.ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dChiL ) )
+    dphi_eq_dChi = ops.index_add( dphi_eq_dChi , ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dChi0 ) )
+    dphi_eq_dChi = ops.index_add( dphi_eq_dChi , ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dChiL ) )
     dphi_eq_dEg = gradphieq[ 3 ]
-    dphi_eq_dEg = ops.index_add( dphi_eq_dEg , jax.ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dEg0 ) )
-    dphi_eq_dEg = ops.index_add( dphi_eq_dEg , jax.ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dEgL ) )
+    dphi_eq_dEg = ops.index_add( dphi_eq_dEg , ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dEg0 ) )
+    dphi_eq_dEg = ops.index_add( dphi_eq_dEg , ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dEgL ) )
     dphi_eq_dNc = gradphieq[ 4 ]
-    dphi_eq_dNc = ops.index_add( dphi_eq_dNc , jax.ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dNc0 ) )
-    dphi_eq_dNc = ops.index_add( dphi_eq_dNc , jax.ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dNcL ) )
+    dphi_eq_dNc = ops.index_add( dphi_eq_dNc , ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dNc0 ) )
+    dphi_eq_dNc = ops.index_add( dphi_eq_dNc , ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dNcL ) )
     dphi_eq_dNv = gradphieq[ 5 ]
-    dphi_eq_dNv = ops.index_add( dphi_eq_dNv , jax.ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dNv0 ) )
-    dphi_eq_dNv = ops.index_add( dphi_eq_dNv , jax.ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dNvL ) )
+    dphi_eq_dNv = ops.index_add( dphi_eq_dNv , ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dNv0 ) )
+    dphi_eq_dNv = ops.index_add( dphi_eq_dNv , ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dNvL ) )
     dphi_eq_dNdop = gradphieq[ 6 ]
-    dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , jax.ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dNdop0 ) )
-    dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , jax.ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dNdopL ) )
+    dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dNdop0 ) )
+    dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , ops.index[:,-1] , np.dot( gradphieq[ 0 ] , dphi_ini_dNdopL ) )
 
     dneq0_dChi = np.concatenate( ( np.array( [ neq_0 ] ) , np.zeros( N - 1 ) ) , axis = 0 ) + neq_0 * dphi_eq_dChi[0,:]
     dneqL_dChi = np.concatenate( ( np.zeros( N - 1 ) , np.array( [ neq_L ] ) ) , axis = 0 ) + neq_L * dphi_eq_dChi[-1,:]
@@ -260,7 +261,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     v = 0
 
     while cond and ( iter < max_iter ):
-        sol = solve( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used )
+        sol = solve_forgrad( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used )
         gradsol = grad_solve( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , Br , Cn , Cp , mn , mp , Snl , Spl , Snr , Spr , G_used )
 
         tot_current, tot_current_derivs = total_current( sol[0:N] , sol[N:2*N] , sol[2*N:] , dgrid , Chi , Eg , Nc , Nv , mn , mp )
