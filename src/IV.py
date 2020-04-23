@@ -461,6 +461,4 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         v = v + Vincrement
         phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
 
-    print( current )
-
     return current , current_jac
