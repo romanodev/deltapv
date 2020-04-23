@@ -251,11 +251,11 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
             solution for the e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential
 
     """
-    phis = phis_ini
     error = 1
     iter = 0
+
+    phis = phis_ini
     while (error > 1e-6):
-    for i in range( num_steps ):
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
         error = error_dx
