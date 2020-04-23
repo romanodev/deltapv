@@ -266,6 +266,11 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         gradsol = grad_solve( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , Et , tn , tp , Br , Cn , Cp , mn , mp , Snl , Spl , Snr , Spr , G_used )
 
         tot_current, tot_current_derivs = total_current( dgrid , sol[0:N] , sol[N:2*N] , sol[2*N:] , Chi , Eg , Nc , Nv , mn , mp )
+
+        print( tot_current )
+        print( tot_current_derivs )
+        quit()  
+
         current.append( tot_current )
 
         jac_phis['eps'] = gradsol[5] + np.dot( gradsol[4] , jac_phis['eps'] )
