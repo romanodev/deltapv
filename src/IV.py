@@ -179,8 +179,6 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     grad_phieq = jit( jacfwd( solve_eq_forgrad , argnums = ( 1 , 2 , 3 , 4 , 5 , 6 , 7 ) ) )
     grad_solve = jit( jacfwd( solve_forgrad , argnums = ( 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23 , 24 ) ) )
 
-    print( "grad start" )
-
     N = dgrid.size + 1
 
     phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
@@ -272,6 +270,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         current.append( tot_current )
 
         jac_phis['eps'] = gradsol[5] + np.dot( gradsol[4] , jac_phis['eps'] )
+        print( dneq0_dChi )
+        print( dneq0_dChi.transpose() )
         u = np.dot( gradsol[0] , dneq0_dChi.transpose() )
         jac_phis['Chi'] = gradsol[6] + np.dot( gradsol[0] , dneq0_dChi.transpose() ) + np.dot( gradsol[1] , dneqL_dChi.transpose() ) + np.dot( gradsol[2] , dpeq0_dChi.transpose() ) + np.dot( gradsol[3] , dpeqL_dChi.transpose() ) + np.dot( gradsol[4] , jac_phis['Chi'] )
         jac_phis['Eg'] = gradsol[7] + np.dot( gradsol[0] , dneq0_dEg.transpose() ) + np.dot( gradsol[1] , dneqL_dEg.transpose() ) + np.dot( gradsol[2] , dpeq0_dEg.transpose() ) + np.dot( gradsol[3] , dpeqL_dEg.transpose() )+ np.dot( gradsol[4] , jac_phis['Eg'] )
