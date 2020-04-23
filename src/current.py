@@ -270,22 +270,22 @@ def total_current( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , mp ):
 
     deriv = {}
 
-    deriv['dChi0'] = mn[0] * fmn / dgrid * Dpsin_Dexppsin_dpsin0 + mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip0
-    deriv['dChi1'] = mn[0] * fmn / dgrid * Dpsin_Dexppsin_dpsin1 + mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip1
-    deriv['dEg0'] = mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip0
-    deriv['dEg1'] = mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip1
-    deriv['dNc0'] = 1 / Nc[0] * mn[0] * fmn / dgrid * Dpsin_Dexppsin_dpsin0
-    deriv['dNc1'] = 1 / Nc[1] * mn[0] * fmn / dgrid * Dpsin_Dexppsin_dpsin1
-    deriv['dNv0'] = - 1 / Nv[0] * mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip0
-    deriv['dNv1'] = - 1 / Nv[1] * mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip1
-    deriv['dmn0'] = Dpsin_Dexppsin * fmn / dgrid
-    deriv['dmp0'] = Dpsip_Dexppsip * fmp / dgrid
+    deriv['dChi0'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
+    deriv['dChi1'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv['dEg0'] = mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
+    deriv['dEg1'] = mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv['dNc0'] = 1 / Nc[0] * mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0
+    deriv['dNc1'] = 1 / Nc[1] * mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1
+    deriv['dNv0'] = - 1 / Nv[0] * mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
+    deriv['dNv1'] = - 1 / Nv[1] * mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv['dmn0'] = Dpsin_Dexppsin * fmn / dgrid[0]
+    deriv['dmp0'] = Dpsip_Dexppsip * fmp / dgrid[0]
 
-    deriv['dphin0'] = mn[0] * Dpsin_Dexppsin / dgrid * dfmn_dphin0
-    deriv['dphin1'] = mn[0] * Dpsin_Dexppsin / dgrid * dfmn_dphin1
-    deriv['dphip0'] = mp[0] * Dpsip_Dexppsip / dgrid * dfmp_dphip0
-    deriv['dphip1'] = mp[0] * Dpsip_Dexppsip / dgrid * dfmp_dphip1
-    deriv['dphi0'] = mn[0] * fmn / dgrid * Dpsin_Dexppsin_dpsin0 + mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip0
-    deriv['dphi1'] = mn[0] * fmn / dgrid * Dpsin_Dexppsin_dpsin1 + mp[0] * fmp / dgrid * Dpsip_Dexppsip_dpsip1
+    deriv['dphin0'] = mn[0] * Dpsin_Dexppsin / dgrid[0] * dfmn_dphin0
+    deriv['dphin1'] = mn[0] * Dpsin_Dexppsin / dgrid[0] * dfmn_dphin1
+    deriv['dphip0'] = mp[0] * Dpsip_Dexppsip / dgrid[0] * dfmp_dphip0
+    deriv['dphip1'] = mp[0] * Dpsip_Dexppsip / dgrid[0] * dfmp_dphip1
+    deriv['dphi0'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0 + mp[0] * fmp / dgri[0] * Dpsip_Dexppsip_dpsip0
+    deriv['dphi1'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
 
     return Fcurrent , deriv
