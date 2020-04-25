@@ -192,6 +192,9 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
 
     gradphieq = grad_phieq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
 
+    print( gradphieq )
+    quit()
+
     dphi_eq_deps = gradphieq[ 1 ]
     dphi_eq_dChi = gradphieq[ 2 ]
     dphi_eq_dChi = ops.index_add( dphi_eq_dChi , ops.index[:,0] , np.dot( gradphieq[ 0 ] , dphi_ini_dChi0 ) )
