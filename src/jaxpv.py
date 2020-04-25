@@ -405,28 +405,27 @@ class JAXPV( object ):
             P = coef * voltages * current
             Pmax = np.max( P )
             index = np.where( P == Pmax )
-            print( index )
             eff = Pmax
             result = {}
-            result['eps'] = cur_grad[ index ]['eps'] * coef * voltages[ index ]
-            result['Chi'] = cur_grad[ index ]['Chi'] * coef * voltages[ index ]
-            result['Eg'] = cur_grad[ index ]['Eg'] * coef * voltages[ index ]
-            result['Nc'] = cur_grad[ index ]['Nc'] * coef * voltages[ index ]
-            result['Nv'] = cur_grad[ index ]['Nv'] * coef * voltages[ index ]
-            result['Ndop'] = cur_grad[ index ]['Ndop'] * coef * voltages[ index ]
-            result['mn'] = cur_grad[ index ]['mn'] * coef * voltages[ index ]
-            result['mp'] = cur_grad[ index ]['mp'] * coef * voltages[ index ]
-            result['Et'] = cur_grad[ index ]['Et'] * coef * voltages[ index ]
-            result['tn'] = cur_grad[ index ]['tn'] * coef * voltages[ index ]
-            result['tp'] = cur_grad[ index ]['tp'] * coef * voltages[ index ]
-            result['Br'] = cur_grad[ index ]['Br'] * coef * voltages[ index ]
-            result['Cn'] = cur_grad[ index ]['Cn'] * coef * voltages[ index ]
-            result['Cp'] = cur_grad[ index ]['Cp'] * coef * voltages[ index ]
-            result['Snl'] = cur_grad[ index ]['Snl'] * coef * voltages[ index ]
-            result['Spl'] = cur_grad[ index ]['Spl'] * coef * voltages[ index ]
-            result['Snr'] = cur_grad[ index ]['Snr'] * coef * voltages[ index ]
-            result['Spr'] = cur_grad[ index ]['Spr'] * coef * voltages[ index ]
-            result['G'] = cur_grad[ index ]['G'] * coef * voltages[ index ]
+            result['eps'] = cur_grad[ index[0] ]['eps'] * coef * voltages[ index[0] ]
+            result['Chi'] = cur_grad[ index[0] ]['Chi'] * coef * voltages[ index[0] ]
+            result['Eg'] = cur_grad[ index[0] ]['Eg'] * coef * voltages[ index[0] ]
+            result['Nc'] = cur_grad[ index[0] ]['Nc'] * coef * voltages[ index[0] ]
+            result['Nv'] = cur_grad[ index[0] ]['Nv'] * coef * voltages[ index[0] ]
+            result['Ndop'] = cur_grad[ index[0] ]['Ndop'] * coef * voltages[ index[0] ]
+            result['mn'] = cur_grad[ index[0] ]['mn'] * coef * voltages[ index[0] ]
+            result['mp'] = cur_grad[ index[0] ]['mp'] * coef * voltages[ index[0] ]
+            result['Et'] = cur_grad[ index[0] ]['Et'] * coef * voltages[ index[0] ]
+            result['tn'] = cur_grad[ index[0] ]['tn'] * coef * voltages[ index[0] ]
+            result['tp'] = cur_grad[ index[0] ]['tp'] * coef * voltages[ index[0] ]
+            result['Br'] = cur_grad[ index[0] ]['Br'] * coef * voltages[ index[0] ]
+            result['Cn'] = cur_grad[ index[0] ]['Cn'] * coef * voltages[ index[0] ]
+            result['Cp'] = cur_grad[ index[0] ]['Cp'] * coef * voltages[ index[0] ]
+            result['Snl'] = cur_grad[ index[0] ]['Snl'] * coef * voltages[ index[0] ]
+            result['Spl'] = cur_grad[ index[0] ]['Spl'] * coef * voltages[ index[0] ]
+            result['Snr'] = cur_grad[ index[0] ]['Snr'] * coef * voltages[ index[0] ]
+            result['Spr'] = cur_grad[ index[0] ]['Spr'] * coef * voltages[ index[0] ]
+            result['G'] = cur_grad[ index[0] ]['G'] * coef * voltages[ index[0] ]
 
             print( eff )
             print( result )
