@@ -403,7 +403,7 @@ class JAXPV( object ):
             voltages = np.linspace( start = 0 , stop = len( current ) * Vincr , num = len( current ) )
             print( voltages )
             coef = scale['E'] * scale['J'] * 10.0
-            P = coeff * current
+            P = coef * current
             Pmax = np.max( P )
             index = np.where( P == Pmax )
             eff = Pmax
