@@ -399,13 +399,17 @@ class JAXPV( object ):
             G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
 
         if jit:
-            cur , cur_grad = grad_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
+            current2 = calc_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
+            current , cur_grad = grad_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
             voltages = np.linspace( start = 0 , stop = len( cur ) * Vincr , num = len( cur ) )
             coef = scale['E'] * scale['J'] * 10
-            P = scale['E'] * voltages * scale['J'] * cur * 10
+            print( current )
+            print( current2 )
+            P = coef voltages * current2
             Pmax = np.max( P )
             index = np.where( P == Pmax )
             eff = Pmax
+            quit()
             result = {}
             result['eps'] = cur_grad['eps'][ index ] * coef * voltages[ index ]
             result['Chi'] = cur_grad['Chi'][ index ] * coef * voltages[ index ]
