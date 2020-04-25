@@ -407,12 +407,11 @@ class JAXPV( object ):
             index = np.where( P == Pmax )
             eff = Pmax
             result = {}
-            print( index[0] )
-            print( cur_grad[index[0]] )
-            print( cur_grad[index[0]]['eps'] )
-            print( coef * cur_grad[index[0]]['eps'] )
-            print( voltages[ index[0] ] )
-            print( voltages[ index[0] ] * coef * cur_grad[index[0]]['eps'] )
+            print( index[0][0] )
+            print( cur_grad[index[0][0]] )
+            print( cur_grad[index[0][0]]['eps'] )
+            print( coef * cur_grad[index[0][0]]['eps'] )
+            print( voltages[ index[0][0] ] * coef * cur_grad[index[0][0]]['eps'] )
             result['eps'] = cur_grad[ index[0] ]['eps'] * coef * voltages[ index[0] ]
             result['Chi'] = cur_grad[ index[0] ]['Chi'] * coef * voltages[ index[0] ]
             result['Eg'] = cur_grad[ index[0] ]['Eg'] * coef * voltages[ index[0] ]
