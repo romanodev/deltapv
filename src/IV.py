@@ -267,6 +267,9 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
 
         tot_current, tot_current_derivs = total_current( dgrid , sol[0:N] , sol[N:2*N] , sol[2*N:] , Chi , Eg , Nc , Nv , mn , mp )
 
+        print( gradsol )
+        quit()
+
         current.append( tot_current )
 
         jac_phis['eps'] = gradsol[5] + np.dot( gradsol[4] , jac_phis['eps'] )
@@ -288,9 +291,6 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         jac_phis['Snr'] = gradsol[21] + np.dot( gradsol[4] , jac_phis['Snr'] )
         jac_phis['Spr'] = gradsol[22] + np.dot( gradsol[4] , jac_phis['Spr'] )
         jac_phis['G'] = gradsol[23] + np.dot( gradsol[4] , jac_phis['G'] )
-
-        print( jac_phis )
-        quit()
 
         new_current_jac = {}
 
