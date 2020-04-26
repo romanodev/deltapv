@@ -196,11 +196,46 @@ def solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
             equilibrium electrostatic potential
 
     """
-    step_nums = 10
+    N = dgrid.size + 1
+    error = 1
+    iter = 0
+    print( 'Equilibrium     Iteration       |F(x)|                Residual     ' )
+    print( '-------------------------------------------------------------------' )
+    grad_step = jit( jacvwd( step_eq_forgrad , ( 1 , 2 , 3 , 4 , 5 , 6 , 7 ) ) )
 
     phi = phi_ini
-    for i in range( step_nums ):
-        next_phi = step_eq_forgrad( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
+
+    dphi_dphiini = np.eye( ( N , N ) )
+    dphi_deps = np.zeros( ( N , N ) )
+    dphi_dChi = np.zeros( ( N , N ) )
+    dphi_dEg = np.zeros( ( N , N ) )
+    dphi_dNc = np.zeros( ( N , N ) )
+    dphi_dNv = np.zeros( ( N , N ) )
+    dphi_dNdop = np.zeros( ( N , N ) )
+
+    while (error > 1e-6):
+        error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
+        gradstep = grad_step( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
 
-    return phi
+        dphi_deps = gradstep[1] + np.dot( gradstep[0] , dphi_deps )
+        dphi_dChi = gradstep[2] + np.dot( gradstep[0] , dphi_dChi )
+        dphi_dEg = gradstep[3] + np.dot( gradstep[0] , dphi_dEg )
+        dphi_dNc = gradstep[4] + np.dot( gradstep[0] , dphi_dNc )
+        dphi_dNv = gradstep[5] + np.dot( gradstep[0] , dphi_dNv )
+        dphi_dNdop = gradstep[6] + np.dot( gradstep[0] , dphi_dNdop )
+
+        error = error_dx
+        iter += 1
+        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , float( error_F ) , float( error_dx ) ) )
+
+    grad_phi = {}
+    grad_phi['phi_ini'] = dphi_dphiini
+    grad_phi['eps'] = dphi_deps
+    grad_phi['Chi'] = dphi_dChi
+    grad_phi['Eg'] = dphi_dEg
+    grad_phi['Nc'] = dphi_dNc
+    grad_phi['Nv'] = dphi_dNv
+    grad_phi['Ndop'] = dphi_dNdop
+
+    return phi , grad_phi

@@ -334,11 +334,92 @@ def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg
             solution for the e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential
 
     """
-    step_nums = 10
+    N = dgrid.size + 1
+    error = 1
+    iter = 0
+    grad_step = jit( jacfwd( step_forgrad , ( 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11, 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23 , 24 ) ) )
 
     phis = phis_ini
-    for i in range( step_nums ):
-        next_phis = step_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
+
+    dphis_dphiini = np.eye( ( 3 * N , 3 * N ) )
+    dphis_dneq0 = np.zeros( ( 3 * N , 1 ) )
+    dphis_dneqL = np.zeros( ( 3 * N , 1 ) )
+    dphis_dpeq0 = np.zeros( ( 3 * N , 1 ) )
+    dphis_dpeqL = np.zeros( ( 3 * N , 1 ) )
+    dphis_dSnl = np.zeros( ( 3 * N , 1 ) )
+    dphis_dSpl = np.zeros( ( 3 * N , 1 ) )
+    dphis_dSnr = np.zeros( ( 3 * N , 1 ) )
+    dphis_dSpr = np.zeros( ( 3 * N , 1 ) )
+    dphis_deps = np.zeros( ( 3 * N , N ) )
+    dphis_dChi = np.zeros( ( 3 * N , N ) )
+    dphis_dEg = np.zeros( ( 3 * N , N ) )
+    dphis_dNc = np.zeros( ( 3 * N , N ) )
+    dphis_dNv = np.zeros( ( 3 * N , N ) )
+    dphis_dNdop = np.zeros( ( 3 * N , N ) )
+    dphis_dmn = np.zeros( ( 3 * N , N ) )
+    dphis_dmp = np.zeros( ( 3 * N , N ) )
+    dphis_dEt = np.zeros( ( 3 * N , N ) )
+    dphis_dtn = np.zeros( ( 3 * N , N ) )
+    dphis_dtp = np.zeros( ( 3 * N , N ) )
+    dphis_dBr = np.zeros( ( 3 * N , N ) )
+    dphis_dCn = np.zeros( ( 3 * N , N ) )
+    dphis_dCp = np.zeros( ( 3 * N , N ) )
+    dphis_dG = np.zeros( ( 3 * N , N ) )
+
+    while (error > 1e-6):
+        error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
+        gradstep = grad_step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
 
-    return phis
+        dphis_dneq0 = gradstep[0] + np.dot( gradstep[4] , dphis_dneq0 )
+        dphis_dneqL = gradstep[1] + np.dot( gradstep[4] , dphis_dneqL )
+        dphis_dpeq0 = gradstep[2] + np.dot( gradstep[4] , dphis_dpeq0 )
+        dphis_dpeqL = gradstep[3] + np.dot( gradstep[4] , dphis_dpeqL )
+        dphis_dSnl = gradstep[19] + np.dot( gradstep[4] , dphis_dSnl )
+        dphis_dSpl = gradstep[20] + np.dot( gradstep[4] , dphis_dSpl )
+        dphis_dSnr = gradstep[21] + np.dot( gradstep[4] , dphis_dSnr )
+        dphis_dSpr = gradstep[22] + np.dot( gradstep[4] , dphis_dSpr )
+        dphis_deps = gradstep[5] + np.dot( gradstep[4] , dphis_deps )
+        dphis_dChi = gradstep[6] + np.dot( gradstep[4] , dphis_dChi )
+        dphis_dEg = gradstep[7] + np.dot( gradstep[4] , dphis_dEg )
+        dphis_dNc = gradstep[8] + np.dot( gradstep[4] , dphis_dNc )
+        dphis_dNv = gradstep[9] + np.dot( gradstep[4] , dphis_dNv )
+        dphis_dNdop = gradstep[10] + np.dot( gradstep[4] , dphis_dNdop )
+        dphis_dmn = gradstep[11] + np.dot( gradstep[4] , dphis_dmn )
+        dphis_dmp = gradstep[12] + np.dot( gradstep[4] , dphis_dmp )
+        dphis_dEt = gradstep[13] + np.dot( gradstep[4] , dphis_dEt )
+        dphis_dtn = gradstep[14] + np.dot( gradstep[4] , dphis_dtn )
+        dphis_dtp = gradstep[15] + np.dot( gradstep[4] , dphis_dtp )
+        dphis_dBr = gradstep[16] + np.dot( gradstep[4] , dphis_dBr )
+        dphis_dCn = gradstep[17] + np.dot( gradstep[4] , dphis_dCn )
+        dphis_dCp = gradstep[18] + np.dot( gradstep[4] , dphis_dCp )
+        dphis_dG = gradstep[23] + np.dot( gradstep[4] , dphis_dG )
+
+        error = error_dx
+        iter += 1
+        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , float( error_F ) , float( error_dx ) ) )
+
+
+    grad_phis = {}
+    grad_phis['neq0'] = dphis_dneq0
+    grad_phis['neqL'] = dphis_dneqL
+    grad_phis['peq0'] = dphis_dpeq0
+    grad_phis['peqL'] = dphis_dpeqL
+    grad_phis['phi_ini'] = dphis_dphiini
+    grad_phis['eps'] = dphis_deps
+    grad_phis['Chi'] = dphis_dChi
+    grad_phis['Eg'] = dphis_dEg
+    grad_phis['Nc'] = dphis_dNc
+    grad_phis['Nv'] = dphis_dNv
+    grad_phis['Ndop'] = dphis_dNdop
+    grad_phis['mn'] = dphis_dmn
+    grad_phis['mp'] = dphis_dmp
+    grad_phis['Et'] = dphis_dEt
+    grad_phis['tn'] = dphis_dtn
+    grad_phis['tp'] = dphis_dtp
+    grad_phis['Br'] = dphis_dBr
+    grad_phis['Cn'] = dphis_dCn
+    grad_phis['Cp'] = dphis_dCp
+    grad_phis['G'] = dphis_dG
+
+    return phis , grad_phis
