@@ -440,9 +440,6 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         v = v + Vincrement
         phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
 
-        print( gradsol )
-        quit()
-
         jac_phis['eps'] = gradsol[5] + np.dot( gradsol[4] , jac_phis['eps'] )
         jac_phis['Chi'] = gradsol[6] + np.dot( np.reshape( gradsol[0] , ( 3 * N , 1 ) ) , np.reshape( dneq0_dChi , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol[1] , ( 3 * N , 1 ) ) , np.reshape( dneqL_dChi , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol[2] , ( 3 * N , 1 ) ) , np.reshape( dpeq0_dChi , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol[3] , ( 3 * N , 1 ) ) , np.reshape( dpeqL_dChi , ( 1 , N ) ) ) + np.dot( gradsol[4] , jac_phis['Chi'] )
         jac_phis['Eg'] = gradsol[7] + np.dot( np.reshape( gradsol[0] , ( 3 * N , 1 ) ) , np.reshape( dneq0_dEg , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol[1] , ( 3 * N , 1 ) ) , np.reshape( dneqL_dEg , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol[2] , ( 3 * N , 1 ) ) , np.reshape( dpeq0_dEg , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol[3] , ( 3 * N , 1 ) ) , np.reshape( dpeqL_dEg , ( 1 , N ) ) )+ np.dot( gradsol[4] , jac_phis['Eg'] )
