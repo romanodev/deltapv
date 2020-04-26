@@ -371,7 +371,7 @@ def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg
         phis = next_phis
 
         print( dphis_dneq0.shape )
-        print( gradstep[0.shape )
+        print( gradstep[0].shape )
         print( gradstep[4].shape )
         dphis_dneq0 = gradstep[0] + np.dot( gradstep[4] , dphis_dneq0 )
         print( dphis_dneq0.shape )
