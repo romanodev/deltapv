@@ -227,6 +227,28 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dpeq0_dNdop = - peq_0 * dphi_eq_dNdop[0,:]
     dpeqL_dNdop = - peq_L * dphi_eq_dNdop[-1,:]
 
+    dneq0_dChi = np.reshape( dneq0_dChi , ( 1 , N ) )
+    dneqL_dChi = np.reshape( dneqL_dChi , ( 1 , N ) )
+    dneq0_dEg = np.reshape( dneq0_dEg , ( 1 , N ) )
+    dneqL_dEg = np.reshape( dneqL_dEg , ( 1 , N ) )
+    dneq0_dNc = np.reshape( dneq0_dNc , ( 1 , N ) )
+    dneqL_dNc = np.reshape( dneqL_dNc , ( 1 , N ) )
+    dneq0_dNv = np.reshape( dneq0_dNv , ( 1 , N ) )
+    dneqL_dNv = np.reshape( dneqL_dNv , ( 1 , N ) )
+    dneq0_dNdop = np.reshape( dneq0_dNdop , ( 1 , N ) )
+    dneqL_dNdop = np.reshape( dneqL_dNdop , ( 1 , N ) )
+
+    dpeq0_dChi = np.reshape( dpeq0_dChi , ( 1 , N ) )
+    dpeqL_dChi = np.reshape( dpeqL_dChi , ( 1 , N ) )
+    dpeq0_dEg = np.reshape( dpeq0_dEg , ( 1 , N ) )
+    dpeqL_dEg = np.reshape( dpeqL_dEg , ( 1 , N ) )
+    dneq0_dNc = np.reshape( dpeq0_dNc , ( 1 , N ) )
+    dpeqL_dNc = np.reshape( dpeqL_dNc , ( 1 , N ) )
+    dpeq0_dNv = np.reshape( dpeq0_dNv , ( 1 , N ) )
+    dpeqL_dNv = np.reshape( dpeqL_dNv , ( 1 , N ) )
+    dpeq0_dNdop = np.reshape( dpeq0_dNdop , ( 1 , N ) )
+    dpeqL_dNdop = np.reshape( dpeqL_dNdop , ( 1 , N ) )
+
     phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
     jac_phis = {}
     jac_phis['eps'] = np.vstack( ( np.zeros( ( 2*N , N ) ) , dphi_eq_deps ) )
