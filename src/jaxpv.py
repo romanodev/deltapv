@@ -427,8 +427,7 @@ class JAXPV( object ):
             result['Spr'] = cur_grad[ index ]['Spr'] * coef * voltages[ index ]
             result['G'] = cur_grad[ index ]['G'] * coef * voltages[ index ]
 
-            print( eff )
-            print( result )
+            return eff , result;
 
         else:
             gradeff = grad( efficiency , argnums = ( 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 ) )
@@ -454,8 +453,7 @@ class JAXPV( object ):
             result['Spr'] = deriv[17]
             result['G'] = deriv[18]
 
-            print( result )
-
+            return result;
 
 
 
