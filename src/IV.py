@@ -454,7 +454,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         jac_phis['Br'] = gradsol[16] + np.dot( gradsol[4] , jac_phis['Br'] )
         jac_phis['Cn'] = gradsol[17] + np.dot( gradsol[4] , jac_phis['Cn'] )
         jac_phis['Cp'] = gradsol[18] + np.dot( gradsol[4] , jac_phis['Cp'] )
-        jac_phis['Snl'] = gradsol[19] + np.dot( gradsol[4] , jac_phis['Snl'] )
+        jac_phis['Snl'] = gradsol[19] + np.dot( gradsol[4] , jac_phis['Snl'].T )
         jac_phis['Spl'] = gradsol[20] + np.dot( gradsol[4] , jac_phis['Spl'] )
         jac_phis['Snr'] = gradsol[21] + np.dot( gradsol[4] , jac_phis['Snr'] )
         jac_phis['Spr'] = gradsol[22] + np.dot( gradsol[4] , jac_phis['Spr'] )
@@ -484,5 +484,5 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
 
         print( jac_phis['Snl'].shape )
         quit()
-        
+
     return np.array( current , dtype = np.float64 ) , current_jac
