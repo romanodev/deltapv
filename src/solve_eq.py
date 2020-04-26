@@ -153,6 +153,9 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     phi = phi_ini
     while (error > 1e-6):
         error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
+        print( error_dx )
+        print( error_F )
+        print( iter )
         phi = next_phi
         error = error_dx
         iter += 1
