@@ -1,6 +1,6 @@
 from .F import *
 if USE_JAX:
-    from jax import jit
+    from jax import jit , jacfwd
 
 def damp( move ):
     """
