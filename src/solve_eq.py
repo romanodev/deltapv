@@ -201,7 +201,7 @@ def solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     iter = 0
     print( 'Equilibrium     Iteration       |F(x)|                Residual     ' )
     print( '-------------------------------------------------------------------' )
-    grad_step = jit( jacvwd( step_eq_forgrad , ( 1 , 2 , 3 , 4 , 5 , 6 , 7 ) ) )
+    grad_step = jit( jacfwd( step_eq_forgrad , ( 1 , 2 , 3 , 4 , 5 , 6 , 7 ) ) )
 
     phi = phi_ini
 
