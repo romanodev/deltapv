@@ -164,7 +164,6 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
 
 
 
-@jit
 def solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Solves for the equilibrium electrostatic potential using the Newton method and computes derivatives.

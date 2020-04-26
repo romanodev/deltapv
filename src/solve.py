@@ -268,7 +268,6 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
 
 
 
-@jit
 def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
     """
     Solves for the e-/hole quasi-Fermi energies and electrostatic potential using the Newton method and computes derivatives.
