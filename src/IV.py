@@ -480,7 +480,4 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         jac_phis['Spr'] = ops.index_update( jac_phis['Spr'] , ops.index[-1,:] , 0 )
         jac_phis['G'] = ops.index_update( jac_phis['G'] , ops.index[-1,:] , np.zeros( N ) )
 
-        print( jac_phis['Snl'].shape )
-        quit()
-
     return np.array( current , dtype = np.float64 ) , current_jac
