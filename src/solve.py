@@ -419,6 +419,10 @@ def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg
     grad_phis['Br'] = dphis_dBr
     grad_phis['Cn'] = dphis_dCn
     grad_phis['Cp'] = dphis_dCp
+    grad_phis['Snl'] = dphis_dSnl
+    grad_phis['Spl'] = dphis_dSpl
+    grad_phis['Snr'] = dphis_dSnr
+    grad_phis['Spr'] = dphis_dSpr
     grad_phis['G'] = dphis_dG
 
     return phis , grad_phis
