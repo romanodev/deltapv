@@ -260,7 +260,7 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
         phis = next_phis
         error = error_dx
         iter += 1
-        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , error_F , error_dx ) )
+        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , float( error_F ) , float( error_dx ) ) )
 
     return phis
 
