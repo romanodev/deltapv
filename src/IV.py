@@ -399,6 +399,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         + tot_current_derivs['dphi0'] * jac_phis['Snl'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Snl'][2*N+1,:]
 
+        print( new_current_jac['Snl'].shape() )
+
         new_current_jac['Spl'] = \
         tot_current_derivs['dphin0'] * jac_phis['Spl'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Spl'][1,:] \
