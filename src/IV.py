@@ -454,13 +454,19 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         jac_phis['Br'] = gradsol[16] + np.dot( gradsol[4] , jac_phis['Br'] )
         jac_phis['Cn'] = gradsol[17] + np.dot( gradsol[4] , jac_phis['Cn'] )
         jac_phis['Cp'] = gradsol[18] + np.dot( gradsol[4] , jac_phis['Cp'] )
-        jac_phis['Snl'] = gradsol[19] + np.dot( gradsol[4] , jac_phis['Snl'].T )
+
+        print( jac_phis['Snl'].shape )
+        print( np.dot( gradsol[4] , jac_phis['Snl'] ).shape )
+        print( gradsol[19].shape )
+
+        jac_phis['Snl'] = gradsol[19] + np.dot( gradsol[4] , jac_phis['Snl'] )
         jac_phis['Spl'] = gradsol[20] + np.dot( gradsol[4] , jac_phis['Spl'] )
         jac_phis['Snr'] = gradsol[21] + np.dot( gradsol[4] , jac_phis['Snr'] )
         jac_phis['Spr'] = gradsol[22] + np.dot( gradsol[4] , jac_phis['Spr'] )
         jac_phis['G'] = gradsol[23] + np.dot( gradsol[4] , jac_phis['G'] )
 
         print( jac_phis['Snl'].shape )
+        quit()
 
         jac_phis['eps'] = ops.index_update( jac_phis['eps'] , ops.index[-1,:] , dphi_eq_deps[-1,:] )
         jac_phis['Chi'] = ops.index_update( jac_phis['Chi'] , ops.index[-1,:] , dphi_eq_dChi[-1,:] )
