@@ -5,7 +5,7 @@ def Vincrement( Chi , Eg , Nc , Nv , Ndop , num_vals = 50 ):
     """
     Compute the increment of voltages when compute I-V curve.
 
-    It si defined as the equilibrium potential difference divided by a fixed number of point calculations.
+    It is defined as the equilibrium potential difference divided by a fixed number of point calculations.
 
     Parameters
     ----------
