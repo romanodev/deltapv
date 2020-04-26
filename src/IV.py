@@ -272,16 +272,16 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         new_current_jac['eps'] = \
         tot_current_derivs['dphin0'] * jac_phis['eps'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['eps'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['eps'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['eps'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['eps'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['eps'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['eps'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['eps'][2*N+1,:]
 
         new_current_jac['Chi'] = \
         tot_current_derivs['dphin0'] * jac_phis['Chi'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Chi'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Chi'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Chi'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Chi'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Chi'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Chi'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Chi'][2*N+1,:]
         new_current_jac['Chi'] = ops.index_add( new_current_jac['Chi'] , 0 , tot_current_derivs['dChi0'] )
@@ -290,8 +290,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         new_current_jac['Eg'] = \
         tot_current_derivs['dphin0'] * jac_phis['Eg'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Eg'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Eg'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Eg'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Eg'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Eg'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Eg'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Eg'][2*N+1,:]
         new_current_jac['Eg'] = ops.index_add( new_current_jac['Eg'] , 0 , tot_current_derivs['dEg0'] )
@@ -300,8 +300,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         new_current_jac['Nc'] = \
         tot_current_derivs['dphin0'] * jac_phis['Nc'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Nc'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Nc'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Nc'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Nc'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Nc'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Nc'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Nc'][2*N+1,:]
         new_current_jac['Nc'] = ops.index_add( new_current_jac['Nc'] , 0 , tot_current_derivs['dNc0'] )
@@ -310,8 +310,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         new_current_jac['Nv'] = \
         tot_current_derivs['dphin0'] * jac_phis['Nv'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Nv'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Nv'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Nv'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Nv'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Nv'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Nv'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Nv'][2*N+1,:]
         new_current_jac['Nv'] = ops.index_add( new_current_jac['Nv'] , 0 , tot_current_derivs['dNv0'] )
@@ -320,16 +320,16 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         new_current_jac['Ndop'] = \
         tot_current_derivs['dphin0'] * jac_phis['Ndop'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Ndop'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Ndop'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Ndop'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Ndop'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Ndop'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Ndop'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Ndop'][2*N+1,:]
 
         new_current_jac['mn'] = \
         tot_current_derivs['dphin0'] * jac_phis['mn'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['mn'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['mn'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['mn'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['mn'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['mn'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['mn'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['mn'][2*N+1,:]
         new_current_jac['mn'] = ops.index_add( new_current_jac['mn'] , 0 , tot_current_derivs['dmn0'] )
@@ -337,8 +337,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         new_current_jac['mp'] = \
         tot_current_derivs['dphin0'] * jac_phis['mp'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['mp'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['mp'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['mp'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['mp'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['mp'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['mp'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['mp'][2*N+1,:]
         new_current_jac['mp'] = ops.index_add( new_current_jac['mp'] , 0 , tot_current_derivs['dmp0'] )
@@ -346,92 +346,88 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         new_current_jac['Et'] = \
         tot_current_derivs['dphin0'] * jac_phis['Et'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Et'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Et'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Et'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Et'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Et'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Et'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Et'][2*N+1,:]
 
         new_current_jac['tn'] = \
         tot_current_derivs['dphin0'] * jac_phis['tn'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['tn'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['tn'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['tn'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['tn'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['tn'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['tn'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['tn'][2*N+1,:]
 
         new_current_jac['tp'] = \
         tot_current_derivs['dphin0'] * jac_phis['tp'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['tp'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['tp'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['tp'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['tp'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['tp'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['tp'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['tp'][2*N+1,:]
 
         new_current_jac['Br'] = \
         tot_current_derivs['dphin0'] * jac_phis['Br'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Br'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Br'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Br'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Br'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Br'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Br'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Br'][2*N+1,:]
 
         new_current_jac['Cn'] = \
         tot_current_derivs['dphin0'] * jac_phis['Cn'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Cn'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Cn'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Cn'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Cn'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Cn'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Cn'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Cn'][2*N+1,:]
 
         new_current_jac['Cp'] = \
         tot_current_derivs['dphin0'] * jac_phis['Cp'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Cp'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Cp'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Cp'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Cp'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Cp'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Cp'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Cp'][2*N+1,:]
 
         new_current_jac['Snl'] = \
         tot_current_derivs['dphin0'] * jac_phis['Snl'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Snl'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Snl'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Snl'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Snl'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Snl'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Snl'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Snl'][2*N+1,:]
-
-        print( jac_phis['Snr'][0,:] )
-        print( new_current_jac['Snl'] )
-        quit()
 
         new_current_jac['Spl'] = \
         tot_current_derivs['dphin0'] * jac_phis['Spl'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Spl'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Spl'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Spl'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Spl'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Spl'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Spl'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Spl'][2*N+1,:]
 
         new_current_jac['Snr'] = \
         tot_current_derivs['dphin0'] * jac_phis['Snr'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Snr'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Snr'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Snr'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Snr'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Snr'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Snr'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Snr'][2*N+1,:]
 
         new_current_jac['Spr'] = \
         tot_current_derivs['dphin0'] * jac_phis['Spr'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['Spr'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['Spr'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['Spr'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['Spr'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['Spr'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['Spr'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['Spr'][2*N+1,:]
 
         new_current_jac['G'] = \
         tot_current_derivs['dphin0'] * jac_phis['G'][0,:] \
         + tot_current_derivs['dphin1'] * jac_phis['G'][1,:] \
-        + tot_current_derivs['dphin0'] * jac_phis['G'][N,:] \
-        + tot_current_derivs['dphin1'] * jac_phis['G'][N+1,:]
+        + tot_current_derivs['dphip0'] * jac_phis['G'][N,:] \
+        + tot_current_derivs['dphip1'] * jac_phis['G'][N+1,:]
         + tot_current_derivs['dphi0'] * jac_phis['G'][2*N,:] \
         + tot_current_derivs['dphi1'] * jac_phis['G'][2*N+1,:]
 
