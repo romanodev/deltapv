@@ -205,7 +205,7 @@ def solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
 
     phi = phi_ini
 
-    dphi_dphiini = np.eye( ( N , N ) )
+    dphi_dphiini = np.eye( N )
     dphi_deps = np.zeros( ( N , N ) )
     dphi_dChi = np.zeros( ( N , N ) )
     dphi_dEg = np.zeros( ( N , N ) )

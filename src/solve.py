@@ -341,7 +341,7 @@ def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg
 
     phis = phis_ini
 
-    dphis_dphiini = np.eye( ( 3 * N , 3 * N ) )
+    dphis_dphiini = np.eye( 3 * N )
     dphis_dneq0 = np.zeros( ( 3 * N , 1 ) )
     dphis_dneqL = np.zeros( ( 3 * N , 1 ) )
     dphis_dpeq0 = np.zeros( ( 3 * N , 1 ) )
