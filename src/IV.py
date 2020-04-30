@@ -98,7 +98,8 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
 
 def function_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
-    return solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
+    phieq = solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
+    return n( np.zeros( dgrid.size + 1 ) , phieq , Chi , Nc )[0]
 
 
 def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
@@ -207,19 +208,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , ops.index[:,0] , np.dot( gradphieq['phi_ini'] , dphi_ini_dNdop0 ) )
     dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , ops.index[:,-1] , np.dot( gradphieq['phi_ini'] , dphi_ini_dNdopL ) )
 
-
-    grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
-    gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
-
-    print( np.allclose( gradtest[0] , dphi_eq_deps ) )
-    print( np.allclose( gradtest[1] , dphi_eq_dChi ) )
-    print( np.allclose( gradtest[2] , dphi_eq_dEg ) )
-    print( np.allclose( gradtest[3] , dphi_eq_dNc ) )
-    print( np.allclose( gradtest[4] , dphi_eq_dNv ) )
-    print( np.allclose( gradtest[5] , dphi_eq_dNdop ) )
-
-    quit()
-
+    dneq0_deps = neq_0 * dphi_eq_deps[0,:]
+    dneqL_deps = neq_L * dphi_eq_deps[-1,:]
     dneq0_dChi = np.concatenate( ( np.array( [ neq_0 ] ) , np.zeros( N - 1 ) ) , axis = 0 ) + neq_0 * dphi_eq_dChi[0,:]
     dneqL_dChi = np.concatenate( ( np.zeros( N - 1 ) , np.array( [ neq_L ] ) ) , axis = 0 ) + neq_L * dphi_eq_dChi[-1,:]
     dneq0_dEg = neq_0 * dphi_eq_dEg[0,:]
@@ -230,6 +220,18 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dneqL_dNv = neq_L * dphi_eq_dNv[-1,:]
     dneq0_dNdop = neq_0 * dphi_eq_dNdop[0,:]
     dneqL_dNdop = neq_L * dphi_eq_dNdop[-1,:]
+
+    grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
+    gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
+
+    print( np.allclose( gradtest[0] , dneq0_deps ) )
+    print( np.allclose( gradtest[1] , dneq0_dChi ) )
+    print( np.allclose( gradtest[2] , dneq0_dEg ) )
+    print( np.allclose( gradtest[3] , dneq0_dNc ) )
+    print( np.allclose( gradtest[4] , dneq0_dNv ) )
+    print( np.allclose( gradtest[5] , dneq0_dNdop ) )
+
+    quit()
 
     dpeq0_dChi = np.concatenate( ( np.array( [ - peq_0 ] ) , np.zeros( N - 1 ) ) , axis = 0 ) - peq_0 * dphi_eq_dChi[0,:]
     dpeqL_dChi = np.concatenate( ( np.zeros( N - 1 ) , np.array( [ - peq_L ] ) ) , axis = 0 ) - peq_L * dphi_eq_dChi[-1,:]

@@ -370,6 +370,7 @@ def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg
         gradstep = grad_step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
 
+        dphis_dphiini = np.dot( gradstep[4] , dphis_dphiini )
         dphis_dneq0 = np.reshape( gradstep[0] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dneq0 )
         dphis_dneqL = np.reshape( gradstep[1] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dneqL )
         dphis_dpeq0 = np.reshape( gradstep[2] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dpeq0 )
