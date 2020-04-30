@@ -310,7 +310,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         print( np.allclose( gradtest[1] , gradsol['neqL'] ) )
         print( np.allclose( gradtest[2] , gradsol['peq0'] ) )
         print( np.allclose( gradtest[3] , gradsol['peqL'] ) )
-        print( np.allclose( gradtest[4] , gradsol['phis'] ) )
+        print( np.allclose( gradtest[4] , gradsol['phi_ini'] ) )
         print( np.allclose( gradtest[5] , gradsol['eps'] ) )
         print( np.allclose( gradtest[6] , gradsol['Chi'] ) )
         print( np.allclose( gradtest[7] , gradsol['Eg'] ) )
