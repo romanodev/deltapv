@@ -219,6 +219,9 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     print( np.allclose( gradtest[5] , gradphieq['Nv'] ) )
     print( np.allclose( gradtest[6] , gradphieq['Ndop'] ) )
 
+    print( gradtest[0] )
+    print( gradphieq['phi_ini'] )
+
     quit()
 
     dneq0_dChi = np.concatenate( ( np.array( [ neq_0 ] ) , np.zeros( N - 1 ) ) , axis = 0 ) + neq_0 * dphi_eq_dChi[0,:]
