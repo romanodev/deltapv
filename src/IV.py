@@ -96,8 +96,8 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     return np.array( current , dtype = np.float64 )
 
 
-def function_test( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
-#    phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
+def function_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
+    phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
     return solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
 
 
@@ -208,19 +208,15 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , ops.index[:,-1] , np.dot( gradphieq['phi_ini'] , dphi_ini_dNdopL ) )
 
 
-    grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 , 7 ) )
-    gradtest = grad_test( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
+    grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
+    gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
 
-    print( np.allclose( gradtest[0] , gradphieq['phi_ini'] ) )
-    print( np.allclose( gradtest[1] , gradphieq['eps'] ) )
-    print( np.allclose( gradtest[2] , gradphieq['Chi'] ) )
-    print( np.allclose( gradtest[3] , gradphieq['Eg'] ) )
-    print( np.allclose( gradtest[4] , gradphieq['Nc'] ) )
-    print( np.allclose( gradtest[5] , gradphieq['Nv'] ) )
-    print( np.allclose( gradtest[6] , gradphieq['Ndop'] ) )
-
-    print( gradtest[0] )
-    print( gradphieq['phi_ini'] )
+    print( np.allclose( gradtest[0] , dphi_eq_deps ) )
+    print( np.allclose( gradtest[1] , dphi_eq_dChi ) )
+    print( np.allclose( gradtest[2] , dphi_eq_dEg ) )
+    print( np.allclose( gradtest[3] , dphi_eq_dNc ) )
+    print( np.allclose( gradtest[4] , dphi_eq_dNv ) )
+    print( np.allclose( gradtest[5] , dphi_eq_dNdop ) )
 
     quit()
 

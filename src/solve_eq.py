@@ -217,13 +217,13 @@ def solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
         gradstep = grad_step( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
 
+        dphi_dphiini = np.dot( gradstep[0] , dphi_dphiini )
         dphi_deps = gradstep[1] + np.dot( gradstep[0] , dphi_deps )
         dphi_dChi = gradstep[2] + np.dot( gradstep[0] , dphi_dChi )
         dphi_dEg = gradstep[3] + np.dot( gradstep[0] , dphi_dEg )
         dphi_dNc = gradstep[4] + np.dot( gradstep[0] , dphi_dNc )
         dphi_dNv = gradstep[5] + np.dot( gradstep[0] , dphi_dNv )
         dphi_dNdop = gradstep[6] + np.dot( gradstep[0] , dphi_dNdop )
-        dphi_dphiini = np.dot( gradstep[0] , dphi_dphiini )
 
         error = error_dx
         iter += 1
