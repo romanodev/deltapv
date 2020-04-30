@@ -331,6 +331,9 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         print( np.allclose( gradtest[22] , gradsol['Spr'] ) )
         print( np.allclose( gradtest[23] , gradsol['G_used'] ) )
 
+        print( gradtest[0] )
+        print( gradsol['neq0'] )
+
         quit()
 
 
