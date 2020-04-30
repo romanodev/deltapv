@@ -247,6 +247,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dpeq0_dNdop = - peq_0 * dphi_eq_dNdop[0,:]
     dpeqL_dNdop = - peq_L * dphi_eq_dNdop[-1,:]
 
+    dneq0_deps = np.reshape( dneq0_deps , ( 1 , N ) )
+    dneqL_deps = np.reshape( dneqL_deps , ( 1 , N ) )
     dneq0_dChi = np.reshape( dneq0_dChi , ( 1 , N ) )
     dneqL_dChi = np.reshape( dneqL_dChi , ( 1 , N ) )
     dneq0_dEg = np.reshape( dneq0_dEg , ( 1 , N ) )
@@ -258,6 +260,8 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dneq0_dNdop = np.reshape( dneq0_dNdop , ( 1 , N ) )
     dneqL_dNdop = np.reshape( dneqL_dNdop , ( 1 , N ) )
 
+    dpeq0_deps = np.reshape( dpeq0_deps , ( 1 , N ) )
+    dpeqL_deps = np.reshape( dpeqL_deps , ( 1 , N ) )
     dpeq0_dChi = np.reshape( dpeq0_dChi , ( 1 , N ) )
     dpeqL_dChi = np.reshape( dpeqL_dChi , ( 1 , N ) )
     dpeq0_dEg = np.reshape( dpeq0_dEg , ( 1 , N ) )
@@ -479,7 +483,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         v = v + Vincrement
         phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
 
-        jac_phis['eps'] = gradsol['eps'] + np.dot( gradsol['phi_ini'] , jac_phis['eps'] )
+        jac_phis['eps'] = gradsol['eps'] + np.dot( gradsol['neq0'] , dneq0_deps ) + np.dot( gradsol['neqL'] , dneqL_deps ) + np.dot( gradsol['peq0'] , dpeq0_deps ) + np.dot( gradsol['peqL'] , dpeqL_deps ) + np.dot( gradsol['phi_ini'] , jac_phis['eps'] )
 #        jac_phis['Chi'] = gradsol['Chi'] + np.dot( np.reshape( gradsol['neq0'] , ( 3 * N , 1 ) ) , np.reshape( dneq0_dChi , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['neqL'] , ( 3 * N , 1 ) ) , np.reshape( dneqL_dChi , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['peq0'] , ( 3 * N , 1 ) ) , np.reshape( dpeq0_dChi , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['peqL'] , ( 3 * N , 1 ) ) , np.reshape( dpeqL_dChi , ( 1 , N ) ) ) + np.dot( gradsol['phi_ini'] , jac_phis['Chi'] )
 #        jac_phis['Eg'] = gradsol['Eg'] + np.dot( np.reshape( gradsol['neq0'] , ( 3 * N , 1 ) ) , np.reshape( dneq0_dEg , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['neqL'] , ( 3 * N , 1 ) ) , np.reshape( dneqL_dEg , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['peq0'] , ( 3 * N , 1 ) ) , np.reshape( dpeq0_dEg , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['peqL'] , ( 3 * N , 1 ) ) , np.reshape( dpeqL_dEg , ( 1 , N ) ) )+ np.dot( gradsol['phi_ini'] , jac_phis['Eg'] )
 #        jac_phis['Nc'] = gradsol['Nc'] + np.dot( np.reshape( gradsol['neq0'] , ( 3 * N , 1 ) ) , np.reshape( dneq0_dNc , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['neqL'] , ( 3 * N , 1 ) ) , np.reshape( dneqL_dNc , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['peq0'] , ( 3 * N , 1 ) ) , np.reshape( dpeq0_dNc , ( 1 , N ) ) ) + np.dot( np.reshape( gradsol['peqL'] , ( 3 * N , 1 ) ) , np.reshape( dpeqL_dNc , ( 1 , N ) ) )+ np.dot( gradsol['phi_ini'] , jac_phis['Nc'] )
