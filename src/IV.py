@@ -212,11 +212,12 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
 
     print( np.allclose( gradtest[0] , gradphieq['eps'] ) )
-    print( np.allclose( gradtest[1] , gradphieq['Chi'] ) )
-    print( np.allclose( gradtest[2] , gradphieq['Eg'] ) )
-    print( np.allclose( gradtest[3] , gradphieq['Nc'] ) )
-    print( np.allclose( gradtest[4] , gradphieq['Nv'] ) )
-    print( np.allclose( gradtest[5] , gradphieq['Ndop'] ) )
+    print( np.allclose( gradtest[1] , gradphieq['phi_ini'] ) )
+    print( np.allclose( gradtest[2] , gradphieq['Chi'] ) )
+    print( np.allclose( gradtest[3] , gradphieq['Eg'] ) )
+    print( np.allclose( gradtest[4] , gradphieq['Nc'] ) )
+    print( np.allclose( gradtest[5] , gradphieq['Nv'] ) )
+    print( np.allclose( gradtest[6] , gradphieq['Ndop'] ) )
 
     quit()
 
