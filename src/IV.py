@@ -208,7 +208,7 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , ops.index[:,-1] , np.dot( gradphieq['phi_ini'] , dphi_ini_dNdopL ) )
 
 
-    grad_test = grad( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
+    grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
     gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
     print( gradtest[0] )
     print( gradphieq['eps'] )
