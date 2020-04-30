@@ -99,7 +99,7 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
 def function_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
     phieq = solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
-    return n( np.zeros( dgrid.size + 1 ) , phieq , Chi , Nc )[0]
+    return n( np.zeros( dgrid.size + 1 ) , phieq , Chi , Nc )[-1]
 
 
 def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
@@ -224,15 +224,17 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
     gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
 
-    print( np.allclose( gradtest[0] , dneq0_deps ) )
-    print( np.allclose( gradtest[1] , dneq0_dChi ) )
-    print( np.allclose( gradtest[2] , dneq0_dEg ) )
-    print( np.allclose( gradtest[3] , dneq0_dNc ) )
-    print( np.allclose( gradtest[4] , dneq0_dNv ) )
-    print( np.allclose( gradtest[5] , dneq0_dNdop ) )
+    print( np.allclose( gradtest[0] , dneqL_deps ) )
+    print( np.allclose( gradtest[1] , dneqL_dChi ) )
+    print( np.allclose( gradtest[2] , dneqL_dEg ) )
+    print( np.allclose( gradtest[3] , dneqL_dNc ) )
+    print( np.allclose( gradtest[4] , dneqL_dNv ) )
+    print( np.allclose( gradtest[5] , dneqL_dNdop ) )
 
     quit()
 
+    dpeq0_deps = - peq_0 * dphi_eq_deps[0,:]
+    dpeqL_deps = - peq_L * dphi_eq_deps[-1,:]
     dpeq0_dChi = np.concatenate( ( np.array( [ - peq_0 ] ) , np.zeros( N - 1 ) ) , axis = 0 ) - peq_0 * dphi_eq_dChi[0,:]
     dpeqL_dChi = np.concatenate( ( np.zeros( N - 1 ) , np.array( [ - peq_L ] ) ) , axis = 0 ) - peq_L * dphi_eq_dChi[-1,:]
     dpeq0_dEg = - peq_0 * dphi_eq_dEg[0,:]
