@@ -96,10 +96,9 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     return np.array( current , dtype = np.float64 )
 
 
-def function_test( dgrid , Chi , Eg , Nc , Nv , Ndop ):
+def function_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
     phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
-    return phi_ini
-#    return solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
+    return solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
 
 
 def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
@@ -209,26 +208,15 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dphi_eq_dNdop = ops.index_add( dphi_eq_dNdop , ops.index[:,-1] , np.dot( gradphieq['phi_ini'] , dphi_ini_dNdopL ) )
 
 
-    grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 ) )
-    gradtest = grad_test( dgrid , Chi , Eg , Nc , Nv , Ndop )
+    grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
+    gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
 
-    print( np.allclose( gradtest[0][:,0] , dphi_ini_dChi0 ) )
-    print( np.allclose( gradtest[0][:,-1] , dphi_ini_dChiL ) )
-    print( np.allclose( gradtest[1][:,0] , dphi_ini_dEg0 ) )
-    print( np.allclose( gradtest[1][:,-1] , dphi_ini_dEgL ) )
-    print( np.allclose( gradtest[2][:,0] , dphi_ini_dNc0 ) )
-    print( np.allclose( gradtest[2][:,-1] , dphi_ini_dNcL ) )
-    print( np.allclose( gradtest[3][:,0] , dphi_ini_dNv0 ) )
-    print( np.allclose( gradtest[3][:,-1] , dphi_ini_dNvL ) )
-    print( np.allclose( gradtest[4][:,0] , dphi_ini_dNdop0 ) )
-    print( np.allclose( gradtest[4][:,-1] , dphi_ini_dNdopL ) )
-
-#    print( np.allclose( gradtest[0] , gradphieq['eps'] ) )
-#    print( np.allclose( gradtest[0] , gradphieq['Chi'] ) )
-#    print( np.allclose( gradtest[1] , gradphieq['Eg'] ) )
-#    print( np.allclose( gradtest[2] , gradphieq['Nc'] ) )
-#    print( np.allclose( gradtest[3] , gradphieq['Nv'] ) )
-#    print( np.allclose( gradtest[4] , gradphieq['Ndop'] ) )
+    print( np.allclose( gradtest[0] , gradphieq['eps'] ) )
+    print( np.allclose( gradtest[1] , gradphieq['Chi'] ) )
+    print( np.allclose( gradtest[2] , gradphieq['Eg'] ) )
+    print( np.allclose( gradtest[3] , gradphieq['Nc'] ) )
+    print( np.allclose( gradtest[4] , gradphieq['Nv'] ) )
+    print( np.allclose( gradtest[5] , gradphieq['Ndop'] ) )
 
     quit()
 
