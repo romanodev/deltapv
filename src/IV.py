@@ -96,14 +96,14 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     return np.array( current , dtype = np.float64 )
 
 
-def function_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
-    phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
-    phieq = solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
-    peq0 = p( np.zeros( dgrid.size + 1 ) , phieq , Chi , Eg , Nv )[0]
-    peqL = p( np.zeros( dgrid.size + 1 ) , phieq , Chi , Eg , Nv )[-1]
-    neq0 = n( np.zeros( dgrid.size + 1 ) , phieq , Chi , Nc )[0]
-    neqL = n( np.zeros( dgrid.size + 1 ) , phieq , Chi , Nc )[-1]
-    phisini = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
+def function_test( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
+#    phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
+#    phieq = solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
+#    peq0 = p( np.zeros( dgrid.size + 1 ) , phieq , Chi , Eg , Nv )[0]
+#    peqL = p( np.zeros( dgrid.size + 1 ) , phieq , Chi , Eg , Nv )[-1]
+#    neq0 = n( np.zeros( dgrid.size + 1 ) , phieq , Chi , Nc )[0]
+#    neqL = n( np.zeros( dgrid.size + 1 ) , phieq , Chi , Nc )[-1]
+#    phisini = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
     return solve( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used )
 
 
