@@ -223,6 +223,7 @@ def solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
         dphi_dNc = gradstep[4] + np.dot( gradstep[0] , dphi_dNc )
         dphi_dNv = gradstep[5] + np.dot( gradstep[0] , dphi_dNv )
         dphi_dNdop = gradstep[6] + np.dot( gradstep[0] , dphi_dNdop )
+        dphi_dphiini = np.dot( gradstep[0] , dphi_dphiini )
 
         error = error_dx
         iter += 1
