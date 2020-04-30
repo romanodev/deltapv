@@ -405,6 +405,7 @@ class JAXPV( object ):
             P = coef * voltages * current
             Pmax = np.max( P )
             index = np.where( P == Pmax )[0][0]
+            index = 0
             eff = Pmax
             result = {}
             result['eps'] = cur_grad[ index ]['eps'] * coef * voltages[ index ]
