@@ -101,7 +101,7 @@ def eq_init_phi_deriv( Chi , Eg , Nc , Nv , Ndop ):
         dphi_ini_right_dEgL = - 1
         dphi_ini_right_dNdopL = - 1 / Ndop[-1]
         dphi_ini_right_dNcL = 0
-        dphi_ini_right_dNvL = - 1 / Nv[-1]
+        dphi_ini_right_dNvL = 1 / Nv[-1]
 
     N = Chi.size
     dphi_ini_dChi0 = np.linspace( dphi_ini_left_dChi0 , 0 , N )
