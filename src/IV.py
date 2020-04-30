@@ -96,10 +96,23 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     return np.array( current , dtype = np.float64 )
 
 
-def function_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
-    phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
-    phieq = solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
-    return p( np.zeros( dgrid.size + 1 ) , phieq , Chi , Eg , Nv )[-1]
+# def function_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop ):
+#     phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
+#     phieq = solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
+#     return p( np.zeros( dgrid.size + 1 ) , phieq , Chi , Eg , Nv )[-1]
+#
+#     grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
+#     gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
+#
+#     print( np.allclose( gradtest[0] , dpeqL_deps ) )
+#     print( np.allclose( gradtest[1] , dpeqL_dChi ) )
+#     print( np.allclose( gradtest[2] , dpeqL_dEg ) )
+#     print( np.allclose( gradtest[3] , dpeqL_dNc ) )
+#     print( np.allclose( gradtest[4] , dpeqL_dNv ) )
+#     print( np.allclose( gradtest[5] , dpeqL_dNdop ) )
+#
+#     quit()
+
 
 
 def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
@@ -233,18 +246,6 @@ def grad_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     dpeqL_dNv = np.concatenate( ( np.zeros( N - 1 ) , np.array( [ np.exp( - Chi[-1] - Eg[-1] - phi_eq[-1] ) ] ) ) , axis = 0 ) - peq_L * dphi_eq_dNv[-1,:]
     dpeq0_dNdop = - peq_0 * dphi_eq_dNdop[0,:]
     dpeqL_dNdop = - peq_L * dphi_eq_dNdop[-1,:]
-
-    grad_test = jacfwd( function_test , ( 1 , 2 , 3 , 4 , 5 , 6 ) )
-    gradtest = grad_test( dgrid , eps , Chi , Eg , Nc , Nv , Ndop )
-
-    print( np.allclose( gradtest[0] , dpeqL_deps ) )
-    print( np.allclose( gradtest[1] , dpeqL_dChi ) )
-    print( np.allclose( gradtest[2] , dpeqL_dEg ) )
-    print( np.allclose( gradtest[3] , dpeqL_dNc ) )
-    print( np.allclose( gradtest[4] , dpeqL_dNv ) )
-    print( np.allclose( gradtest[5] , dpeqL_dNdop ) )
-
-    quit()
 
     dneq0_dChi = np.reshape( dneq0_dChi , ( 1 , N ) )
     dneqL_dChi = np.reshape( dneqL_dChi , ( 1 , N ) )
