@@ -36,7 +36,9 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
 
     fm = np.exp( phi_n[1:] ) - np.exp( phi_n[:-1] )
     Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
+    print( Dpsin )
     print( Dpsin_Dexppsin )
+    quit()
     return mn[:-1] * Dpsin_Dexppsin * fm / dgrid
 
 
