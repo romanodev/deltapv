@@ -32,7 +32,7 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
 
     """
     psi_n = Chi + np.log( Nc ) + phi
-    Dpsin = psi_n[:-1] - psi_n[1:] + 1e-20
+    Dpsin = psi_n[:-1] - psi_n[1:] + 1e-12
 
     fm = np.exp( phi_n[1:] ) - np.exp( phi_n[:-1] )
     Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
@@ -75,7 +75,7 @@ def Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn ):
 
     """
     psi_n = Chi + np.log( Nc ) + phi
-    Dpsin = psi_n[:-1] - psi_n[1:] + 1e-20
+    Dpsin = psi_n[:-1] - psi_n[1:] + 1e-12
 
     fm = np.exp( phi_n[1:] ) - np.exp( phi_n[:-1] )
     Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
@@ -126,7 +126,7 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
     """
     psi_p = Chi + Eg - np.log( Nv ) + phi
-    Dpsip = psi_p[:-1] - psi_p[1:]  + 1e-20
+    Dpsip = psi_p[:-1] - psi_p[1:]  + 1e-12
 
     fm = np.exp( - phi_p[1:] ) - np.exp( - phi_p[:-1] )
     Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
@@ -171,7 +171,7 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
     """
     psi_p = Chi + Eg - np.log( Nv ) + phi
-    Dpsip = psi_p[:-1] - psi_p[1:]  + 1e-20
+    Dpsip = psi_p[:-1] - psi_p[1:]  + 1e-12
 
     fm = np.exp( - phi_p[1:] ) - np.exp( - phi_p[:-1] )
     Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
@@ -249,8 +249,8 @@ def total_current( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , mp ):
     psin1 = Chi[1] + np.log( Nc[1] ) + phi[1]
     psip0 = Chi[0] + Eg[0] - np.log( Nv[0] ) + phi[0]
     psip1 = Chi[1] + Eg[1] - np.log( Nv[1] ) + phi[1]
-    Dpsin = psin0 - psin1  + 1e-20
-    Dpsip = psip0 - psip1  + 1e-20
+    Dpsin = psin0 - psin1  + 1e-12
+    Dpsip = psip0 - psip1  + 1e-12
 
     fmn = np.exp( phi_n[1] ) - np.exp( phi_n[0] )
     Dpsin_Dexppsin = np.exp( psin0 ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
