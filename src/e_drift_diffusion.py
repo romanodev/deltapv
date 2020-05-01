@@ -51,6 +51,7 @@ def ddn( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , Et , tn , tp , 
     R = SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ) + rad( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ) + auger( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
 
     _Jn = Jn( dgrid , phi_n , phi , Chi , Nc , mn )
+    print( _Jn )
     ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0
     return ( _Jn[1:] - _Jn[:-1] ) / ave_dgrid - R[1:-1] + G[1:-1]
 
