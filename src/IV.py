@@ -65,6 +65,8 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
 
     phi_ini = eq_init_phi( Chi , Eg , Nc , Nv , Ndop )
     phi_eq = solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop )
+    print(phi_eq)
+    quit()
     neq_0 = Nc[0] * np.exp( Chi[0] + phi_eq[0] )
     neq_L = Nc[-1] * np.exp( Chi[-1] + phi_eq[-1] )
     peq_0 = Nv[0] * np.exp( - Chi[0] - Eg[0] - phi_eq[0] )
