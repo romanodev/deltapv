@@ -42,6 +42,9 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
     denominator = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 ) + around_zero * ( 1 + 0.5*Dpsin + 1/6.0*Dpsin**2 )
     Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * numerator / denominator
 
+    print( Dpsin_Dexppsin )
+    quit()
+
     return mn[:-1] * Dpsin_Dexppsin * fm / dgrid
 
 
