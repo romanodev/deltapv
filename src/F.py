@@ -85,8 +85,6 @@ def F( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps , Chi ,
         result.append( _ddn[i] )
         result.append( _ddp[i] )
         result.append( _pois[i] )
-        print( _ddn[i] )
-    quit()
     result = result + [ ctct_L_phin , ctct_L_phip , 0.0 ]
     return np.array( result )
 
