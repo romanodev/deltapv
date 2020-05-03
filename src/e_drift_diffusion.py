@@ -53,6 +53,12 @@ def ddn( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , Et , tn , tp , 
     _Jn = Jn( dgrid , phi_n , phi , Chi , Nc , mn )
 
     ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0
+
+    print(R)
+    print(G)
+    print(_Jn[1:] - _Jn[:-1])
+    quit()
+
     return ( _Jn[1:] - _Jn[:-1] ) / ave_dgrid - R[1:-1] + G[1:-1]
 
 
