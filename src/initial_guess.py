@@ -34,7 +34,8 @@ def eq_init_phi( Chi , Eg , Nc , Nv , Ndop ):
     print(Chi[0])
     print(Eg[0])
     print(Ndop[0])
-    print(Nc[0])    
+    print(Nc[0])
+    quit()    
     return np.linspace( phi_ini_left , phi_ini_right , Chi.size )
 
 
