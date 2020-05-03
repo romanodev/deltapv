@@ -31,6 +31,7 @@ def eq_init_phi( Chi , Eg , Nc , Nv , Ndop ):
         phi_ini_right = - Chi[-1] + np.log( Ndop[-1] / Nc[-1] )
     else:
         phi_ini_right = - Chi[-1] - Eg[-1] - np.log( - Ndop[-1] / Nv[-1] )
+    print(phi_ini_left , phi_ini_right)
     return np.linspace( phi_ini_left , phi_ini_right , Chi.size )
 
 
