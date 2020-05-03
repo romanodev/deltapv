@@ -153,9 +153,6 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) + around_zero * ( 1 + 0.5*Dpsip - 1/6.0*Dpsip**2 )
     Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * numerator / denominator
 
-    print( Dpsip_Dexppsip )
-    quit()
-
     return mp[:-1] * Dpsip_Dexppsip * fm / dgrid
 
 
