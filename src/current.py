@@ -33,7 +33,8 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
     """
     psi_n = Chi + np.log( Nc ) + phi
     Dpsin = psi_n[:-1] - psi_n[1:]
-    around_zero = np.exp( - 500 * Dpsin**2 )
+    thr = 1e-5
+    around_zero = 0.5 * ( np.tanh( 500 * ( Dpsin + thr ) ) - np.tanh( 500 * ( Dpsin - thr ) ) )
 
     fm = np.exp( phi_n[1:] ) - np.exp( phi_n[:-1] )
 
@@ -81,7 +82,8 @@ def Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn ):
     """
     psi_n = Chi + np.log( Nc ) + phi
     Dpsin = psi_n[:-1] - psi_n[1:]
-    around_zero = np.exp( - 500 * Dpsin**2 )
+    thr = 1e-5
+    around_zero = 0.5 * ( np.tanh( 500 * ( Dpsin + thr ) ) - np.tanh( 500 * ( Dpsin - thr ) ) )
 
     fm = np.exp( phi_n[1:] ) - np.exp( phi_n[:-1] )
 
@@ -144,7 +146,8 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     """
     psi_p = Chi + Eg - np.log( Nv ) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
-    around_zero = np.exp( - 500 * Dpsip**2 )
+    thr = 1e-5
+    around_zero = 0.5 * ( np.tanh( 500 * ( Dpsip + thr ) ) - np.tanh( 500 * ( Dpsip - thr ) ) )
 
     fm = np.exp( - phi_p[1:] ) - np.exp( - phi_p[:-1] )
 
@@ -194,7 +197,8 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     """
     psi_p = Chi + Eg - np.log( Nv ) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
-    around_zero = np.exp( - 500 * Dpsip**2 )
+    thr = 1e-5
+    around_zero = 0.5 * ( np.tanh( 500 * ( Dpsip + thr ) ) - np.tanh( 500 * ( Dpsip - thr ) ) )
 
     fm = np.exp( - phi_p[1:] ) - np.exp( - phi_p[:-1] )
 
