@@ -268,15 +268,6 @@ def F_deriv( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps ,
     col = np.concatenate( ( col , np.arange( 4 , 3 * ( N - 1 ) + 1 , 3 ) ) )
     dF = np.concatenate( ( dF , dpois_dphip__ ) )
 
-    print(ddp_phin__)
-    print(ddp_phip_)
-    print(ddp_phip__)
-    print(ddp_phip___)
-    print(ddp_phi_)
-    print(ddp_phi__)
-    print(ddp_phi___)
-    quit()
-
     result = np.zeros( ( 3 * N , 3 * N ) )
     if USE_JAX:
         return ops.index_update( result , ( row , col ) , dF )
