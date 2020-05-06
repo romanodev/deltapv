@@ -191,6 +191,9 @@ def contact_phip_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp , Spl , Spr ):
     _p = p( phi_p , phi , Chi , Eg , Nv )
     dJp_phip_maindiag , dJp_phip_upperdiag , dJp_phi_maindiag , dJp_phi_upperdiag = Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp )
 
+    print( dJp_phip_maindiag , dJp_phip_upperdiag , dJp_phi_maindiag , dJp_phi_upperdiag )
+    print('test')
+
     return dJp_phip_maindiag[0] - Spl * _p[0] , dJp_phip_upperdiag[0] , \
     dJp_phi_maindiag[0] - Spl * _p[0] , dJp_phi_upperdiag[0] , \
     dJp_phip_maindiag[-1] , dJp_phip_upperdiag[-1] + Spr * _p[-1] , \
