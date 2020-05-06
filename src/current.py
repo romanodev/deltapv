@@ -35,6 +35,10 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
     phi_n = np.linspace( 0 , phi_n.size , num = phi_n.size )
 
     psi_n = Chi + np.log( Nc ) + phi
+
+    print( psi_n )
+    print( phi_n )
+
     Dpsin = psi_n[:-1] - psi_n[1:]
     thr = 1e-5
     around_zero = 0.5 * ( np.tanh( 500 * ( Dpsin + thr ) ) - np.tanh( 500 * ( Dpsin - thr ) ) )
