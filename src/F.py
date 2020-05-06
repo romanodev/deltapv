@@ -169,11 +169,11 @@ def F_deriv( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps ,
 
     row = np.array( [ 0 , 0 , 0 , 0 ] )
     col = np.array( [ 0 , 2 , 3 , 5 ] )
-    dF = np.array( [ dctct_phin[0] , dctct_phin[4] , dctct_phin[1] , dctct_phin[5] ] )
+    dF = np.array( [ dctct_phin[0] , dctct_phin[2] , dctct_phin[1] , dctct_phin[3] ] )
 
     row = np.concatenate( ( row , np.array( [ 1 , 1 , 1 , 1 ] ) ) )
     col = np.concatenate( ( col , np.array( [ 1 , 2 , 4 , 5 ] ) ) )
-    dF =  np.concatenate( ( dF , np.array( [ dctct_phip[0] , dctct_phip[4] , dctct_phip[1] , dctct_phip[5] ] ) ) )
+    dF =  np.concatenate( ( dF , np.array( [ dctct_phip[0] , dctct_phip[2] , dctct_phip[1] , dctct_phip[3] ] ) ) )
 
     row = np.concatenate( ( row , np.array( [ 2 ] ) ) )
     col = np.concatenate( ( col , np.array( [ 2 ] ) ) )
@@ -181,11 +181,11 @@ def F_deriv( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps ,
 
     row = np.concatenate( ( row , np.array( [ 3 * ( N - 1 ) , 3 * ( N - 1 ) , 3 * ( N - 1 ) , 3 * ( N - 1 ) ] ) ) )
     col = np.concatenate( ( col , np.array( [ 3 * ( N - 2 ) , 3 * ( N - 2 ) + 2 , 3 * ( N - 1 ) , 3 * ( N - 1 ) + 2 ] ) ) )
-    dF = np.concatenate( ( dF , np.array( [ dctct_phin[2] , dctct_phin[6] , dctct_phin[3] , dctct_phin[7] ] ) ) )
+    dF = np.concatenate( ( dF , np.array( [ dctct_phin[4] , dctct_phin[6] , dctct_phin[5] , dctct_phin[7] ] ) ) )
 
     row = np.concatenate( ( row , np.array( [ 3 * ( N - 1 ) + 1 , 3 * ( N - 1 ) + 1 , 3 * ( N - 1 ) + 1 , 3 * ( N - 1 ) + 1 ] ) ) )
     col = np.concatenate( ( col , np.array( [ 3 * ( N - 2 ) + 1 , 3 * ( N - 2 ) + 2 , 3 * ( N - 1 ) + 1 , 3 * ( N - 1 ) + 2 ] ) ) )
-    dF = np.concatenate( ( dF , np.array( [ dctct_phip[2] , dctct_phip[6] , dctct_phip[3] , dctct_phip[7] ] ) ) )
+    dF = np.concatenate( ( dF , np.array( [ dctct_phip[4] , dctct_phip[6] , dctct_phip[5] , dctct_phip[7] ] ) ) )
 
     row = np.concatenate( ( row , np.array( [ 3 * ( N - 1 ) + 2 ] ) ) )
     col = np.concatenate( ( col , np.array( [ 3 * ( N - 1 ) + 2 ] ) ) )
