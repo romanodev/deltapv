@@ -31,6 +31,9 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
             e- current
 
     """
+
+    phi_n = np.linspace( 0 , phi_n.size , num = phi_n.size )
+
     psi_n = Chi + np.log( Nc ) + phi
     Dpsin = psi_n[:-1] - psi_n[1:]
     thr = 1e-5
@@ -42,6 +45,9 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
     numerator = ( 1 - around_zero ) * Dpsin + around_zero * 1
     denominator = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 ) + around_zero * ( 1 + 0.5*Dpsin + 1/6.0*Dpsin**2 )
     Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * numerator / denominator
+
+    print( mn[:-1] * Dpsin_Dexppsin * fm / dgrid )
+    quit()
 
     return mn[:-1] * Dpsin_Dexppsin * fm / dgrid
 
