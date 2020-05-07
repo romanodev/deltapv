@@ -31,12 +31,7 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
             e- current
 
     """
-
-    phi_n = np.linspace( 0 , phi_n.size , num = phi_n.size )
-    phi = np.linspace( 0 , phi.size , num = phi.size )
-
     psi_n = Chi + np.log( Nc ) + phi
-
     Dpsin = psi_n[:-1] - psi_n[1:]
     thr = 1e-5
     around_zero = 0.5 * ( np.tanh( 500 * ( Dpsin + thr ) ) - np.tanh( 500 * ( Dpsin - thr ) ) )
@@ -47,9 +42,6 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
     numerator = ( 1 - around_zero ) * Dpsin + around_zero * 1
     denominator = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 ) + around_zero * ( 1 + 0.5*Dpsin + 1/6.0*Dpsin**2 )
     Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * numerator / denominator
-
-    print( mn[:-1] * Dpsin_Dexppsin * fm / dgrid )
-    quit()
 
     return mn[:-1] * Dpsin_Dexppsin * fm / dgrid
 
@@ -152,6 +144,10 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
             hole current
 
     """
+
+    phi_p = np.linspace( 0 , phi_n.size , num = phi_n.size )
+    phi = np.linspace( 0 , phi.size , num = phi.size )
+
     psi_p = Chi + Eg - np.log( Nv ) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
     thr = 1e-5
@@ -163,6 +159,9 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     numerator = ( 1 - around_zero ) * Dpsip + around_zero * 1
     denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) + around_zero * ( 1 + 0.5*Dpsip - 1/6.0*Dpsip**2 )
     Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * numerator / denominator
+
+    print(mp[:-1] * Dpsip_Dexppsip * fm / dgrid)
+    quit()
 
     return mp[:-1] * Dpsip_Dexppsip * fm / dgrid
 
