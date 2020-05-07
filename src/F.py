@@ -168,10 +168,6 @@ def F_deriv( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps ,
     dpois_phi_ , dpois_phi__ , dpois_phi___ , dpois_dphin__ , dpois_dphip__ = pois_deriv( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv )
     dctct_phin = contact_phin_deriv( dgrid , phi_n , phi , Chi , Nc , mn , Snl , Snr )
     dctct_phip = contact_phip_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp , Spl , Spr )
-
-
-    print( dctct_phin )
-    quit()
     
     N = phi.size
 

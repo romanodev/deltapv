@@ -89,6 +89,10 @@ def contact_phin_deriv( dgrid , phi_n , phi , Chi , Nc , mn , Snl , Snr ):
     """
     _n = n( phi_n , phi , Chi , Nc )
     dJn_phin_maindiag , dJn_phin_upperdiag , dJn_phi_maindiag , dJn_phi_upperdiag = Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn )
+
+    print( dJn_phin_maindiag , dJn_phin_upperdiag , dJn_phi_maindiag , dJn_phi_upperdiag )
+    quit()
+
     return dJn_phin_maindiag[0] - Snl * _n[0] , dJn_phin_upperdiag[0] , \
     dJn_phin_maindiag[-1] + Snr * _n[-1] , dJn_phin_upperdiag[-1] , \
     dJn_phi_maindiag[0] - Snl * _n[0] , dJn_phi_upperdiag[0] , \
