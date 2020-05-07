@@ -17,11 +17,13 @@ def damp( move ):
             damped displacement in potentials
 
     """
-    approx_sign = np.tanh( 1e40 * move )
-    approx_abs = approx_sign * move
-    approx_H = 1 - ( 1 + np.exp( - 1e40 * ( move**2 - 1 ) ) )**(-1)
-    return np.log( 1 + approx_abs ) * approx_sign + approx_H * ( move - np.log( 1 + approx_abs ) * approx_sign )
-
+#    approx_sign = np.tanh( 1e40 * move )
+#    approx_abs = approx_sign * move
+#    approx_H = 1 - ( 1 + np.exp( - 1e40 * ( move**2 - 1 ) ) )**(-1)
+#    return np.log( 1 + approx_abs ) * approx_sign + approx_H * ( move - np.log( 1 + approx_abs ) * approx_sign )
+    thr = 1
+    around_zero = 0.5 * ( np.tanh( 1e50 * ( move + thr ) ) - np.tanh( 1e50 * ( move - thr ) ) )
+    return ( 1 - around_zero ) * np.log( 1 + approx_abs ) + around_zero * move
 
 
 
