@@ -145,7 +145,7 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
     """
 
-    phi_p = np.linspace( 0 , phi_n.size , num = phi_n.size )
+    phi_p = np.linspace( 0 , phi_p.size , num = phi_p.size )
     phi = np.linspace( 0 , phi.size , num = phi.size )
 
     psi_p = Chi + Eg - np.log( Nv ) + phi
