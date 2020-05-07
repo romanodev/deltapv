@@ -212,7 +212,7 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
 #    Dpsip_Dexppsip_deriv_maindiag = np.exp( - psi_p[:-1] ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) * ( np.exp( - Dpsip ) - 1 )**(-2)
 #    Dpsip_Dexppsip_deriv_upperdiag = np.exp( - psi_p[:-1] ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) * ( np.exp( - Dpsip ) - 1 )**(-2)
-    numerator2 = ( 1 - around_zero ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) + around_zero * ( 3 - psi_p[:-1] + psi_p[1:] - 2*psi_p[:-1]*psi_p[1:] + psi_p[:-1]**2 + psi_p[1:]**2 )
+    numerator2 = ( 1 - around_zero ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) - around_zero * ( 3 - psi_p[:-1] + psi_p[1:] - 2*psi_p[:-1]*psi_p[1:] + psi_p[:-1]**2 + psi_p[1:]**2 )
     denominator2 = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 )**2 + around_zero * ( 1 - 0.5*psi_p[:-1] + 0.5*psi_p[1:] - 1/3.0*psi_p[:-1]*psi_p[1:] + 1/6.0*psi_p[:-1]**2 + 1/6.0*psi_p[1:]**2 )**2
     numerator3 = ( 1 - around_zero ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) + around_zero * ( -3 + 2*psi_p[:-1] - 2*psi_p[1:] )
     denominator3 = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 )**2 + around_zero * ( 1 - 0.5*psi_p[:-1] + 0.5*psi_p[1:] - 1/3.0*psi_p[:-1]*psi_p[1:] + 1/6.0*psi_p[:-1]**2 + 1/6.0*psi_p[1:]**2 )**2
