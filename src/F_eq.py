@@ -1,7 +1,7 @@
 from .poisson import *
 if USE_JAX:
     from jax.config import config
-    config.update("jax_enable_x64", True)
+#    config.update("jax_enable_x64", True)
     from jax import ops
 
 def F_eq( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
