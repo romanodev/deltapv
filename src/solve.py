@@ -105,11 +105,9 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
             if (gradF[i,j]!=0):
                 print(i,j,gradF[i,j])
 
-    quit()
-
     move = np.linalg.solve( gradF , - _F )
 
-    print(move)
+    print(np.dot( gradF , move  ) )
     quit()
     error = np.linalg.norm( move )
     damp_move = damp( move )
