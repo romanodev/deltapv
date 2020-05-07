@@ -102,9 +102,9 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     print(_F)
 
-    for i in range(3*N):
-        for j in range(3*N):
-            if (np.abs(gradF[i,j])>0):
+#    for i in range(3*N):
+#        for j in range(3*N):
+#            if (np.abs(gradF[i,j])>0):
 #                print(i,j,gradF[i,j])
     quit()
 
