@@ -132,7 +132,8 @@ def Jp_deriv( phi_p , phi , dgrid , Chi , Eg , Nv , mp ):
     return dJp_phip_maindiag , dJp_phip_upperdiag , dJp_phi_maindiag , dJp_phi_upperdiag
 
 
-''''from .scales import *
+'''
+from .scales import *
 if USE_JAX:
     from jax.config import config
     config.update("jax_enable_x64", True)
@@ -475,4 +476,5 @@ def total_current( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , mp ):
     deriv['dphi0'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
     deriv['dphi1'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
 
-    return Fcurrent , deriv''''
+    return Fcurrent , deriv
+    '''
