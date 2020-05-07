@@ -75,35 +75,9 @@ def F( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps , Chi ,
 
     """
 
-    phi = np.array( \
-    [-155.89926058290908, -155.89926059086963, -155.8992671406811,\
- -155.90466272848988 ,-159.6575268037935 , -162.81540390177878,\
- -165.96920399750448 ,-169.1228300476602 , -172.27644866658798,\
- -175.43006696822215 ,-178.58368525631002, -181.73730354385003,\
- -184.89092183208112 ,-188.04454013707613, -191.19815883471688,\
- -194.35178672838276 ,-197.50563000104174, -200.66451872562538,\
- -203.9421996745501  ,-208.8558606313272 , -208.8803772455831,\
- -208.88052655313768 ,-208.8805274623616 , -208.88052746789842,\
- -208.88052746793213 ,-208.88052746793232, -208.88052746793232,\
- -208.88052746793232 ,-208.88052746793232, -208.88052746793232])
-
     _ddn = ddn( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , Et , tn , tp , Br , Cn , Cp , G )
     _ddp = ddp( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mp , Et , tn , tp , Br , Cn , Cp , G )
-
-    print(phi)
-
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
-    print(_n )
-    print(_p)
-    print(Ndop)
-    print(-_n+_p+Ndop)
-    quit()
-
-
     _pois = pois( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop )
-    print(_pois)
-    quit()
     ctct_0_phin , ctct_L_phin = contact_phin( dgrid , neq_0 , neq_L , phi_n , phi , Chi , Nc , mn , Snl , Snr )
     ctct_0_phip , ctct_L_phip = contact_phip( dgrid , peq_0 , peq_L , phi_p , phi , Chi , Eg , Nv , mp , Spl , Spr )
 
