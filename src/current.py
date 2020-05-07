@@ -304,8 +304,8 @@ def total_current( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , mp ):
     denominator2 = ( 1 - around_zero_n ) * ( np.exp( Dpsin ) - 1 )**2 + around_zero_n * ( 1 + 0.5*psin0 - 0.5*psin1 - 1/3.0*psin0*psin1 + 1/6.0*psin0**2 + 1/6.0*psin1**2 )**2
     numerator3 = ( 1 - around_zero_n ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) + around_zero_n * ( - 3 - 2*psin0 + 2*psin1 )
     denominator3 = ( 1 - around_zero_n ) * ( np.exp( Dpsin ) - 1 )**2 + around_zero_n * ( 1 + 0.5*psin0 - 0.5*psin1 - 1/3.0*psin0*psin1 + 1/6.0*psin0**2 + 1/6.0*psin1**2 )**2
-    Dpsin_Dexppsin_dpsin0 = np.exp( psin0 ) * _numerator2 / _denominator2
-    Dpsin_Dexppsin_dpsin1 = np.exp( psin0 ) * _numerator3 / _denominator3
+    Dpsin_Dexppsin_dpsin0 = np.exp( psin0 ) * numerator2 / denominator2
+    Dpsin_Dexppsin_dpsin1 = np.exp( psin0 ) * numerator3 / denominator3
 
     fmp = np.exp( - phi_p[1] ) - np.exp( - phi_p[0] )
     _numerator = ( 1 - around_zero_p ) * Dpsip + around_zero_p * 1
