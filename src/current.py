@@ -204,7 +204,7 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
 #    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
     numerator = ( 1 - around_zero ) * Dpsip + around_zero * 1
-    denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) + around_zero * ( 1 - 0.5*Dpsip + 1/6.0*Dpsip**2 )
+    denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) - around_zero * ( 1 - 0.5*Dpsip + 1/6.0*Dpsip**2 )
     Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * numerator / denominator
 
     fm_deriv_maindiag = np.exp( - phi_p[:-1] )
