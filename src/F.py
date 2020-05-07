@@ -92,10 +92,9 @@ def F( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps , Chi ,
 
     print(phi)
 
-    ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0
-    ave_eps = 0.5 * ( eps[1:] + eps[:-1] )
-    _pois = ( ave_eps[:-1] * ( phi[1:-1] - phi[:-2] ) / dgrid[:-1] - ave_eps[1:] * ( phi[2:] - phi[1:-1] ) / dgrid[1:] ) / ave_dgrid
-    print(_pois)
+    _n = n( phi_n , phi , Chi , Nc )
+    _p = p( phi_p , phi , Chi , Eg , Nv )
+    print(- _n + _p + Ndop)
     quit()
 
 

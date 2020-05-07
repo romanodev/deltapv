@@ -39,7 +39,6 @@ def pois( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0
     ave_eps = 0.5 * ( eps[1:] + eps[:-1] )
     pois = ( ave_eps[:-1] * ( phi[1:-1] - phi[:-2] ) / dgrid[:-1] - ave_eps[1:] * ( phi[2:] - phi[1:-1] ) / dgrid[1:] ) / ave_dgrid - charge( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Ndop )[1:-1]
-
     return pois
 
 
