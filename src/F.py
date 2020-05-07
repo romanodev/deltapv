@@ -80,6 +80,9 @@ def F( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps , Chi ,
     ctct_0_phin , ctct_L_phin = contact_phin( dgrid , neq_0 , neq_L , phi_n , phi , Chi , Nc , mn , Snl , Snr )
     ctct_0_phip , ctct_L_phip = contact_phip( dgrid , peq_0 , peq_L , phi_p , phi , Chi , Eg , Nv , mp , Spl , Spr )
 
+    print(pois)
+    quit()
+
     result = [ ctct_0_phin , ctct_0_phip , 0.0 ]
     for i in range( len(_pois) ):
         result.append( _ddn[i] )
