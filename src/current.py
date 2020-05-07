@@ -200,7 +200,8 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     thr = 1e-5
     around_zero = 0.5 * ( np.tanh( 500 * ( Dpsip + thr ) ) - np.tanh( 500 * ( Dpsip - thr ) ) )
 
-    around_zero = 0
+    print( around_zero )
+    quit()
 
     fm = np.exp( - phi_p[1:] ) - np.exp( - phi_p[:-1] )
 
