@@ -97,6 +97,7 @@ def F( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps , Chi ,
     print(_n )
     print(_p)
     print(Ndop)
+    print(-_n+_p+Ndop)
     quit()
 
 
