@@ -78,13 +78,13 @@ def contact_phin_deriv( dgrid , phi_n , phi , Chi , Nc , mn , Snl , Snr ):
         float
             derivative of left boundary condition with respect to phi[1]
         float
-            derivative of right boundary condition with respect to phi_n[0]
+            derivative of right boundary condition with respect to phi_n[N-2]
         float
-            derivative of right boundary condition with respect to phi_n[1]
+            derivative of right boundary condition with respect to phi_n[N-1]
         float
-            derivative of right boundary condition with respect to phi[0]
+            derivative of right boundary condition with respect to phi[N-2]
         float
-            derivative of right boundary condition with respect to phi[1]
+            derivative of right boundary condition with respect to phi[N-1]
 
     """
     _n = n( phi_n , phi , Chi , Nc )
@@ -92,7 +92,7 @@ def contact_phin_deriv( dgrid , phi_n , phi , Chi , Nc , mn , Snl , Snr ):
 
     return dJn_phin_maindiag[0] - Snl * _n[0] , dJn_phin_upperdiag[0] , \
     dJn_phi_maindiag[0] - Snl * _n[0] , dJn_phi_upperdiag[0] , \
-    dJn_phin_maindiag[-1] , dJn_phin_upperdiag[-1]  + Snr * _n[-1] , \
+    dJn_phin_maindiag[-1] , dJn_phin_upperdiag[-1] + Snr * _n[-1] , \
     dJn_phi_maindiag[-1] , dJn_phi_upperdiag[-1] + Snr * _n[-1]
 
 
@@ -180,13 +180,13 @@ def contact_phip_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp , Spl , Spr ):
         float
             derivative of left boundary condition with respect to phi[1]
         float
-            derivative of right boundary condition with respect to phi_p[0]
+            derivative of right boundary condition with respect to phi_p[N-2]
         float
-            derivative of right boundary condition with respect to phi_p[1]
+            derivative of right boundary condition with respect to phi_p[N-1]
         float
-            derivative of right boundary condition with respect to phi[0]
+            derivative of right boundary condition with respect to phi[N-2]
         float
-            derivative of right boundary condition with respect to phi[1]
+            derivative of right boundary condition with respect to phi[N-1]
 
     """
     _p = p( phi_p , phi , Chi , Eg , Nv )
