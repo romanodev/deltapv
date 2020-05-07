@@ -26,7 +26,7 @@ def damp( move ):
 
 
 
-@jit
+#@jit
 def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Computes the next electrostatic potential in the Newton method iterative scheme.
