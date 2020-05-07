@@ -17,7 +17,7 @@ else:
 ## Outputs :
 #      1 (array:N-1) -> e- current
 
-def Jn( phi_n , phi , dgrid , Chi , Nc , mn ):
+def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
 
     psi_n = Chi + np.log( Nc ) + phi
     Dpsin = psi_n[:-1] - psi_n[1:]
@@ -45,7 +45,7 @@ def Jn( phi_n , phi , dgrid , Chi , Nc , mn ):
 #      3 (array:N-1) -> derivative of e- current at point i w.r.t. phi[i]
 #      4 (array:N-1) -> derivative of e- current at point i w.r.t. phi[i+1]
 
-def Jn_deriv( phi_n , phi , dgrid , Chi , Nc , mn ):
+def Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn ):
     psi_n = Chi + np.log( Nc ) + phi
     Dpsin = psi_n[:-1] - psi_n[1:]
 
@@ -82,7 +82,7 @@ def Jn_deriv( phi_n , phi , dgrid , Chi , Nc , mn ):
 ## Outputs :
 #      1 (array:N-1) -> hole current
 
-def Jp( phi_p , phi , dgrid , Chi , Eg , Nv , mp ):
+def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     psi_p = Chi + Eg - np.log( Nv ) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
 
@@ -110,7 +110,7 @@ def Jp( phi_p , phi , dgrid , Chi , Eg , Nv , mp ):
 #      3 (array:N-1) -> derivative of hole current at point i w.r.t. phi[i]
 #      4 (array:N-1) -> derivative of hole current at point i w.r.t. phi[i+1]
 
-def Jp_deriv( phi_p , phi , dgrid , Chi , Eg , Nv , mp ):
+def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     psi_p = Chi + Eg - np.log( Nv ) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
 
