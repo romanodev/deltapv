@@ -101,7 +101,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     print( _F )
 
-    new_phis = phis + np.concatenate( ( np.zeros(N) , np.array([1000]) , np.zeros(2*N-1)   ) , axis = 0 )
+    new_phis = phis + np.concatenate( ( np.zeros(N) , np.array([100000]) , np.zeros(2*N-1)   ) , axis = 0 )
 
     _F = F( dgrid , neq0 , neqL , peq0 , peqL , new_phis[0:N] , new_phis[N:2*N] , new_phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
 
