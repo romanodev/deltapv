@@ -113,12 +113,6 @@ def Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn ):
     dJn_phi__ = mn[:-1] * fm / dgrid * Dpsin_Dexppsin_deriv_maindiag
     dJn_phi___ = mn[:-1] * fm / dgrid * Dpsin_Dexppsin_deriv_upperdiag
 
-    print(dJn_phin__)
-    print(dJn_phin___)
-    print(dJn_phi__)
-    print(dJn_phi___)
-    quit()
-
     return dJn_phin__ , dJn_phin___ , dJn_phi__ , dJn_phi___
 
 
