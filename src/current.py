@@ -37,8 +37,8 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
 
     psi_n = Chi + np.log( Nc ) + phi
 
-    print( Chi )
-    print( Nc )
+    print( phi_n )
+    print( psi_n )
     quit()
 
     Dpsin = psi_n[:-1] - psi_n[1:]
