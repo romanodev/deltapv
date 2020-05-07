@@ -198,7 +198,7 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     psi_p = Chi + Eg - np.log( Nv ) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
     thr = 1e-5
-    around_zero = 0.5 * ( np.tanh( 500 * ( Dpsip + thr ) ) - np.tanh( 500 * ( Dpsip - thr ) ) )
+    around_zero = 0.5 * ( np.tanh( 10000 * ( Dpsip + thr ) ) - np.tanh( 10000 * ( Dpsip - thr ) ) )
 
     print( 1 - around_zero )
 
