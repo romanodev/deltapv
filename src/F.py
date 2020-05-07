@@ -74,6 +74,11 @@ def F( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps , Chi ,
             out of equilibrium equation system at current value of potentials
 
     """
+
+    print(phi_n)
+    print(phi_p)
+    quit()
+
     _ddn = ddn( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , Et , tn , tp , Br , Cn , Cp , G )
     _ddp = ddp( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mp , Et , tn , tp , Br , Cn , Cp , G )
     _pois = pois( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop )
