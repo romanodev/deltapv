@@ -1,7 +1,7 @@
 import scipy.constants as const
 import math
 
-USE_JAX = True
+USE_JAX = False
 
 ##### Units required in inputs #####
 ## grid : cm
