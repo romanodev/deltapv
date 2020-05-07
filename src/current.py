@@ -144,10 +144,6 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
             hole current
 
     """
-
-    phi_p = np.linspace( 0 , phi_p.size , num = phi_p.size )
-    phi = np.linspace( 0 , phi.size , num = phi.size )
-
     psi_p = Chi + Eg - np.log( Nv ) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
     thr = 1e-5
@@ -202,6 +198,8 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
             derivative of hole current at point i w.r.t. phi[i+1]
 
     """
+    phi_p = np.linspace( 0 , phi_p.size , num = phi_p.size )
+    phi = np.linspace( 0 , phi.size , num = phi.size )
     psi_p = Chi + Eg - np.log( Nv ) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
     thr = 1e-5
@@ -233,6 +231,13 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
     dJp_phi__ = mp[:-1] * fm / dgrid * Dpsip_Dexppsip_deriv_maindiag
     dJp_phi___ = mp[:-1] * fm / dgrid * Dpsip_Dexppsip_deriv_upperdiag
+
+    print(dJp_phip__)
+    print(dJp_phip___)
+    print(dJp_phi__)
+    print(dJp_phi___)
+    quit()
+
 
     return dJp_phip__ , dJp_phip___ , dJp_phi__ , dJp_phi___
 
