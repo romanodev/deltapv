@@ -97,9 +97,9 @@ def Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn ):
 
 #    Dpsin_Dexppsin_deriv_maindiag = np.exp( psi_n[:-1] ) * ( - Dpsin + np.exp( Dpsin ) - 1 ) * ( np.exp( Dpsin ) - 1 )**(-2)
 #    Dpsin_Dexppsin_deriv_upperdiag = np.exp( psi_n[:-1] ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) * ( np.exp( Dpsin ) - 1 )**(-2)
-    numerator2 = ( 1 - around_zero ) * ( - Dpsin + np.exp( Dpsin ) - 1 ) + around_zero * ( 3 + psi_n[:-1] - psi_n[1:] - 2*psi_n[:-1]*psi_n[1:] + psi_n[:-1]**2 + psi_n[1:]**2 )
+    numerator2 = ( 1 - around_zero ) * ( - Dpsin + np.exp( Dpsin ) - 1 ) + around_zero * ( - 3 + psi_n[:-1] + psi_n[1:] + 2*psi_n[:-1]*psi_n[1:] - psi_n[:-1]**2 - psi_n[1:]**2 )
     denominator2 = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 )**2 + around_zero * ( 1 + 0.5*psi_n[:-1] - 0.5*psi_n[1:] - 1/3.0*psi_n[:-1]*psi_n[1:] + 1/6.0*psi_n[:-1]**2 + 1/6.0*psi_n[1:]**2 )**2
-    numerator3 = ( 1 - around_zero ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) + around_zero * ( 3 + 2*psi_n[:-1] - 2*psi_n[1:] )
+    numerator3 = ( 1 - around_zero ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) + around_zero * ( - 3 - 2*psi_n[:-1] + 2*psi_n[1:] )
     denominator3 = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 )**2 + around_zero * ( 1 + 0.5*psi_n[:-1] - 0.5*psi_n[1:] - 1/3.0*psi_n[:-1]*psi_n[1:] + 1/6.0*psi_n[:-1]**2 + 1/6.0*psi_n[1:]**2 )**2
 
     Dpsin_Dexppsin_deriv_maindiag = np.exp( psi_n[:-1] ) * numerator2 / denominator2
@@ -153,7 +153,7 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
 #    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
     numerator = ( 1 - around_zero ) * Dpsip + around_zero * 1
-    denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) + around_zero * ( 1 - 0.5*Dpsip + 1/6.0*Dpsip**2 )
+    denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) + around_zero * ( - 1 + 0.5*Dpsip - 1/6.0*Dpsip**2 )
     Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * numerator / denominator
 
     return mp[:-1] * Dpsip_Dexppsip * fm / dgrid
@@ -204,7 +204,7 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
 #    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
     numerator = ( 1 - around_zero ) * Dpsip + around_zero * 1
-    denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) - around_zero * ( 1 - 0.5*Dpsip + 1/6.0*Dpsip**2 )
+    denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) + around_zero * ( - 1 + 0.5*Dpsip - 1/6.0*Dpsip**2 )
     Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * numerator / denominator
 
     fm_deriv_maindiag = np.exp( - phi_p[:-1] )
@@ -212,9 +212,9 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
 
 #    Dpsip_Dexppsip_deriv_maindiag = np.exp( - psi_p[:-1] ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) * ( np.exp( - Dpsip ) - 1 )**(-2)
 #    Dpsip_Dexppsip_deriv_upperdiag = np.exp( - psi_p[:-1] ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) * ( np.exp( - Dpsip ) - 1 )**(-2)
-    numerator2 = ( 1 - around_zero ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) + around_zero * ( 3 - psi_p[:-1] + psi_p[1:] - 2*psi_p[:-1]*psi_p[1:] + psi_p[:-1]**2 + psi_p[1:]**2 )
+    numerator2 = ( 1 - around_zero ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) + around_zero * ( - 3 + psi_p[:-1] - psi_p[1:] + 2*psi_p[:-1]*psi_p[1:] - psi_p[:-1]**2 - psi_p[1:]**2 )
     denominator2 = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 )**2 + around_zero * ( 1 - 0.5*psi_p[:-1] + 0.5*psi_p[1:] - 1/3.0*psi_p[:-1]*psi_p[1:] + 1/6.0*psi_p[:-1]**2 + 1/6.0*psi_p[1:]**2 )**2
-    numerator3 = ( 1 - around_zero ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) + around_zero * ( -3 + 2*psi_p[:-1] - 2*psi_p[1:] )
+    numerator3 = ( 1 - around_zero ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) + around_zero * ( - 3 + 2*psi_p[:-1] - 2*psi_p[1:] )
     denominator3 = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 )**2 + around_zero * ( 1 - 0.5*psi_p[:-1] + 0.5*psi_p[1:] - 1/3.0*psi_p[:-1]*psi_p[1:] + 1/6.0*psi_p[:-1]**2 + 1/6.0*psi_p[1:]**2 )**2
 
     Dpsip_Dexppsip_deriv_maindiag = np.exp( - psi_p[:-1] ) * numerator2 / denominator2
