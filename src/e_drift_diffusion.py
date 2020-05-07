@@ -48,7 +48,7 @@ def ddn( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , Et , tn , tp , 
             left side term of the drift-diffusion equation for e-
 
     """
-    R = SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ) + rad( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ) + auger( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
+    R = SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ) #+ rad( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ) + auger( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
 
     _Jn = Jn( dgrid , phi_n , phi , Chi , Nc , mn )
 
@@ -118,11 +118,11 @@ def ddn_deriv( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , Et , tn ,
 
     """
     DR_SHR_phin , DR_SHR_phip , DR_SHR_phi = SHR_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp )
-    DR_rad_phin , DR_rad_phip , DR_rad_phi = rad_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br )
-    DR_auger_phin , DR_auger_phip , DR_auger_phi = auger_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
-    DR_phin = DR_SHR_phin + DR_rad_phin + DR_auger_phin
-    DR_phip = DR_SHR_phip + DR_rad_phip + DR_auger_phip
-    DR_phi = DR_SHR_phi + DR_rad_phi + DR_auger_phi
+#    DR_rad_phin , DR_rad_phip , DR_rad_phi = rad_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br )
+#    DR_auger_phin , DR_auger_phip , DR_auger_phi = auger_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
+    DR_phin = DR_SHR_phin #+ DR_rad_phin + DR_auger_phin
+    DR_phip = DR_SHR_phip #+ DR_rad_phip + DR_auger_phip
+    DR_phi = DR_SHR_phi #+ DR_rad_phi + DR_auger_phi
 
     dJn_phin_maindiag , dJn_phin_upperdiag , dJn_phi_maindiag , dJn_phi_upperdiag = Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn )
 

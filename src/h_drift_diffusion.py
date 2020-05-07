@@ -48,7 +48,7 @@ def ddp( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mp , Et , tn , tp , 
             left side term of the drift-diffusion equation for holes
 
     """
-    R = SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ) + rad( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ) + auger( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
+    R = SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ) #+ rad( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ) + auger( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
     _Jp = Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp )
     ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0
     return ( _Jp[1:] - _Jp[:-1] ) / ave_dgrid + R[1:-1] - G[1:-1]
@@ -115,11 +115,11 @@ def ddp_deriv( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mp , Et , tn ,
 
     """
     DR_SHR_phin , DR_SHR_phip , DR_SHR_phi = SHR_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp )
-    DR_rad_phin , DR_rad_phip , DR_rad_phi = rad_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br )
-    DR_auger_phin , DR_auger_phip , DR_auger_phi = auger_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
-    DR_phin = DR_SHR_phin + DR_rad_phin + DR_auger_phin
-    DR_phip = DR_SHR_phip + DR_rad_phip + DR_auger_phip
-    DR_phi = DR_SHR_phi + DR_rad_phi + DR_auger_phi
+#    DR_rad_phin , DR_rad_phip , DR_rad_phi = rad_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br )
+#    DR_auger_phin , DR_auger_phip , DR_auger_phi = auger_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp )
+    DR_phin = DR_SHR_phin #+ DR_rad_phin + DR_auger_phin
+    DR_phip = DR_SHR_phip #+ DR_rad_phip + DR_auger_phip
+    DR_phi = DR_SHR_phi #+ DR_rad_phi + DR_auger_phi
 
     dJp_phip_maindiag , dJp_phip_upperdiag , dJp_phi_maindiag , dJp_phi_upperdiag = Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp )
 
