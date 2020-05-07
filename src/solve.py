@@ -101,17 +101,17 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
 
-    print( phis )
-    print( _F )
-    for i in range(3*N):
-        for j in range(3*N):
-            if (gradF[i,j]!=0):
-                print(i,j,gradF[i,j])
+#    print( phis )
+#    print( _F )
+#    for i in range(3*N):
+#        for j in range(3*N):
+#            if (gradF[i,j]!=0):
+#                print(i,j,gradF[i,j])
 
     move = np.linalg.solve( gradF , - _F )
 
-    print( move )
-    quit()
+#    print( move )
+#    quit()
     error = np.linalg.norm( move )
     damp_move = damp( move )
 
