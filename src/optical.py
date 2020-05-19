@@ -53,7 +53,7 @@ def alpha( lambdax , Eg , A ):
     hc = const.c * const.h * 1e9 # J.nm
     alpha = [ 0.0 for i in range( Eg.size ) ]
     for i in range( len( alpha ) ):
-        if ( hc / lambdax / ( KB * T ) > Eg ):
+        if ( hc / lambdax / ( KB * T ) > Eg[ i ] ):
             alpha[ i ] = A[ i ] * np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] )
     return np.array( alpha )
 
