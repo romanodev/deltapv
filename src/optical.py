@@ -120,7 +120,7 @@ def generation_lambda( dgrid , alpha , phi_0 ):
             array of generation rate density across the system
 
     """
-    phi = phi_0 * np.exp( - np.cumsum( np.concat( ( np.zeros(1, dtype=np.float32), alpha[:-1] * dgrid ) ) ) )
+    phi = phi_0 * np.exp( - np.cumsum( np.concatenate( ( np.zeros(1, dtype=np.float32), alpha[:-1] * dgrid ) ) ) )
     return phi
 
 
