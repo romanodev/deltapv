@@ -52,7 +52,7 @@ def alpha( lambdax , Eg , A ):
     KB = const.k
     hc = const.c * const.h * 1e9 # J.nm
     alpha = [ 0.0 for i in range( Eg.size ) ]
-    for i in range( alpha.size ):
+    for i in range( len( alpha ) ):
         if ( hc / lambdax / ( KB * T ) > Eg ):
             alpha[ i ] = A[ i ] * np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] )
     return np.array( alpha )
@@ -89,7 +89,7 @@ def alpha_deriv( lambdax , Eg , A ):
     hc = const.c * const.h * 1e9 # J.nm
     dalpha_dEg = [ 0.0 for i in range( Eg.size ) ]
     dalpha_dA = [ 0.0 for i in range( Eg.size ) ]
-    for i in range( dalpha_dEg.size ):
+    for i in range( len(dalpha_dEg) ):
         if ( hc / lambdax / ( KB * T ) > Eg ):
             dalpha_dEg[ i ] =  - 1 / ( 2 * np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] ) )
             dalpha_dA[ i ] = np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] )
