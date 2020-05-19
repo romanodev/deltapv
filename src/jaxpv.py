@@ -396,7 +396,7 @@ class JAXPV( object ):
         if ( self.opt is 'user' ):
             G_used = np.array( self.G )
         else:
-            G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
+            G_used = compute_G( np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.A ) )
 
         if jit:
             current , cur_grad = grad_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
@@ -527,7 +527,7 @@ class JAXPV( object ):
         if ( self.opt is 'user' ):
             G_used = np.array( self.G )
         else:
-            G_used = compute_G( np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.A ) )
+            G_used = compute_G( np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.A ) )
 
         N = self.grid.size
 
