@@ -90,7 +90,7 @@ def alpha_deriv( lambdax , Eg , A ):
     dalpha_dEg = [ 0.0 for i in range( Eg.size ) ]
     dalpha_dA = [ 0.0 for i in range( Eg.size ) ]
     for i in range( len(dalpha_dEg) ):
-        if ( hc / lambdax / ( KB * T ) > Eg ):
+        if ( hc / lambdax / ( KB * T ) > Eg[ i ] ):
             dalpha_dEg[ i ] =  - 1 / ( 2 * np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] ) )
             dalpha_dA[ i ] = np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] )
     return np.array( dalpha_dEg ) , np.array( dalpha_dA )
