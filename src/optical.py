@@ -121,7 +121,9 @@ def generation_lambda( dgrid , alpha , phi_0 ):
 
     """
     phi = phi_0 * np.exp( - np.cumsum( np.concatenate( ( np.zeros(1, dtype=np.float32), alpha[:-1] * dgrid ) ) ) )
-    return phi * alpha
+    print('phi', phi)
+    print('phi * alpha', phi * alpha)
+    return phi
 
 
 
