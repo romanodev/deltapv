@@ -156,6 +156,8 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
         phi = next_phi
         error = error_dx
         iter += 1
+        print(error_F)
+        print(error_dx)
         print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , error_F.astype( float ) , error_dx.astype( float ) ) )
 
     return phi
