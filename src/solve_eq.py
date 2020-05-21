@@ -158,7 +158,7 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
         iter += 1
         print(error_F)
         print(error_dx)
-        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , error_F[0].astype( float ) , error_dx[0].astype( float ) ) )
+        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , float( error_F ) , float( error_dx ) ) )
 
     return phi
 
@@ -229,7 +229,7 @@ def solve_eq_forgrad( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
 
         error = error_dx
         iter += 1
-        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , error_F.astype( float ) , error_dx.astype( float ) ) )
+        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , float( error_F ) , float( error_dx ) ) )
 
     grad_phi = {}
     grad_phi['phi_ini'] = dphi_dphiini
