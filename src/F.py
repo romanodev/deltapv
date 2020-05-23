@@ -166,9 +166,6 @@ def F_deriv( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps ,
     dctct_phin = contact_phin_deriv( dgrid , phi_n , phi , Chi , Nc , mn , Snl , Snr )
     dctct_phip = contact_phip_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp , Spl , Spr )
 
-    print( dde_phi___ )
-    quit()
-
     N = phi.size
 
     row = np.array( [ 0 , 0 , 0 , 0 ] )
