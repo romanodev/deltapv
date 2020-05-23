@@ -106,8 +106,9 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
         for j in range(3*N):
             if (gradF[i,j]!=0):
                 print(i,j,gradF[i,j])
-                
-    print( np.linalg.det(gradF) )
+
+    print(gradF[87,89])
+
     quit()
 
     move = np.linalg.solve( gradF , - _F )
