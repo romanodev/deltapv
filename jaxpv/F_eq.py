@@ -1,8 +1,6 @@
 from .poisson import *
-if USE_JAX:
-    from jax.config import config
-    config.update("jax_enable_x64", True)
-    from jax import ops
+from .utils import *
+
 
 def F_eq( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
@@ -101,7 +99,7 @@ def F_eq_deriv( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
     dFeq = np.concatenate( ( dFeq , np.array( [ 1.0 ] ) ) )
 
     result = np.zeros( ( N , N ) )
-    if USE_JAX:
+    if os.environ['JAX']=='YES':
         return ops.index_update( result , ( row , col ) , dFeq )
     else:
         for i in range( len( row ) ):

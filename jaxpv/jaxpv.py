@@ -4,15 +4,9 @@ from .efficiency import *
 from .optical import *
 from .sun import *
 from .initial_guess import *
+import os
 import matplotlib.pyplot as plt
-if USE_JAX:
-    from jax.config import config
-    config.update("jax_enable_x64", True)
-    import jax.numpy as np
-    from jax import grad , jit
-else:
-    import numpy as np
-
+from .utils import *
 
 class JAXPV( object ):
     """
@@ -70,8 +64,6 @@ class JAXPV( object ):
             describes which type of generation density should be used
 
     """
-
-
 
 
 
@@ -182,8 +174,6 @@ class JAXPV( object ):
 
 
 
-
-
     def contacts( self , Snl , Snr , Spl , Spr ):
         """
         Define recombination velocities for carriers at the contacts.
@@ -209,7 +199,6 @@ class JAXPV( object ):
 
 
 
-
     def single_pn_junction( self , Nleft , Nright , junction_position ):
         """
         Define the doping profile as a single pn junction.
@@ -231,7 +220,6 @@ class JAXPV( object ):
             index += 1
         for i in range( index , self.grid.size ):
             self.Ndop[ i ] = np.float64( 1 / scale['n'] * Nright )
-
 
 
 
@@ -303,8 +291,6 @@ class JAXPV( object ):
             else:
                 self.Lambda = Lambda
                 self.P_in = 1000.0 / np.sum( P_in ) * P_in
-
-
 
 
 
@@ -498,7 +484,7 @@ class JAXPV( object ):
 
 
 
-    def solve( self , V , equilibrium = False ):
+    def solve(self, equilibrium = False,V=0):
         """
         Solves the solar cell equations and outputs common observables.
 
@@ -559,7 +545,10 @@ class JAXPV( object ):
             volt.append( V )
 
             for v in volt:
-                print( 'V = {0:.7f}   Iteration       |F(x)|                Residual     '.format( scale['E'] * v ) )
+                print(" ")
+                print("V = {0:.3E}".format(scale['E'] * v) + ' V')
+                print(" ")
+                print( 'Iteration       |F(x)|                Residual     ')
                 print( '-------------------------------------------------------------------' )
                 sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , neq_0 , neq_L , peq_0 , peq_L , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
                 if USE_JAX:

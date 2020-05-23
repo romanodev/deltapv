@@ -1,6 +1,5 @@
 from .F_eq import *
-if USE_JAX:
-    from jax import jit , jacfwd
+from .utils import *
 
 def damp( move ):
     """
@@ -17,9 +16,10 @@ def damp( move ):
             damped displacement in electrostatic potential
 
     """
-    approx_sign = np.tanh( 1e40 * move )
+    tmp = 1e10
+    approx_sign = np.tanh( tmp * move )
     approx_abs = approx_sign * move
-    approx_H = 1 - ( 1 + np.exp( - 1e40 * ( move**2 - 1 ) ) )**(-1)
+    approx_H = 1 - ( 1 + tmp*np.exp( - ( move**2 - 1 ) ) )**(-1)
     return np.log( 1 + approx_abs ) * approx_sign + approx_H * ( move - np.log( 1 + approx_abs ) * approx_sign )
 
 
@@ -64,6 +64,7 @@ def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     Feq = F_eq( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv )
     move = np.linalg.solve( gradFeq , - Feq )
+    #move = np.linalg.pinv( gradFeq , - Feq )
     error = np.linalg.norm( move )
     damp_move = damp(move)
 
@@ -107,6 +108,7 @@ def step_eq_forgrad( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Feq = F_eq( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv )
+    #move = np.linalg.pinv( gradFeq , - Feq )
     move = np.linalg.solve( gradFeq , - Feq )
     damp_move = damp(move)
 
@@ -147,8 +149,11 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     error = 1
     iter = 0
-    print( 'Equilibrium     Iteration       |F(x)|                Residual     ' )
-    print( '-------------------------------------------------------------------' )
+    print(' ')
+    print('Solving equilibrium...')
+    print(' ')
+    print( ' Iteration       |F(x)|                Residual     ' )
+    print( ' -------------------------------------------------------------------' )
 
     phi = phi_ini
     while (error > 1e-6):
@@ -157,7 +162,11 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
         error = error_dx
         iter += 1
         #print(iter)
-        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , float( error_F ) , float( error_dx ) ) )
+        print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) )
+    print( ' -------------------------------------------------------------------' )
+    print(' ')
+    print('Solving equilibrium... done.')
+    print(' ')
 
     return phi
 

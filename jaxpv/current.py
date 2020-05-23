@@ -1,10 +1,5 @@
 from .scales import *
-if USE_JAX:
-    from jax.config import config
-    config.update("jax_enable_x64", True)
-    import jax.numpy as np
-else:
-    import numpy as np
+from .utils import *
 
 def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
     """

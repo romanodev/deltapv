@@ -1,8 +1,6 @@
 import scipy.constants as const
 import math
 
-USE_JAX = input('Use JAX? [Y/n]') == 'Y'
-
 ##### Units required in inputs #####
 ## grid : cm
 ## eps : unitless

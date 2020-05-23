@@ -1,9 +1,8 @@
 from .initial_guess import *
 from .solve_eq import *
 from .solve import *
-if USE_JAX:
-    from jax import jacfwd
-    from jax import ops
+from .utils import *
+
 
 def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
     """

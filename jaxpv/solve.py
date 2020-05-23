@@ -1,8 +1,8 @@
 from .F import *
-if USE_JAX:
-    from jax import jit , jacfwd
+from .utils import *
 
 def damp( move ):
+    print(' ')
     """
     Computes a damped move of potentials from the Newton method displacement.
 
@@ -871,7 +871,7 @@ def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg
 
         error = error_dx
         iter += 1
-        print( '                {0:02d}              {1:.9f}           {2:.9f}'.format( iter , float( error_F ) , float( error_dx ) ) )
+        print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) )
 
 
     grad_phis = {}
