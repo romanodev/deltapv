@@ -67,7 +67,8 @@ pv_obj.doping_profile(HTM_DOPING, HTM_RANGE)
 
 pv_obj.contacts(10e7, 10e7, 10e7, 10e7)
 
-pv_obj.optical_G(type='user', G=1e18 * np.ones(NUM_POINTS, dtype=np.float32))
+#pv_obj.optical_G(type='user', G=1e18 * np.ones(NUM_POINTS, dtype=np.float32))
+pv_obj.optical_G(type='user', G=np.zeros(NUM_POINTS, dtype=np.float32))
 
 eq_result = pv_obj.solve(equilibrium=False,V=1)
 #pv_obj.plot_concentration_profile(eq_result)
