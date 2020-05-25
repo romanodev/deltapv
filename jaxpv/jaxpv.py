@@ -510,7 +510,6 @@ class JAXPV( object ):
         """
         scale = scales()
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        print('Vincr:', Vincr)
         if ( self.opt is 'user' ):
             G_used = np.array( self.G )
         else:
@@ -538,7 +537,6 @@ class JAXPV( object ):
             return result
         else:
             num_steps = math.floor( V_dim / Vincr )
-            print('num_steps:', num_steps)
 
             phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
             neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
@@ -548,8 +546,6 @@ class JAXPV( object ):
 
             volt = [ i * Vincr for i in range( num_steps ) ]
             volt.append( V_dim )
-            
-            print('volt: ', volt)
 
             for v in volt:
                 print(" ")
@@ -558,13 +554,11 @@ class JAXPV( object ):
                 print( ' Iteration       |F(x)|                Residual     ')
                 print( ' -------------------------------------------------------------------' )
                 sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , neq_0 , neq_L , peq_0 , peq_L , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
-                print(sol)
                 if os.environ['JAX'] == 'YES':
                     phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
                 else:
                     sol[-1] = phi_eq[-1] + v
                     phis = sol
-                print('done for', scale['E'] * v)
             result['phi_n'] = scale['E'] * phis[0:N]
             result['phi_p'] = scale['E'] * phis[N:2*N]
             result['phi'] = scale['E'] * phis[2*N:]
@@ -572,10 +566,7 @@ class JAXPV( object ):
             result['p'] = scale['n'] * p( phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
             result['Jn'] = scale['J'] * Jn( np.array( self.grid[1:] - self.grid[:-1] ) , phis[0:N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn ) )
             result['Jp'] = scale['J'] * Jp( np.array( self.grid[1:] - self.grid[:-1] ) , phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) , np.array( self.mp ) )
-            print('finished')
             return result
-
-
 
 
 
