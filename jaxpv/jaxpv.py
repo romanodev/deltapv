@@ -510,6 +510,7 @@ class JAXPV( object ):
         """
         scale = scales()
         Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+        print('Vincr:', Vincr)
         if ( self.opt is 'user' ):
             G_used = np.array( self.G )
         else:
@@ -517,7 +518,7 @@ class JAXPV( object ):
 
         N = self.grid.size
 
-        phi_ini = phi_ini = eq_init_phi( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+        phi_ini = eq_init_phi( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
         #Solve Equilibrium--
         phi_eq = solve_eq( np.array( self.grid[1:] - self.grid[:-1] ) , phi_ini , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
@@ -535,6 +536,7 @@ class JAXPV( object ):
             return result
         else:
             num_steps = math.floor( V / Vincr )
+            print('num_steps:', num_steps)
 
             phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
             neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
