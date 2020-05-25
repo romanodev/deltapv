@@ -544,13 +544,12 @@ class JAXPV( object ):
             peq_0 = self.Nv[0] * np.exp( - self.Chi[0] - self.Eg[0] - phi_eq[0] )
             peq_L = self.Nv[-1] * np.exp( - self.Chi[-1] - self.Eg[-1] - phi_eq[-1] )
 
-            volt = [ i * Vincr for i in range( num_steps ) ]
-            volt.append( V )
+            volt = [ i * Vincr / scales['E'] for i in range( num_steps ) ]
+            volt.append( V / scales['E'])
             
             print('volt: ', volt)
 
             for v in volt:
-                print(v)
                 print(" ")
                 print("V = {0:.3E}".format(scale['E'] * v) + ' V')
                 print(" ")
