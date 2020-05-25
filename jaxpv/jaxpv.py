@@ -544,8 +544,11 @@ class JAXPV( object ):
 
             volt = [ i * Vincr for i in range( num_steps ) ]
             volt.append( V )
+            
+            print('volt: ', volt)
 
             for v in volt:
+                print(v)
                 print(" ")
                 print("V = {0:.3E}".format(scale['E'] * v) + ' V')
                 print(" ")
@@ -557,6 +560,7 @@ class JAXPV( object ):
                 else:
                     sol[-1] = phi_eq[-1] + v
                     phis = sol
+                print('done for', v)
             result['phi_n'] = scale['E'] * phis[0:N]
             result['phi_p'] = scale['E'] * phis[N:2*N]
             result['phi'] = scale['E'] * phis[2*N:]
@@ -564,6 +568,7 @@ class JAXPV( object ):
             result['p'] = scale['n'] * p( phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
             result['Jn'] = scale['J'] * Jn( np.array( self.grid[1:] - self.grid[:-1] ) , phis[0:N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn ) )
             result['Jp'] = scale['J'] * Jp( np.array( self.grid[1:] - self.grid[:-1] ) , phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) , np.array( self.mp ) )
+            print('finished')
             return result
 
 
