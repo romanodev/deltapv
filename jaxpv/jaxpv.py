@@ -524,6 +524,8 @@ class JAXPV( object ):
         phi_eq = solve_eq( np.array( self.grid[1:] - self.grid[:-1] ) , phi_ini , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
         result = {}
+        
+        V_dim = V / scale['E']
 
         if equilibrium:
             result['phi_n'] = np.zeros( N )
@@ -535,7 +537,7 @@ class JAXPV( object ):
             result['Jp'] = np.zeros( N - 1 )
             return result
         else:
-            num_steps = math.floor( V / Vincr )
+            num_steps = math.floor( V_dim / Vincr )
             print('num_steps:', num_steps)
 
             phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
@@ -544,8 +546,8 @@ class JAXPV( object ):
             peq_0 = self.Nv[0] * np.exp( - self.Chi[0] - self.Eg[0] - phi_eq[0] )
             peq_L = self.Nv[-1] * np.exp( - self.Chi[-1] - self.Eg[-1] - phi_eq[-1] )
 
-            volt = [ i * Vincr / scale['E'] for i in range( num_steps ) ]
-            volt.append( V / scale['E'])
+            volt = [ i * Vincr for i in range( num_steps ) ]
+            volt.append( V_dim )
             
             print('volt: ', volt)
 
@@ -562,7 +564,7 @@ class JAXPV( object ):
                 else:
                     sol[-1] = phi_eq[-1] + v
                     phis = sol
-                print('done for', v)
+                print('done for', scale['E'] * v)
             result['phi_n'] = scale['E'] * phis[0:N]
             result['phi_p'] = scale['E'] * phis[N:2*N]
             result['phi'] = scale['E'] * phis[2*N:]
