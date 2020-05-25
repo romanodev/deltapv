@@ -73,7 +73,7 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     max_iter = 100
     iter = 0
     current = []
-    terminante = False
+    terminate = False
     v = 0
 
     while not terminate and ( iter < max_iter ):
