@@ -86,7 +86,7 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
             cond = ( current[-2] * current[-1] > 0 )
         iter += 1
         v = v + Vincrement
-        if USE_JAX:
+        if os.environ['JAX'] == 'YES':
             phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
         else:
             sol[-1] = phi_eq[-1] + v

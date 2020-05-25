@@ -75,7 +75,7 @@ eq_result = pv_obj.solve(equilibrium=False,V=1)
 #pv_obj.plot_band_diagram(eq_result)
 #pv_obj.plot_current_profile(eq_result)
 
-pv_obj.IV_curve()
+#pv_obj.IV_curve()
 
 #print(pv_obj.efficiency())
 #print(pv_obj.grad_efficiency(jit=False))

@@ -519,6 +519,7 @@ class JAXPV( object ):
 
         phi_ini = phi_ini = eq_init_phi( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
+        #Solve Equilibrium--
         phi_eq = solve_eq( np.array( self.grid[1:] - self.grid[:-1] ) , phi_ini , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
 
         result = {}
@@ -548,15 +549,14 @@ class JAXPV( object ):
                 print(" ")
                 print("V = {0:.3E}".format(scale['E'] * v) + ' V')
                 print(" ")
-                print( 'Iteration       |F(x)|                Residual     ')
-                print( '-------------------------------------------------------------------' )
+                print( ' Iteration       |F(x)|                Residual     ')
+                print( ' -------------------------------------------------------------------' )
                 sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , neq_0 , neq_L , peq_0 , peq_L , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
-                if USE_JAX:
+                if os.environ['JAX'] == 'YES':
                     phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
                 else:
                     sol[-1] = phi_eq[-1] + v
                     phis = sol
-
             result['phi_n'] = scale['E'] * phis[0:N]
             result['phi_p'] = scale['E'] * phis[N:2*N]
             result['phi'] = scale['E'] * phis[2*N:]

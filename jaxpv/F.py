@@ -267,7 +267,7 @@ def F_deriv( dgrid , neq_0 , neq_L , peq_0 , peq_L , phi_n , phi_p , phi , eps ,
     dF = np.concatenate( ( dF , dpois_dphip__ ) )
 
     result = np.zeros( ( 3 * N , 3 * N ) )
-    if USE_JAX:
+    if os.environ['JAX'] == 'YES':
         return ops.index_update( result , ( row , col ) , dF )
     else:
         for i in range( len( row ) ):
