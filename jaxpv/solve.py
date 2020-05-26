@@ -103,7 +103,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     move = np.linalg.solve( gradF , - _F )
     
-    lstsq_move,residue,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None, check_finite=True)
+    lstsq_move,residue,_,_ = np.linalg.lstsq(gradF, -_F, rcond=-1)
 
     print('with residue', residue, ' the relative difference is')
     print(( move - lstsq_move ) / move)
