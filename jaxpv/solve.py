@@ -103,7 +103,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     try:
         move = np.linalg.solve( gradF , - _F )
-    except LinAlgErr as err:
+    except numpy.linalg.LinAlgErr as err:
         print('singular matrix, switching to least squares')
         move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
     
