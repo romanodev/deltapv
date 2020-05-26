@@ -103,7 +103,9 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     #move = np.linalg.solve( gradF , - _F )
     
-    move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=1e-12)
+    move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
+    
+    move = np.pinv(gradF.T@gradF)@gradF.T@(-_F)
     
     error = np.linalg.norm(move)
     damp_move = damp( move )
@@ -260,7 +262,7 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
     iter = 0
 
     phis = phis_ini
-    while (error > 1e-4):
+    while (error > 1e-6):
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
         error = error_dx
