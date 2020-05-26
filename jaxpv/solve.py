@@ -101,11 +101,11 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
     gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
 
-    #move = np.linalg.solve( gradF , - _F )
-    
-    move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
-    
-    move = np.linalg.pinv(gradF.T@gradF)@gradF.T@(-_F)
+    try:
+        move = np.linalg.solve( gradF , - _F )
+    except LinAlgErr as err:
+        print('singular matrix, switching to least squares')
+        move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
     
     error = np.linalg.norm(move)
     damp_move = damp( move )
