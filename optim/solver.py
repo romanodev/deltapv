@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 t1 = 25 * 1e-7  # thickness of CdS
 t2 = 4 * 1e-4  # thickness of CdTe
 dd = 1e-7  # 2*dd is the distance over which mesh is refined
-# Define the mesh
-x = np.concatenate((np.linspace(0, dd, 10, endpoint=False),  # L contact interface
-                    np.linspace(dd, t1 - dd, 50, endpoint=False),  # material 1
-                    np.linspace(t1 - dd, t1 + dd, 10, endpoint=False),  # interface 1
-                    np.linspace(t1 + dd, (t1 + t2) - dd, 100, endpoint=False),  # material 2
-                    np.linspace((t1 + t2) - dd, (t1 + t2), 10)))  # R contact interface
+
+x = np.concatenate((np.linspace(0, dd, 40, endpoint=False),  # L contact interface
+                    np.linspace(dd, t1 - dd, 200, endpoint=False),  # material 1
+                    np.linspace(t1 - dd, t1 + dd, 40, endpoint=False),  # interface 1
+                    np.linspace(t1 + dd, (t1 + t2) - dd, 400, endpoint=False),  # material 2
+                    np.linspace((t1 + t2) - dd, (t1 + t2), 40)))  # R contact interface
 
 # CdS material dictionary
 CdS = {'Nc': 2.2e18, 'Nv': 1.8e19, 'Eg': 2.4, 'epsilon': 10, 'Et': 0,
@@ -35,11 +35,11 @@ class Solver(object):
         self.CdS_region = lambda x: x <= t1
         self.CdTe_region = lambda x: x > t1
 
-    def solve(self, CdS, CdTe, nD, nA, voltages=np.linspace(0, 1, 21)):
+    def solve(self, CdS, CdTe, nD, nA, num_points=21, plot=False):
         sys = sesame.Builder(self.mesh)
 
-        sys.add_material(CdS, self.CdS_region)  # adding CdS
-        sys.add_material(CdTe, self.CdTe_region)  # adding CdTe
+        sys.add_material(CdS, self.CdS_region)
+        sys.add_material(CdTe, self.CdTe_region)
 
         sys.add_donor(nD, self.CdS_region)
         sys.add_acceptor(nA, self.CdTe_region)
@@ -57,25 +57,40 @@ class Solver(object):
         f = lambda x: phi0 * alpha * np.exp(-x * alpha)
         sys.generation(f)
 
-        # Perform I-V calculation
-        j = sesame.IVcurve(sys, voltages, '1dhetero_V')
-        j = j * sys.scaling.current
+        voltages = np.linspace(0, 1, num_points)
+        iters = 0
+        while iters < 5:
+            j = sesame.IVcurve(sys, voltages, '1dhetero_V')
+            j = j * sys.scaling.current
 
-        result = {'v': voltages, 'j': j}
-        np.save('IV_values', result)
+            result = {'v': voltages, 'j': j}
+            np.save('IV_values', result)
 
-        # plot I-V curve
-        plt.plot(voltages, j, '-o')
-        plt.xlabel('Voltage [V]')
-        plt.ylabel('Current [A/cm^2]')
-        plt.grid()  # add grid
-        plt.show()  # show the plot on the screen
+            if plot:
+                plt.plot(voltages, j, '-o')
+                plt.xlabel('Voltage [V]')
+                plt.ylabel('Current [A/cm^2]')
+                plt.grid()
+                plt.show()
 
-        return j, voltages
+            p = j * voltages
+            print(p)
+
+            dp = np.diff(p)
+            if np.any(dp < 0):
+                return np.max(p)
+
+            voltages = np.append(voltages, voltages[1:] + voltages[-1])
+            iters = iters + 1
+
+        raise RuntimeError('did not find maximum within runtime limit')
+
+
+def default():
+    return Solver(t1, t2, dd, x)
 
 
 if __name__ == '__main__':
     solver = Solver(t1, t2, dd, x)
-    j, v = solver.solve(CdS, CdTe, nD, nA, voltages=np.linspace(0, 1, 51))
-    plt.plot(v, j * v)
-    plt.show()
+    mp = solver.solve(CdS, CdTe, nD, nA, num_points=51, plot=True)
+    print(mp)
