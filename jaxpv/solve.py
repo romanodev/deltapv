@@ -101,12 +101,14 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
     gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
 
-    move = np.linalg.solve( gradF , - _F )
+    move_solve = np.linalg.solve( gradF , - _F )
     
-    lstsq_move,residue,_,_ = np.linalg.lstsq(gradF, -_F, rcond=-1)
+    move,residue,_,_ = np.linalg.lstsq(gradF, -_F, rcond=-1)
 
     print('with residue', residue, ' the relative difference is')
-    print(( move - lstsq_move ) / move)
+    print((( move - lstsq_move ) / lstsq_move).tolist())
+    print('and move is')
+    print(move.tolist())
     
     error = np.linalg.norm(move)
     damp_move = damp( move )
