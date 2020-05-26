@@ -103,12 +103,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     move_solve = np.linalg.solve( gradF , - _F )
     
-    move,residue,_,_ = np.linalg.lstsq(gradF, -_F, rcond=-1)
-
-    print('with residue', residue, ' the relative difference is')
-    print((( move_solve - move ) / move).tolist())
-    print('and move is')
-    print(move.tolist())
+    move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=0)
     
     error = np.linalg.norm(move)
     damp_move = damp( move )
