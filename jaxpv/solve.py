@@ -105,8 +105,8 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     
     lstsq_move,_,_,_ = np.linalg.lstsq(gradF, -_F,rcond=None)
 
-    print('difference is')
-    print(move - lstsq_move)
+    print('relative difference is')
+    print(( move - lstsq_move ) / move)
     
     error = np.linalg.norm(move)
     damp_move = damp( move )
