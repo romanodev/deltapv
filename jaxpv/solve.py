@@ -103,7 +103,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     #move = np.linalg.solve( gradF , - _F )
     
-    move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=1e-10)
+    move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=1e-12)
     
     error = np.linalg.norm(move)
     damp_move = damp( move )
