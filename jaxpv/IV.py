@@ -83,7 +83,7 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         tot_current , _ = total_current( dgrid , sol[0:N] , sol[N:2*N] , sol[2*N:] , Chi , Eg , Nc , Nv , mn , mp )
         current.append( tot_current )
         if ( len( current ) > 1 ):
-            terminate = ( current[-2] * current[-1] <= 0 ) and current[-2] != 0
+            terminate = ( current[-2] * current[-1] <= 0 ) and np.abs(current[-2]) > 1e-4
         iter += 1
         v = v + Vincrement
         if os.environ['JAX'] == 'YES':
