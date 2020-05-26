@@ -101,12 +101,13 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
     gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
 
-    #move = np.linalg.solve( gradF , - _F )
+    move = np.linalg.solve( gradF , - _F )
+    
+    lstsq_move,_,_,_ = np.linalg.lstsq(gradF, -_F,rcond=None)
 
-
-    move,_,_,_ = np.linalg.lstsq(gradF, -_F,rcond=None)
-
-
+    print('difference is')
+    print(move - lstsq_move)
+    
     error = np.linalg.norm(move)
     damp_move = damp( move )
 
