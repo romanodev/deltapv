@@ -267,7 +267,7 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
     error = 1
     iter = 0
 
-    phis = phis_ini + np.random.normal(loc=0, scale=100, size=phis_ini.shape)
+    phis = phis_ini + np.random.normal(loc=0, scale=10, size=phis_ini.shape)
     
     while (error > 1e-6):
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
