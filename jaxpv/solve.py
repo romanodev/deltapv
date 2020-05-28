@@ -1,5 +1,6 @@
 from .F import *
 from .utils import *
+import scipy.sparse.linalg.spsolve as spsolve
 
 def damp( move ):
     """
@@ -111,13 +112,10 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     move = np.linalg.pinv(gradF.T @ gradF) @ gradF.T @ (-_F)
     """
     
-    move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
+    move = spsolve(gradF, -_F)
     
     error = np.linalg.norm(move)
     damp_move = damp( move )
-    
-    gate = (np.random.random(damp_move.shape) < 1).astype(int)
-    damp_move = damp_move * gate
 
     return error , np.linalg.norm(_F) , np.concatenate( ( phis[0:N] + damp_move[0:3*N:3] , phis[N:2*N] + damp_move[1:3*N:3] , phis[2*N:]+ damp_move[2:3*N:3] ) , axis = 0 )
 
