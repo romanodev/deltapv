@@ -116,7 +116,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     error = np.linalg.norm(move)
     damp_move = damp( move )
     
-    gate = (np.random.random(damp_move.shape) < .5).astype(int)
+    gate = (np.random.random(damp_move.shape) < .1).astype(int)
     damp_move = damp_move * gate
 
     return error , np.linalg.norm(_F) , np.concatenate( ( phis[0:N] + damp_move[0:3*N:3] , phis[N:2*N] + damp_move[1:3*N:3] , phis[2*N:]+ damp_move[2:3*N:3] ) , axis = 0 )
