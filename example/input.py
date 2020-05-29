@@ -18,8 +18,6 @@ HTM_RANGE = np.arange(HTM_START_INDEX, NUM_POINTS, dtype=int)
 
 GRID = np.linspace(0, CELL_THICKNESS, num=NUM_POINTS)
 
-
-
 pv_obj = JAXPV(GRID)
 
 PEROV_PROP = {'eps': 10,
@@ -65,7 +63,7 @@ HTM_DOPING = -1.6092e18 * np.ones(HTM_RANGE.size)
 pv_obj.doping_profile(ETM_DOPING, ETM_RANGE)
 pv_obj.doping_profile(HTM_DOPING, HTM_RANGE)
 
-pv_obj.contacts(10e7, 10e7, 10e7, 10e7)
+pv_obj.contacts(1.e8, 1.e8, 1.e8, 1.e8)
 
 #pv_obj.optical_G(type='user', G=1e18 * np.ones(NUM_POINTS, dtype=np.float32))
 pv_obj.optical_G(type='user', G=np.zeros(NUM_POINTS, dtype=np.float32))
