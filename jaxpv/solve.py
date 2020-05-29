@@ -105,13 +105,13 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     try:
         move = np.linalg.solve( gradF , - _F )
-    except np.linalg.LinAlgError as err:
-        print('singular matrix, switching to least squares')
-        move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
+#    except np.linalg.LinAlgError as err:
+#        print('singular matrix, switching to least squares')
+#        move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
 
-    """
-    move = np.linalg.pinv(gradF.T @ gradF) @ gradF.T @ (-_F)
-    """
+#    """
+#    move = np.linalg.pinv(gradF.T @ gradF) @ gradF.T @ (-_F)
+#    """
 
     error = np.linalg.norm(move)
     damp_move = damp( move )
