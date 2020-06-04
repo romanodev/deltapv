@@ -100,14 +100,17 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
     gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
-    
+
     try:
         move = np.linalg.solve( gradF , - _F )
     except np.linalg.LinAlgError as err:
         print('singular matrix, switching to least squares')
         move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
 
+<<<<<<< HEAD
     move = np.linalg.solve( gradF , - _F )
+=======
+>>>>>>> b2e813e9ebc9f1d0e15e0a57f5177be86cc70126
     """
     move = np.linalg.pinv(gradF.T @ gradF) @ gradF.T @ (-_F)
     """
@@ -267,14 +270,14 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
     iter = 0
 
     phis = phis_ini
-    
+
     while (error > 1e-6):
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
         error = error_dx
         iter += 1
-        print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) ) 
-                 
+        print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) )
+
     return phis
 
 
