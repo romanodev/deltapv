@@ -72,8 +72,11 @@ Scontact = 1.e8  # [cm/s]
 Sn_left, Sp_left, Sn_right, Sp_right = Scontact, Scontact, Scontact, Scontact
 sys.contact_S(Sn_left, Sp_left, Sn_right, Sp_right)
 
-f = lambda x: 0.
-#f = lambda x: 1.e18
+#f = lambda x: 0.
+f = lambda x: 1e17
+"""phi0 = 1e17  # incoming flux [1/(cm^2 sec)]
+alpha = 2.3e4  # absorbtion coefficient [1/cm]
+f = lambda x: phi0 * alpha * np.exp(-x * alpha)"""
 sys.generation(f)
 
 voltages = np.linspace(0, 1, 50)

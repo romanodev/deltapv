@@ -1,6 +1,10 @@
-from jaxpv.src.jaxpv import *
-grid =  np.concatenate( ( np.linspace(0,1.2e-4, 100, endpoint=False, dtype=np.float64) , np.linspace(1.2e-4, 3e-4, 50, dtype=np.float64) ) )  #cm
+import os
+import numpy as np
+os.environ['JAX'] = 'NO'
+from jaxpv import *
+grid = np.concatenate( ( np.linspace(0,1.2e-4, 100, endpoint=False, dtype=np.float64) , np.linspace(1.2e-4, 3e-4, 50, dtype=np.float64) ) )  #cm
 simu = JAXPV( grid )
+
 material = {
     'Chi' : 3.9 , #eV
     'Eg'  : 1.5 , #eV
@@ -30,6 +34,7 @@ simu.single_pn_junction( 1e17 , - 1e15 , 50e-7 )
 phi = 1e17       # photon flux [cm-2 s-1)]
 alpha = 2.3e4    # absorption coefficient [cm-1]
 G = phi * alpha * np.exp( - alpha * grid ) # cm-3 s-1
+#G = G * 0
 simu.optical_G( 'user' , G )
 
 #result = simu.solve( 0 , equilibrium=True )
@@ -37,6 +42,6 @@ simu.optical_G( 'user' , G )
 #simu.plot_band_diagram( result )
 #simu.plot_concentration_profile( result )
 #simu.plot_current_profile( result )
-IV = simu.IV_curve()
+v_jax, j_jax = simu.IV_curve()
 #efficiency = simu.efficiency()
 #print(efficiency)

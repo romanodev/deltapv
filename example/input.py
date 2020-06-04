@@ -7,7 +7,7 @@ ETM_THICKNESS = 0.1701e-4
 PEROV_THICKNESS = 0.7301e-4
 HTM_THICKNESS = 0.4989e-4
 CELL_THICKNESS = ETM_THICKNESS + PEROV_THICKNESS + HTM_THICKNESS
-NUM_POINTS = 50
+NUM_POINTS = 500
 ALL_INDICES = np.arange(NUM_POINTS, dtype=int)
 ETM_START_INDEX = int(0)
 PEROV_START_INDEX = int(NUM_POINTS * ETM_THICKNESS // CELL_THICKNESS)
@@ -27,7 +27,7 @@ PEROV_PROP = {'eps': 10,
               'Nv': 2.7e18,
               'mn': 2,
               'mp': 2,
-              'Br': 2.3e-9,
+              'Br': 0,
               'Et': 1,
               'tn': 1e-3,
               'tp': 1e-3}
@@ -68,12 +68,12 @@ pv_obj.contacts(1.e8, 1.e8, 1.e8, 1.e8)
 #pv_obj.optical_G(type='user', G=1e18 * np.ones(NUM_POINTS, dtype=np.float32))
 pv_obj.optical_G(type='user', G=np.zeros(NUM_POINTS, dtype=np.float32))
 
-eq_result = pv_obj.solve(equilibrium=False,V=1)
+#eq_result = pv_obj.solve(equilibrium=False,V=1)
 #pv_obj.plot_concentration_profile(eq_result)
 #pv_obj.plot_band_diagram(eq_result)
 #pv_obj.plot_current_profile(eq_result)
 
-#pv_obj.IV_curve()
+pv_obj.IV_curve()
 
 #print(pv_obj.efficiency())
 #print(pv_obj.grad_efficiency(jit=False))
