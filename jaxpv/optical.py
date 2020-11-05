@@ -150,6 +150,10 @@ def compute_G( dgrid , Eg , Lambda , P_in , A ):
             array of total generation rate density across the system
 
     """
+    print('Lambda')
+    print(Lambda)
+    print('P_in')
+    print(P_in)
     scale = scales()
     phi_0 = photonflux( Lambda , P_in )
     tot_generation = 0
@@ -158,38 +162,6 @@ def compute_G( dgrid , Eg , Lambda , P_in , A ):
     return 1 / scale['U'] * tot_generation
 
 
-
-
-
-def compute_G( dgrid , Eg , Lambda , P_in , A ):
-    """
-    Computes the total e-/hole pair generation rate density across the system.
-
-    Parameters
-    ----------
-        dgrid  : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        Eg     : numpy array , shape = ( N )
-            array of band gaps
-        Lambda : numpy array , shape = ( M )
-            array of light wavelengths
-        P_in   : numpy array , shape = ( M )
-            array of incident power for every wavelength
-        A      : numpy array , shape = ( N )
-            array of coefficients for direct band gap absorption coefficient model
-
-    Returns
-    -------
-        numpy array , shape = ( N )
-            array of total generation rate density across the system
-
-    """
-    scale = scales()
-    phi_0 = photonflux( Lambda , P_in )
-    tot_generation = 0
-    for i in range( Lambda.size ):
-        tot_generation += generation_lambda( dgrid , alpha( Lambda[ i ] , Eg , A ) , phi_0[ i ] )
-    return 1 / scale['U'] * tot_generation
 
 
 

@@ -1,5 +1,7 @@
 from .F import *
 from .utils import *
+import matplotlib.pyplot as plt
+
 
 def damp( move ):
     """
@@ -101,14 +103,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
     gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
 
-    try:
-        move = np.linalg.solve( gradF , - _F )
-    except np.linalg.LinAlgError as err:
-        print('singular matrix, switching to least squares')
-        move,_,_,_ = np.linalg.lstsq(gradF, -_F, rcond=None)
-
-    #move = np.linalg.solve( gradF , - _F )
-    move = np.linalg.pinv(gradF.T @ gradF) @ gradF.T @ (-_F)
+    move = np.linalg.solve( gradF , - _F )
 
     error = np.linalg.norm(move)
     damp_move = damp( move )
@@ -261,18 +256,32 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
             solution for the e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential
 
     """
+    
+    dxs = []
+    Fs = []
+    
     error = 1
     iter = 0
 
     phis = phis_ini
 
     while (error > 1e-6):
+        if iter > 100:
+            print("Maximum steps exceeded! Ending iteration")
+            break
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
         error = error_dx
+        dxs.append(error_dx)
+        Fs.append(error_F)
         iter += 1
         print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) )
-
+        
+    plt.plot(np.log(dxs), label='log dx')
+    plt.plot(np.log(Fs), label='log F')
+    plt.legend()
+    plt.show()
+    
     return phis
 
 
