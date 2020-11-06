@@ -8,6 +8,7 @@ import os
 import matplotlib.pyplot as plt
 from .utils import *
 
+
 class JAXPV( object ):
     """
     Object associated with a jaxpv simulation.
@@ -475,9 +476,9 @@ class JAXPV( object ):
         plt.plot( voltages , current , color='blue' , marker='.' )
         plt.xlabel( 'Voltage (V)' )
         plt.ylabel( 'current (A.cm-2)' )
-        plt.show()
         if title is not None:
             plt.savefig( title )
+        plt.show()
         return voltages , current
 
 

@@ -1,5 +1,7 @@
 from .F_eq import *
 from .utils import *
+import matplotlib.pyplot as plt
+
 
 def damp( move ):
     """
@@ -64,7 +66,6 @@ def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     Feq = F_eq( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv )
     move = np.linalg.solve( gradFeq , - Feq )
-    #move = np.linalg.pinv( gradFeq , - Feq )
     error = np.linalg.norm( move )
     damp_move = damp(move)
 
@@ -108,7 +109,6 @@ def step_eq_forgrad( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Feq = F_eq( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv )
-    #move = np.linalg.pinv( gradFeq , - Feq )
     move = np.linalg.solve( gradFeq , - Feq )
     damp_move = damp(move)
 
@@ -147,6 +147,10 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
             equilibrium electrostatic potential
 
     """
+    
+    dxs = []
+    Fs = []
+    
     error = 1
     iter = 0
     print(' ')
@@ -157,16 +161,26 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
 
     phi = phi_ini
     while (error > 1e-6):
+        if iter > 100:
+            print("Maximum steps exceeded! Ending iteration")
+            break
         error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
         error = error_dx
+        dxs.append(error_dx)
+        Fs.append(error_F)
         iter += 1
         print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) )
     print( ' -------------------------------------------------------------------' )
     print(' ')
     print('Solving equilibrium... done.')
     print(' ')
-
+    
+    plt.plot(np.log(dxs), label='log dx')
+    plt.plot(np.log(Fs), label='log F')
+    plt.legend()
+    plt.show()
+    
     return phi
 
 
