@@ -1,12 +1,13 @@
 import os
 import numpy as np
-os.environ['JAX'] = 'NO'
+os.environ['JAX'] = 'YES'
 import jaxpv
 import argparse
 import matplotlib.pyplot as plt
+import pickle
     
     
-def jaxpv_pnj(G=None):
+def jaxpv_pnj_gradeff(G=None):
     L = 3e-4
     grid = np.concatenate((np.linspace(0, 1.2e-4, 100, endpoint=False, dtype=np.float64),
                             np.linspace(1.2e-4, L, 50, dtype=np.float64)))  #cm
@@ -40,17 +41,12 @@ def jaxpv_pnj(G=None):
         G = phi * alpha * np.exp( - alpha * grid ) # cm-3 s-1
     else:
         G = G * np.ones(grid.shape)
-    print(G)
+
     simu.optical_G( 'user' , G )
 
-    #result = simu.solve( 0 , equilibrium=True )
-    #result = simu.solve( 0 )
-    #simu.plot_band_diagram( result )
-    #simu.plot_concentration_profile( result )
-    #simu.plot_current_profile( result )
-    voltages, j = simu.IV_curve()
-    
-    return voltages, j
+    gradeff = simu.grad_efficiency(jit=False)
+
+    return gradeff
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -60,12 +56,12 @@ if __name__ == '__main__':
     
     G = float(args.G) if args.G else None
     
-    voltages, j = jaxpv_pnj(G=G)
-    
-    plt.plot(voltages, j, '-o')
-    plt.xlabel('Voltage [V]')
-    plt.ylabel('Current [A/cm^2]')
-    plt.title('JAXPV pn-junction example')
+    gradeff = jaxpv_pnj_gradeff()
+
+    print(gradeff)
+
     if args.save is not None:
-        plt.savefig(args.save)
-    plt.show()
+        with open(args.save, 'wb') as f:
+            pickle.dump(gradeff, f)
+    
+    print('saved to', args.save)
