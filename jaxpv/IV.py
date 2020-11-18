@@ -88,7 +88,6 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
         
         if ( len( current ) > 2 ):
             terminate = ( current[-2] * current[-1] <= 0 )
-            terminate = v * scale["E"] > 2
             
         iter += 1
         
