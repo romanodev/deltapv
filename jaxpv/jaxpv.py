@@ -471,7 +471,7 @@ class JAXPV( object ):
             G_used = compute_G( np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.A ) )
 
         current = scale['J'] * calc_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
-        voltages = scale['E'] * np.linspace( start = 0 , stop = len( current ) * Vincr , num = len( current ) )
+        voltages = scale['E'] * np.linspace( start = 0 , stop = (len( current ) - 1) * Vincr , num = len( current ) )
         fig = plt.figure()
         plt.plot( voltages , current , color='blue' , marker='.' )
         plt.xlabel( 'Voltage (V)' )
