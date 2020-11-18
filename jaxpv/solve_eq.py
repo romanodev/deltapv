@@ -170,16 +170,17 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
         dxs.append(error_dx)
         Fs.append(error_F)
         iter += 1
-        print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) )
+        # print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , error_F.astype(float) , error_dx.astype(float) ) )
+        print(iter)
     print( ' -------------------------------------------------------------------' )
     print(' ')
     print('Solving equilibrium... done.')
     print(' ')
     
-    plt.plot(np.log(dxs), label='log dx')
-    plt.plot(np.log(Fs), label='log F')
-    plt.legend()
-    plt.show()
+    # plt.plot(np.log(dxs), label='log dx')
+    # plt.plot(np.log(Fs), label='log F')
+    # plt.legend()
+    # plt.show()
     
     return phi
 

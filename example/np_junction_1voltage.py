@@ -1,11 +1,53 @@
-import sesame
-import numpy as np
-import matplotlib.pyplot as plt
 import os
+import numpy as np
+os.environ['JAX'] = 'NO'
+import jaxpv
+import sesame
 import argparse
     
     
-def sesame_pnj(G=None, voltages=None):
+def jaxpv_1v(G=None, V=1):
+    L = 3e-4
+    grid = np.linspace(0, L, 500)
+    simu = jaxpv.JAXPV(grid)
+
+    material = {
+        'Chi' : 3.9 , #eV
+        'Eg'  : 1.5 , #eV
+        'eps' : 9.4 ,
+        'Nc'  : 8e17 , #cm-3
+        'Nv'  : 1.8e19 , #cm-3
+        'mn'  : 100 , #cm2V-1s-1
+        'mp'  : 100 , #cm2V-1s-1
+        'Et'  : 0 , #eV
+        'tn'  : 10e-9 , #s
+        'tp'  : 10e-9 , #s
+    }
+
+    Snl = 1e7  #cm/s
+    Spl = 0  #cm/s
+    Snr = 0  #cm/s
+    Spr = 1e7 #cm/s
+
+    simu.add_material( material , range( len( grid ) ) )
+    simu.contacts( Snl , Snr , Spl , Spr )
+    simu.single_pn_junction( 1e17 , - 1e15 , 50e-7 )
+    
+    if G is None:
+        phi = 1e17       # photon flux [cm-2 s-1)]
+        alpha = 2.3e4    # absorption coefficient [cm-1]
+        G = phi * alpha * np.exp( - alpha * grid ) # cm-3 s-1
+    else:
+        G = G * np.ones(grid.shape)
+    print(G)
+    simu.optical_G( 'user' , G )
+
+    result = simu.solve(V=V)
+    
+    return result
+
+
+def sesame_1v(G=None, V=1):
     L = 3e-4
     # grid = np.concatenate((np.linspace(0, 1.2e-4, 100, endpoint=False, dtype=np.float64),
     #                        np.linspace(1.2e-4, L, 50, dtype=np.float64)))  # cm
@@ -55,8 +97,7 @@ def sesame_pnj(G=None, voltages=None):
     print(f(0))
     sys.generation(f)
     
-    if voltages is None:
-        voltages = np.linspace(0, 0.95, 40)
+    voltages = np.array([V])
 
     os.makedirs('sesame_output', exist_ok=True)
 
@@ -65,20 +106,19 @@ def sesame_pnj(G=None, voltages=None):
 
     return voltages, j
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--save')
+    parser.add_argument("--save")
     parser.add_argument('--G')
+    parser.add_argument('--V')
     args = parser.parse_args()
     
     G = float(args.G) if args.G else None
+    V = float(args.V) if args.V else 1
     
-    voltages, j = sesame_pnj(G=G)
+    jaxpv_result = jaxpv_1v(G=G, V=V)
+    sesame_result = sesame_1v(G=G, V=V)
     
-    plt.plot(voltages, j, '-o')
-    plt.xlabel('Voltage [V]')
-    plt.ylabel('Current [A/cm^2]')
-    plt.title('SESAME pn-junction example')
-    if args.save is not None:
-        plt.savefig(args.save)
-    plt.show()
+    print(jaxpv_result)
+    print(sesame_result)
