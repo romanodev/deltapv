@@ -79,13 +79,21 @@ def calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et
     while not terminate and ( iter < max_iter ):
         print( 'V = {0:.7f}   Iteration       |F(x)|                Residual     '.format( scale['E'] * v ) )
         print( '-------------------------------------------------------------------' )
+        
         sol = solve( dgrid , neq_0 , neq_L , peq_0 , peq_L , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used )
+        
         tot_current , _ = total_current( dgrid , sol[0:N] , sol[N:2*N] , sol[2*N:] , Chi , Eg , Nc , Nv , mn , mp )
+        
         current.append( tot_current )
+        
         if ( len( current ) > 2 ):
             terminate = ( current[-2] * current[-1] <= 0 )
+            terminate = v * scale["E"] > 2
+            
         iter += 1
+        
         v = v + Vincrement
+        
         if os.environ['JAX'] == 'YES':
             phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
         else:

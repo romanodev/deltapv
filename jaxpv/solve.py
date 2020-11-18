@@ -102,7 +102,7 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
 
     _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
     gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
-
+    
     move = np.linalg.solve( gradF , - _F )
 
     error = np.linalg.norm(move)
@@ -277,10 +277,10 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
         iter += 1
         print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) )
         
-    plt.plot(np.log(dxs), label='log dx')
-    plt.plot(np.log(Fs), label='log F')
-    plt.legend()
-    plt.show()
+    # plt.plot(np.log(dxs), label='log dx')
+    # plt.plot(np.log(Fs), label='log F')
+    # plt.legend()
+    # plt.show()
     
     return phis
 

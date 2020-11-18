@@ -7,8 +7,9 @@ import argparse
     
 def jaxpv_pnj(G=None):
     L = 3e-4
-    grid = np.concatenate((np.linspace(0, 1.2e-4, 100, endpoint=False, dtype=np.float64),
-                            np.linspace(1.2e-4, L, 50, dtype=np.float64)))  #cm
+    # grid = np.concatenate((np.linspace(0, 1.2e-4, 100, endpoint=False, dtype=np.float64),
+    #                         np.linspace(1.2e-4, L, 50, dtype=np.float64)))  #cm
+    grid = np.linspace(0, L, 500)
     simu = jaxpv.JAXPV(grid)
 
     material = {

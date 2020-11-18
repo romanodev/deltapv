@@ -176,10 +176,10 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     print('Solving equilibrium... done.')
     print(' ')
     
-    plt.plot(np.log(dxs), label='log dx')
-    plt.plot(np.log(Fs), label='log F')
-    plt.legend()
-    plt.show()
+    # plt.plot(np.log(dxs), label='log dx')
+    # plt.plot(np.log(Fs), label='log F')
+    # plt.legend()
+    # plt.show()
     
     return phi
 
