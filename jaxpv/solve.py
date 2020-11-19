@@ -265,7 +265,7 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
 
     phis = phis_ini
 
-    while (error > 1e-6):
+    while (error > 1e-9):
         if iter > 100:
             print("Maximum steps exceeded! Ending iteration")
             break

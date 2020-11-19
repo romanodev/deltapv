@@ -41,7 +41,7 @@ def jaxpv_pnj(G=None):
         G = phi * alpha * np.exp( - alpha * grid ) # cm-3 s-1
     else:
         G = G * np.ones(grid.shape)
-    print(G)
+    
     simu.optical_G( 'user' , G )
 
     #result = simu.solve( 0 , equilibrium=True )
