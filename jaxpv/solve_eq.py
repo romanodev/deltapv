@@ -2,6 +2,9 @@ from .F_eq import *
 from .utils import *
 import matplotlib.pyplot as plt
 
+from scipy.sparse import csr_matrix
+from scipy.sparse.linalg import gmres, spilu, LinearOperator
+
 
 def damp( move ):
     """
@@ -65,7 +68,17 @@ def step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
     """
     Feq = F_eq( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv , Ndop )
     gradFeq = F_eq_deriv( dgrid , np.zeros( phi.size ) , np.zeros( phi.size ) , phi , eps , Chi , Eg , Nc , Nv )
-    move = np.linalg.solve( gradFeq , - Feq )
+    
+    spgradFeq = csr_matrix(gradFeq)
+    
+    lugradFeq = spilu(spgradFeq)
+    precond = LinearOperator(gradFeq.shape, lambda x: lugradFeq.solve(x))
+    
+    move, conv_info = gmres(spgradFeq, -Feq, tol=1e-9, maxiter=10000, M=precond)
+    
+    if conv_info > 0:
+        print(f"Early termination of GMRES at {conv_info} iterations")
+    
     error = np.linalg.norm( move )
     damp_move = damp(move)
 
@@ -148,9 +161,6 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
 
     """
     
-    dxs = []
-    Fs = []
-    
     error = 1
     iter = 0
     print(' ')
@@ -160,27 +170,21 @@ def solve_eq( dgrid , phi_ini , eps , Chi , Eg , Nc , Nv , Ndop ):
     print( ' -------------------------------------------------------------------' )
 
     phi = phi_ini
-    while (error > 1e-6):
+    while (error > 1e-9):
         if iter > 100:
             print("Maximum steps exceeded! Ending iteration")
             break
         error_dx , error_F , next_phi = step_eq( dgrid , phi , eps , Chi , Eg , Nc , Nv , Ndop )
         phi = next_phi
         error = error_dx
-        dxs.append(error_dx)
-        Fs.append(error_F)
+
         iter += 1
         print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , error_F.astype(float) , error_dx.astype(float) ) )
-        # print(iter)
+
     print( ' -------------------------------------------------------------------' )
     print(' ')
     print('Solving equilibrium... done.')
     print(' ')
-    
-    # plt.plot(np.log(dxs), label='log dx')
-    # plt.plot(np.log(Fs), label='log F')
-    # plt.legend()
-    # plt.show()
     
     return phi
 

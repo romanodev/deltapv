@@ -2,6 +2,9 @@ from .F import *
 from .utils import *
 import matplotlib.pyplot as plt
 
+from scipy.sparse import csr_matrix
+from scipy.sparse.linalg import gmres, spilu, LinearOperator
+
 
 def damp( move ):
     """
@@ -103,7 +106,15 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
     gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
     
-    move = np.linalg.solve( gradF , - _F )
+    spgradF = csr_matrix(gradF)
+    
+    lugradF = spilu(spgradF)
+    precond = LinearOperator(gradF.shape, lambda x: lugradF.solve(x))
+    
+    move, conv_info = gmres(spgradF, -_F, tol=1e-9, maxiter=10000, M=precond)
+    
+    if conv_info > 0:
+        print(f"Early termination of GMRES at {conv_info} iterations")
 
     error = np.linalg.norm(move)
     damp_move = damp( move )
@@ -257,9 +268,6 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
 
     """
     
-    dxs = []
-    Fs = []
-    
     error = 1
     iter = 0
 
@@ -272,17 +280,12 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
         error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
         phis = next_phis
         error = error_dx
-        dxs.append(error_dx)
-        Fs.append(error_F)
         iter += 1
-        print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , error_F.astype(float) , error_dx.astype(float) ) )
-        # print(iter)
+        print( '                  {0:02d}          {1:.5E}          {2:.5E}'.format( iter , error_F.astype(float) , error_dx.astype(float) ) )
         
-    # plt.plot(np.log(dxs), label='log dx')
-    # plt.plot(np.log(Fs), label='log F')
-    # plt.legend()
-    # plt.show()
-    
+        # if input("continue? [y/n]") == "n":
+        #     sys.exit()
+        
     return phis
 
 
