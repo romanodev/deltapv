@@ -7,6 +7,7 @@ from .initial_guess import *
 import os
 import matplotlib.pyplot as plt
 from .utils import *
+from .materials import *
 
 
 class JAXPV(object):

@@ -1,0 +1,16 @@
+name: GaP
+properties:
+  A: null
+  Br: 1.0e-13
+  Chi: 3.8
+  Cn: 1.0e-30
+  Cp: 1.0e-30
+  Eg: 2.26
+  Et: null
+  Nc: 1.8e+19
+  Nv: 1.9e+19
+  eps: 11.1
+  mn: 250.0
+  mp: 150.0
+  tn: 1.0e-7
+  tp: 1.0e-6
