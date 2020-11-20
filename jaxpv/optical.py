@@ -2,7 +2,8 @@ from .scales import *
 import scipy.constants as const
 from .physics import *
 
-def photonflux( Lambda , P_in ):
+
+def photonflux(Lambda, P_in):
     """
     Computes the incident photon flux.
 
@@ -19,14 +20,11 @@ def photonflux( Lambda , P_in ):
             array of photon flux for every wavelength
 
     """
-    hc = const.c * const.h * 1e9 # J.nm
-    return P_in / ( hc / Lambda )
+    hc = const.c * const.h * 1e9  # J.nm
+    return P_in / (hc / Lambda)
 
 
-
-
-
-def alpha( lambdax , Eg , A ):
+def alpha(lambdax, Eg, A):
     """
     Computes the absorption coefficient for a specific wavelength across the system.
 
@@ -50,18 +48,15 @@ def alpha( lambdax , Eg , A ):
     """
     T = 300
     KB = const.k
-    hc = const.c * const.h * 1e9 # J.nm
-    alpha = [ 0.0 for i in range( Eg.size ) ]
-    for i in range( len( alpha ) ):
-        if ( hc / lambdax / ( KB * T ) > Eg[ i ] ):
-            alpha[ i ] = A[ i ] * np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] )
-    return np.array( alpha )
+    hc = const.c * const.h * 1e9  # J.nm
+    alpha = [0.0 for i in range(Eg.size)]
+    for i in range(len(alpha)):
+        if (hc / lambdax / (KB * T) > Eg[i]):
+            alpha[i] = A[i] * np.sqrt(hc / lambdax / (KB * T) - Eg[i])
+    return np.array(alpha)
 
 
-
-
-
-def alpha_deriv( lambdax , Eg , A ):
+def alpha_deriv(lambdax, Eg, A):
     """
     Computes the derivatives of the absorption coefficient for a specific wavelength across the system.
 
@@ -86,20 +81,17 @@ def alpha_deriv( lambdax , Eg , A ):
     """
     T = 300
     KB = const.k
-    hc = const.c * const.h * 1e9 # J.nm
-    dalpha_dEg = [ 0.0 for i in range( Eg.size ) ]
-    dalpha_dA = [ 0.0 for i in range( Eg.size ) ]
-    for i in range( len(dalpha_dEg) ):
-        if ( hc / lambdax / ( KB * T ) > Eg[ i ] ):
-            dalpha_dEg[ i ] =  - 1 / ( 2 * np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] ) )
-            dalpha_dA[ i ] = np.sqrt( hc / lambdax / ( KB * T ) - Eg[ i ] )
-    return np.array( dalpha_dEg ) , np.array( dalpha_dA )
+    hc = const.c * const.h * 1e9  # J.nm
+    dalpha_dEg = [0.0 for i in range(Eg.size)]
+    dalpha_dA = [0.0 for i in range(Eg.size)]
+    for i in range(len(dalpha_dEg)):
+        if (hc / lambdax / (KB * T) > Eg[i]):
+            dalpha_dEg[i] = -1 / (2 * np.sqrt(hc / lambdax / (KB * T) - Eg[i]))
+            dalpha_dA[i] = np.sqrt(hc / lambdax / (KB * T) - Eg[i])
+    return np.array(dalpha_dEg), np.array(dalpha_dA)
 
 
-
-
-
-def generation_lambda( dgrid , alpha , phi_0 ):
+def generation_lambda(dgrid, alpha, phi_0):
     """
     Computes the e-/hole pair generation rate density for a specific wavelength across the system.
 
@@ -120,14 +112,12 @@ def generation_lambda( dgrid , alpha , phi_0 ):
             array of generation rate density across the system
 
     """
-    phi = phi_0 * np.exp( - np.cumsum( np.concatenate( ( np.zeros(1, dtype=np.float32), alpha[:-1] * dgrid ) ) ) )
+    phi = phi_0 * np.exp(-np.cumsum(
+        np.concatenate((np.zeros(1, dtype=np.float32), alpha[:-1] * dgrid))))
     return phi * alpha
 
 
-
-
-
-def compute_G( dgrid , Eg , Lambda , P_in , A ):
+def compute_G(dgrid, Eg, Lambda, P_in, A):
     """
     Computes the total e-/hole pair generation rate density across the system.
 
@@ -155,19 +145,15 @@ def compute_G( dgrid , Eg , Lambda , P_in , A ):
     print('P_in')
     print(P_in)
     scale = scales()
-    phi_0 = photonflux( Lambda , P_in )
+    phi_0 = photonflux(Lambda, P_in)
     tot_generation = 0
-    for i in range( Lambda.size ):
-        tot_generation += generation_lambda( dgrid , alpha( Lambda[ i ] , Eg , A ) , phi_0[ i ] )
+    for i in range(Lambda.size):
+        tot_generation += generation_lambda(dgrid, alpha(Lambda[i], Eg, A),
+                                            phi_0[i])
     return 1 / scale['U'] * tot_generation
 
 
-
-
-
-
-
-def deriv_G( dgrid , Eg , Lambda , P_in , A ):
+def deriv_G(dgrid, Eg, Lambda, P_in, A):
     """
     Computes the derivative of total e-/hole pair generation rate density with respect to the material parameters.
 
@@ -193,17 +179,18 @@ def deriv_G( dgrid , Eg , Lambda , P_in , A ):
 
     """
     scale = scales()
-    phi_0 = photonflux( Lambda , P_in )
+    phi_0 = photonflux(Lambda, P_in)
     G = 0
-    dG_dEg , dG_dA = np.zeros( ( Eg.size , Eg.size ) )
-    for i in range( Lambda.size ):
-        G_at_lambda = generation_lambda( dgrid , alpha( Lambda[ i ] , Eg , A ) , phi_0[ i ] )
+    dG_dEg, dG_dA = np.zeros((Eg.size, Eg.size))
+    for i in range(Lambda.size):
+        G_at_lambda = generation_lambda(dgrid, alpha(Lambda[i], Eg, A),
+                                        phi_0[i])
         G += G_at_lambda
-        dalpha_dEg , dalpha_dA = alpha_deriv( Lambda[ i ] , Eg , A )
-        dG_dEg = - G_at_lambda * np.cumsum( dalpha_dEg , dgrid )
-        dG_dA = - G_at_lambda * np.cumsum( dalpha_dA , dgrid )
+        dalpha_dEg, dalpha_dA = alpha_deriv(Lambda[i], Eg, A)
+        dG_dEg = -G_at_lambda * np.cumsum(dalpha_dEg, dgrid)
+        dG_dA = -G_at_lambda * np.cumsum(dalpha_dA, dgrid)
 
     G *= 1 / scale['U']
     dG_dEg *= 1 / scale['U']
     dG_dA *= 1 / scale['U']
-    return dG_dEg , dG_dA
+    return dG_dEg, dG_dA
