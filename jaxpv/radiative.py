@@ -1,6 +1,7 @@
 from .physics import *
 
-def rad( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ):
+
+def rad(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Br):
     """
     Computes the radiative bulk recombination rate density.
 
@@ -29,16 +30,13 @@ def rad( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ):
             Auger recombination rate density
 
     """
-    _ni = ni( Eg , Nc , Nv )
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
-    return Br * ( _n * _p - _ni**2 )
+    _ni = ni(Eg, Nc, Nv)
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
+    return Br * (_n * _p - _ni**2)
 
 
-
-
-
-def rad_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ):
+def rad_deriv(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Br):
     """
     Computes the derivatives of the Auger bulk recombination rate density.
 
@@ -74,11 +72,11 @@ def rad_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Br ):
             derivative of Auger recombination at point i w.r.t phi[i]
 
     """
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
 
-    DR_phin = Br * ( _n * _p )
-    DR_phip = Br * ( - _n * _p )
-    DR_phi = np.zeros( phi.size )
+    DR_phin = Br * (_n * _p)
+    DR_phip = Br * (-_n * _p)
+    DR_phi = np.zeros(phi.size)
 
-    return DR_phin , DR_phip , DR_phi
+    return DR_phin, DR_phip, DR_phi

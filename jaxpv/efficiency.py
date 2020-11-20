@@ -1,7 +1,8 @@
 from .IV import *
 from .scales import *
 
-def Vincrement( Chi , Eg , Nc , Nv , Ndop , num_vals = 50 ):
+
+def Vincrement(Chi, Eg, Nc, Nv, Ndop, num_vals=50):
     """
     Compute the increment of voltages when compute I-V curve.
 
@@ -28,23 +29,21 @@ def Vincrement( Chi , Eg , Nc , Nv , Ndop , num_vals = 50 ):
             voltage increment
 
     """
-    phi_ini_left = - Chi[0] - Eg[0] - np.log( np.abs( Ndop[0] ) / Nv[0] )
-    if ( Ndop[0] > 0 ):
-        phi_ini_left = - Chi[0] + np.log( ( Ndop[0] ) / Nc[0] )
-    phi_ini_right = - Chi[-1] - Eg[-1] - np.log( np.abs( Ndop[-1] ) / Nv[-1] )
-    if ( Ndop[-1] > 0 ):
-        phi_ini_right = - Chi[-1] + np.log( ( Ndop[-1] ) / Nc[-1] )
+    phi_ini_left = -Chi[0] - Eg[0] - np.log(np.abs(Ndop[0]) / Nv[0])
+    if (Ndop[0] > 0):
+        phi_ini_left = -Chi[0] + np.log((Ndop[0]) / Nc[0])
+    phi_ini_right = -Chi[-1] - Eg[-1] - np.log(np.abs(Ndop[-1]) / Nv[-1])
+    if (Ndop[-1] > 0):
+        phi_ini_right = -Chi[-1] + np.log((Ndop[-1]) / Nc[-1])
     incr_sign = 1
-    incr_step = np.abs( phi_ini_right - phi_ini_left ) / num_vals
-    if ( phi_ini_right > phi_ini_left ):
+    incr_step = np.abs(phi_ini_right - phi_ini_left) / num_vals
+    if (phi_ini_right > phi_ini_left):
         incr_sign = -1
     return incr_sign * incr_step
 
 
-
-
-
-def efficiency( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used ):
+def efficiency(dgrid, Vincrement, eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn,
+               tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G_used):
     """
     Compute the photovoltaic efficiency of the system.
 
@@ -100,8 +99,11 @@ def efficiency( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp ,
 
     """
     scale = scales()
-    current = calc_IV( dgrid , Vincrement , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G_used )
-    voltages = np.linspace( start = 0 , stop = len( current ) * Vincrement , num = len( current ) )
-    Pmax = np.max( scale['E'] * voltages * scale['J'] * current ) * 1e4 # W/m2
+    current = calc_IV(dgrid, Vincrement, eps, Chi, Eg, Nc, Nv, Ndop, mn, mp,
+                      Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G_used)
+    voltages = np.linspace(start=0,
+                           stop=len(current) * Vincrement,
+                           num=len(current))
+    Pmax = np.max(scale['E'] * voltages * scale['J'] * current) * 1e4  # W/m2
     # P_in is normalized to : np.sum( P_in ) = 1000 W/m2 = 1 sun
     return Pmax / 1e3

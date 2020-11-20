@@ -1,6 +1,7 @@
 from .physics import *
 
-def pois( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
+
+def pois(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv, Ndop):
     """
     Computes the left side term of the Poisson equation.
 
@@ -36,16 +37,15 @@ def pois( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv , Ndop ):
             d/dx( eps d/dx ( phi ) ) - charge
 
     """
-    ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0
-    ave_eps = 0.5 * ( eps[1:] + eps[:-1] )
-    pois = ( ave_eps[:-1] * ( phi[1:-1] - phi[:-2] ) / dgrid[:-1] - ave_eps[1:] * ( phi[2:] - phi[1:-1] ) / dgrid[1:] ) / ave_dgrid - charge( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Ndop )[1:-1]
+    ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
+    ave_eps = 0.5 * (eps[1:] + eps[:-1])
+    pois = (ave_eps[:-1] * (phi[1:-1] - phi[:-2]) / dgrid[:-1] - ave_eps[1:] *
+            (phi[2:] - phi[1:-1]) / dgrid[1:]) / ave_dgrid - charge(
+                phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Ndop)[1:-1]
     return pois
 
 
-
-
-
-def pois_deriv_eq( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
+def pois_deriv_eq(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
     """
     Computes the derivatives of the left side term of the Poisson equation at equilibirum.
 
@@ -84,24 +84,22 @@ def pois_deriv_eq( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
             derivative of the i-th Poisson term with respect to phi[i+1]
 
     """
-    ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0
-    ave_eps = 0.5 * ( eps[1:] + eps[:-1] )
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
+    ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
+    ave_eps = 0.5 * (eps[1:] + eps[:-1])
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
 
-    dchg_phi = - _n - _p
+    dchg_phi = -_n - _p
 
-    dpois_phi_ =  - ave_eps[:-1] / dgrid[:-1] / ave_dgrid
-    dpois_phi__ =  ( ave_eps[:-1] / dgrid[:-1] + ave_eps[1:] / dgrid[1:] ) / ave_dgrid - dchg_phi[1:-1]
-    dpois_phi___ =  - ave_eps[1:] / dgrid[1:] / ave_dgrid
+    dpois_phi_ = -ave_eps[:-1] / dgrid[:-1] / ave_dgrid
+    dpois_phi__ = (ave_eps[:-1] / dgrid[:-1] +
+                   ave_eps[1:] / dgrid[1:]) / ave_dgrid - dchg_phi[1:-1]
+    dpois_phi___ = -ave_eps[1:] / dgrid[1:] / ave_dgrid
 
-    return dpois_phi_ , dpois_phi__ , dpois_phi___
-
-
-
+    return dpois_phi_, dpois_phi__, dpois_phi___
 
 
-def pois_deriv( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
+def pois_deriv(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
     """
     Computes the derivatives of the left side term of the Poisson equation.
 
@@ -144,20 +142,21 @@ def pois_deriv( dgrid , phi_n , phi_p , phi , eps , Chi , Eg , Nc , Nv ):
             derivative of the i-th Poisson term with respect to phi_p[i]
 
     """
-    ave_dgrid = ( dgrid[:-1] + dgrid[1:] ) / 2.0
-    ave_eps = 0.5 * ( eps[1:] + eps[:-1] )
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
+    ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
+    ave_eps = 0.5 * (eps[1:] + eps[:-1])
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
 
-    dchg_phi_n = - _n
-    dchg_phi_p = - _p
-    dchg_phi = - _n - _p
+    dchg_phi_n = -_n
+    dchg_phi_p = -_p
+    dchg_phi = -_n - _p
 
-    dpois_phi_ =  - ave_eps[:-1] / dgrid[:-1] / ave_dgrid
-    dpois_phi__ =  ( ave_eps[:-1] / dgrid[:-1] + ave_eps[1:] / dgrid[1:] ) / ave_dgrid - dchg_phi[1:-1]
-    dpois_phi___ =  - ave_eps[1:] / dgrid[1:] / ave_dgrid
+    dpois_phi_ = -ave_eps[:-1] / dgrid[:-1] / ave_dgrid
+    dpois_phi__ = (ave_eps[:-1] / dgrid[:-1] +
+                   ave_eps[1:] / dgrid[1:]) / ave_dgrid - dchg_phi[1:-1]
+    dpois_phi___ = -ave_eps[1:] / dgrid[1:] / ave_dgrid
 
-    dpois_dphin__ = - dchg_phi_n[1:-1]
-    dpois_dphip__ = - dchg_phi_p[1:-1]
+    dpois_dphin__ = -dchg_phi_n[1:-1]
+    dpois_dphip__ = -dchg_phi_p[1:-1]
 
-    return dpois_phi_ , dpois_phi__ , dpois_phi___ , dpois_dphin__ , dpois_dphip__
+    return dpois_phi_, dpois_phi__, dpois_phi___, dpois_dphin__, dpois_dphip__

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from .utils import *
 
 
-class JAXPV( object ):
+class JAXPV(object):
     """
     Object associated with a jaxpv simulation.
 
@@ -65,10 +65,7 @@ class JAXPV( object ):
             describes which type of generation density should be used
 
     """
-
-
-
-    def __init__( self , grid ):
+    def __init__(self, grid):
         """
         Initialization method for the jaxpv class.
 
@@ -80,41 +77,37 @@ class JAXPV( object ):
         """
         scale = scales()
 
-        self.grid = np.float64( 1 / scale['d'] * grid )
+        self.grid = np.float64(1 / scale['d'] * grid)
         N = grid.size
 
-        self.eps = [ 0.0 for i in range( N ) ]
-        self.Chi = [ 0.0 for i in range( N ) ]
-        self.Eg = [ 0.0 for i in range( N ) ]
-        self.Nc = [ 0.0 for i in range( N ) ]
-        self.Nv = [ 0.0 for i in range( N ) ]
-        self.mn = [ 0.0 for i in range( N ) ]
-        self.mp = [ 0.0 for i in range( N ) ]
-        self.Ndop = [ 0.0 for i in range( N ) ]
+        self.eps = [0.0 for i in range(N)]
+        self.Chi = [0.0 for i in range(N)]
+        self.Eg = [0.0 for i in range(N)]
+        self.Nc = [0.0 for i in range(N)]
+        self.Nv = [0.0 for i in range(N)]
+        self.mn = [0.0 for i in range(N)]
+        self.mp = [0.0 for i in range(N)]
+        self.Ndop = [0.0 for i in range(N)]
 
-        self.Et = [ 0.0 for i in range( N ) ]
-        self.tn = [ 0.0 for i in range( N ) ]
-        self.tp = [ 0.0 for i in range( N ) ]
-        self.Br = [ 0.0 for i in range( N ) ]
-        self.Cn = [ 0.0 for i in range( N ) ]
-        self.Cp = [ 0.0 for i in range( N ) ]
+        self.Et = [0.0 for i in range(N)]
+        self.tn = [0.0 for i in range(N)]
+        self.tp = [0.0 for i in range(N)]
+        self.Br = [0.0 for i in range(N)]
+        self.Cn = [0.0 for i in range(N)]
+        self.Cp = [0.0 for i in range(N)]
 
         self.Snl = 0.0
         self.Snr = 0.0
         self.Spl = 0.0
         self.Spr = 0.0
 
-        self.Lambda = [ 0.0 ]
-        self.P_in = [ 0.0 ]
-        self.A = [ 0.0 for i in range( N ) ]
-        self.G = [ 0.0 for i in range( N ) ]
+        self.Lambda = [0.0]
+        self.P_in = [0.0]
+        self.A = [0.0 for i in range(N)]
+        self.G = [0.0 for i in range(N)]
         self.opt = 'user'
 
-
-
-
-
-    def add_material( self , properties , subgrid ):
+    def add_material(self, properties, subgrid):
         """
         Define material properties for a subset of the grid.
 
@@ -143,39 +136,49 @@ class JAXPV( object ):
 
         """
         scale = scales()
-        for i in range( len( subgrid ) ):
+        for i in range(len(subgrid)):
             if 'eps' in properties:
-                self.eps[ subgrid[ i ] ] = np.float64( properties['eps'] )
+                self.eps[subgrid[i]] = np.float64(properties['eps'])
             if 'Chi' in properties:
-                self.Chi[ subgrid[ i ] ] = np.float64( 1 / scale['E'] * properties['Chi'] )
+                self.Chi[subgrid[i]] = np.float64(1 / scale['E'] *
+                                                  properties['Chi'])
             if 'Eg' in properties:
-                self.Eg[ subgrid[ i ] ] = np.float64( 1 / scale['E'] * properties['Eg'] )
+                self.Eg[subgrid[i]] = np.float64(1 / scale['E'] *
+                                                 properties['Eg'])
             if 'Nc' in properties:
-                self.Nc[ subgrid[ i ] ] = np.float64( 1 / scale['n'] * properties['Nc'] )
+                self.Nc[subgrid[i]] = np.float64(1 / scale['n'] *
+                                                 properties['Nc'])
             if 'Nv' in properties:
-                self.Nv[ subgrid[ i ] ] = np.float64( 1 / scale['n'] * properties['Nv'] )
+                self.Nv[subgrid[i]] = np.float64(1 / scale['n'] *
+                                                 properties['Nv'])
             if 'mn' in properties:
-                self.mn[ subgrid[ i ] ] = np.float64( 1 / scale['m'] * properties['mn'] )
+                self.mn[subgrid[i]] = np.float64(1 / scale['m'] *
+                                                 properties['mn'])
             if 'mp' in properties:
-                self.mp[ subgrid[ i ] ] = np.float64( 1 / scale['m'] * properties['mp'] )
+                self.mp[subgrid[i]] = np.float64(1 / scale['m'] *
+                                                 properties['mp'])
             if 'Et' in properties:
-                self.Et[ subgrid[ i ] ] = np.float64( 1 / scale['E'] * properties['Et'] )
+                self.Et[subgrid[i]] = np.float64(1 / scale['E'] *
+                                                 properties['Et'])
             if 'tn' in properties:
-                self.tn[ subgrid[ i ] ] = np.float64( 1 / scale['t'] * properties['tn'] )
+                self.tn[subgrid[i]] = np.float64(1 / scale['t'] *
+                                                 properties['tn'])
             if 'tp' in properties:
-                self.tp[ subgrid[ i ] ] = np.float64( 1 / scale['t'] * properties['tp'] )
+                self.tp[subgrid[i]] = np.float64(1 / scale['t'] *
+                                                 properties['tp'])
             if 'Br' in properties:
-                self.Br[ subgrid[ i ] ] = np.float64( scale['t'] * scale['n'] * properties['Br'] )
+                self.Br[subgrid[i]] = np.float64(scale['t'] * scale['n'] *
+                                                 properties['Br'])
             if 'Cn' in properties:
-                self.Cn[ subgrid[ i ] ] = np.float64( scale['t'] * scale['n'] * scale['n'] * properties['Cn'] )
+                self.Cn[subgrid[i]] = np.float64(scale['t'] * scale['n'] *
+                                                 scale['n'] * properties['Cn'])
             if 'Cp' in properties:
-                self.Cp[ subgrid[ i ] ] = np.float64( scale['t'] * scale['n'] * scale['n'] * properties['Cp'] )
+                self.Cp[subgrid[i]] = np.float64(scale['t'] * scale['n'] *
+                                                 scale['n'] * properties['Cp'])
             if 'A' in properties:
-                self.A[ subgrid[ i ] ] = np.float64( scale['d'] * properties['A'] )
+                self.A[subgrid[i]] = np.float64(scale['d'] * properties['A'])
 
-
-
-    def contacts( self , Snl , Snr , Spl , Spr ):
+    def contacts(self, Snl, Snr, Spl, Spr):
         """
         Define recombination velocities for carriers at the contacts.
 
@@ -192,15 +195,12 @@ class JAXPV( object ):
 
         """
         scale = scales()
-        self.Snl = np.float64( 1 / scale['v'] * Snl )
-        self.Snr = np.float64( 1 / scale['v'] * Snr )
-        self.Spl = np.float64( 1 / scale['v'] * Spl )
-        self.Spr = np.float64( 1 / scale['v'] * Spr )
+        self.Snl = np.float64(1 / scale['v'] * Snl)
+        self.Snr = np.float64(1 / scale['v'] * Snr)
+        self.Spl = np.float64(1 / scale['v'] * Spl)
+        self.Spr = np.float64(1 / scale['v'] * Spr)
 
-
-
-
-    def single_pn_junction( self , Nleft , Nright , junction_position ):
+    def single_pn_junction(self, Nleft, Nright, junction_position):
         """
         Define the doping profile as a single pn junction.
 
@@ -216,16 +216,13 @@ class JAXPV( object ):
         """
         scale = scales()
         index = 0
-        while ( self.grid[ index ] < 1 / scale['d'] * junction_position ):
-            self.Ndop[ index ] = np.float64( 1 / scale['n'] * Nleft )
+        while (self.grid[index] < 1 / scale['d'] * junction_position):
+            self.Ndop[index] = np.float64(1 / scale['n'] * Nleft)
             index += 1
-        for i in range( index , self.grid.size ):
-            self.Ndop[ i ] = np.float64( 1 / scale['n'] * Nright )
+        for i in range(index, self.grid.size):
+            self.Ndop[i] = np.float64(1 / scale['n'] * Nright)
 
-
-
-
-    def doping_profile( self , doping , subgrid ):
+    def doping_profile(self, doping, subgrid):
         """
         Define a general doping profile over a subset of the grid.
 
@@ -238,14 +235,10 @@ class JAXPV( object ):
 
         """
         scale = scales()
-        for i in range( len( subgrid ) ):
-            self.Ndop[ subgrid[ i ] ] = np.float64( 1 / scale['n'] * doping[ i ] )
+        for i in range(len(subgrid)):
+            self.Ndop[subgrid[i]] = np.float64(1 / scale['n'] * doping[i])
 
-
-
-
-
-    def incident_light( self , type = 'sun' , Lambda = None , P_in = None ):
+    def incident_light(self, type='sun', Lambda=None, P_in=None):
         """
         Define the incident light on the system.
 
@@ -267,35 +260,33 @@ class JAXPV( object ):
             array of incident power for every wavelength
 
         """
-        if ( type == 'sun' ):
-            Lambda_sun , P_in_sun = sun()
+        if (type == 'sun'):
+            Lambda_sun, P_in_sun = sun()
             self.Lambda = Lambda_sun
             self.P_in = P_in_sun
-        elif ( type == 'white' ):
-            if ( Lambda is None ):
-                self.Lambda = np.linspace( 400.0 , 800.0 , num = 5 )
-                self.P_in = np.linspace( 200.0 , 200.0 , num = 5 )
+        elif (type == 'white'):
+            if (Lambda is None):
+                self.Lambda = np.linspace(400.0, 800.0, num=5)
+                self.P_in = np.linspace(200.0, 200.0, num=5)
             else:
                 self.Lambda = Lambda
                 power = 1000.0 / Lambda.size
-                self.P_in = np.linspace( power , power , num = Lambda.size )
-        elif ( type == 'monochromatic' ):
-            if ( Lambda is None ):
-                self.Lambda = np.array( [ 400.0 ] )
+                self.P_in = np.linspace(power, power, num=Lambda.size)
+        elif (type == 'monochromatic'):
+            if (Lambda is None):
+                self.Lambda = np.array([400.0])
             else:
                 self.Lambda = Lambda
-            self.P_in = np.array( [ 1000.0 ] )
-        elif ( type == 'user' ):
-            if ( ( Lambda is None ) or ( P_in is None ) ):
-                print( 'Lambda or Pin not defined' )
+            self.P_in = np.array([1000.0])
+        elif (type == 'user'):
+            if ((Lambda is None) or (P_in is None)):
+                print('Lambda or Pin not defined')
                 sys.exit()
             else:
                 self.Lambda = Lambda
-                self.P_in = 1000.0 / np.sum( P_in ) * P_in
+                self.P_in = 1000.0 / np.sum(P_in) * P_in
 
-
-
-    def optical_G( self , type = 'direct' , G = None ):
+    def optical_G(self, type='direct', G=None):
         """
         Define how the generation rate density is computed.
 
@@ -314,14 +305,10 @@ class JAXPV( object ):
         """
         scale = scales()
         self.opt = type
-        if ( type is 'user' ):
-            self.G = np.float64( 1 / scale['U'] * G )
+        if (type is 'user'):
+            self.G = np.float64(1 / scale['U'] * G)
 
-
-
-
-
-    def efficiency( self ):
+    def efficiency(self):
         """
         Computes the efficiency of the system.
 
@@ -331,20 +318,29 @@ class JAXPV( object ):
                 efficiency of the system
 
         """
-        Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+        Vincr = Vincrement(np.array(self.Chi), np.array(self.Eg),
+                           np.array(self.Nc), np.array(self.Nv),
+                           np.array(self.Ndop))
 
-        if ( self.opt is 'user' ):
-            G_used = np.array( self.G )
+        if (self.opt is 'user'):
+            G_used = np.array(self.G)
         else:
-            G_used = compute_G( np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.A ) )
+            G_used = compute_G(np.array(self.grid[1:] - self.grid[:-1]),
+                               np.array(self.Eg), np.array(self.Lambda),
+                               np.array(self.P_in), np.array(self.A))
 
-        return efficiency( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
+        return efficiency(np.array(self.grid[1:] - self.grid[:-1]), Vincr,
+                          np.array(self.eps), np.array(self.Chi),
+                          np.array(self.Eg), np.array(self.Nc),
+                          np.array(self.Nv), np.array(self.Ndop),
+                          np.array(self.mn), np.array(self.mp),
+                          np.array(self.Et), np.array(self.tn),
+                          np.array(self.tp), np.array(self.Br),
+                          np.array(self.Cn), np.array(self.Cp),
+                          np.array(self.Snl), np.array(self.Spl),
+                          np.array(self.Snr), np.array(self.Spr), G_used)
 
-
-
-
-
-    def grad_efficiency( self , jit = True ):
+    def grad_efficiency(self, jit=True):
         """
         Computes the gradient of the efficiency of the system.
 
@@ -379,47 +375,72 @@ class JAXPV( object ):
 
         """
         scale = scales()
-        Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        if ( self.opt is 'user' ):
-            G_used = np.array( self.G )
+        Vincr = Vincrement(np.array(self.Chi), np.array(self.Eg),
+                           np.array(self.Nc), np.array(self.Nv),
+                           np.array(self.Ndop))
+        if (self.opt is 'user'):
+            G_used = np.array(self.G)
         else:
-            G_used = compute_G( np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.A ) )
+            G_used = compute_G(np.array(self.grid[1:] - self.grid[:-1]),
+                               np.array(self.Eg), np.array(self.Lambda),
+                               np.array(self.P_in), np.array(self.A))
 
         if jit:
-            current , cur_grad = grad_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
-            voltages = np.linspace( start = 0 , stop = len( current ) * Vincr , num = len( current ) )
+            current, cur_grad = grad_IV(
+                np.array(self.grid[1:] - self.grid[:-1]), Vincr,
+                np.array(self.eps), np.array(self.Chi), np.array(self.Eg),
+                np.array(self.Nc), np.array(self.Nv), np.array(self.Ndop),
+                np.array(self.mn), np.array(self.mp), np.array(self.Et),
+                np.array(self.tn), np.array(self.tp), np.array(self.Br),
+                np.array(self.Cn), np.array(self.Cp), np.array(self.Snl),
+                np.array(self.Spl), np.array(self.Snr), np.array(self.Spr),
+                G_used)
+            voltages = np.linspace(start=0,
+                                   stop=len(current) * Vincr,
+                                   num=len(current))
             coef = scale['E'] * scale['J'] * 10.0
             P = coef * voltages * current
-            Pmax = np.max( P )
-            index = np.where( P == Pmax )[0][0]
+            Pmax = np.max(P)
+            index = np.where(P == Pmax)[0][0]
             index = 0
             eff = Pmax
             result = {}
-            result['eps'] = cur_grad[ index ]['eps'] * coef * voltages[ index ]
-            result['Chi'] = cur_grad[ index ]['Chi'] * coef * voltages[ index ]
-            result['Eg'] = cur_grad[ index ]['Eg'] * coef * voltages[ index ]
-            result['Nc'] = cur_grad[ index ]['Nc'] * coef * voltages[ index ]
-            result['Nv'] = cur_grad[ index ]['Nv'] * coef * voltages[ index ]
-            result['Ndop'] = cur_grad[ index ]['Ndop'] * coef * voltages[ index ]
-            result['mn'] = cur_grad[ index ]['mn'] * coef * voltages[ index ]
-            result['mp'] = cur_grad[ index ]['mp'] * coef * voltages[ index ]
-            result['Et'] = cur_grad[ index ]['Et'] * coef * voltages[ index ]
-            result['tn'] = cur_grad[ index ]['tn'] * coef * voltages[ index ]
-            result['tp'] = cur_grad[ index ]['tp'] * coef * voltages[ index ]
-            result['Br'] = cur_grad[ index ]['Br'] * coef * voltages[ index ]
-            result['Cn'] = cur_grad[ index ]['Cn'] * coef * voltages[ index ]
-            result['Cp'] = cur_grad[ index ]['Cp'] * coef * voltages[ index ]
-            result['Snl'] = cur_grad[ index ]['Snl'] * coef * voltages[ index ]
-            result['Spl'] = cur_grad[ index ]['Spl'] * coef * voltages[ index ]
-            result['Snr'] = cur_grad[ index ]['Snr'] * coef * voltages[ index ]
-            result['Spr'] = cur_grad[ index ]['Spr'] * coef * voltages[ index ]
-            result['G'] = cur_grad[ index ]['G'] * coef * voltages[ index ]
+            result['eps'] = cur_grad[index]['eps'] * coef * voltages[index]
+            result['Chi'] = cur_grad[index]['Chi'] * coef * voltages[index]
+            result['Eg'] = cur_grad[index]['Eg'] * coef * voltages[index]
+            result['Nc'] = cur_grad[index]['Nc'] * coef * voltages[index]
+            result['Nv'] = cur_grad[index]['Nv'] * coef * voltages[index]
+            result['Ndop'] = cur_grad[index]['Ndop'] * coef * voltages[index]
+            result['mn'] = cur_grad[index]['mn'] * coef * voltages[index]
+            result['mp'] = cur_grad[index]['mp'] * coef * voltages[index]
+            result['Et'] = cur_grad[index]['Et'] * coef * voltages[index]
+            result['tn'] = cur_grad[index]['tn'] * coef * voltages[index]
+            result['tp'] = cur_grad[index]['tp'] * coef * voltages[index]
+            result['Br'] = cur_grad[index]['Br'] * coef * voltages[index]
+            result['Cn'] = cur_grad[index]['Cn'] * coef * voltages[index]
+            result['Cp'] = cur_grad[index]['Cp'] * coef * voltages[index]
+            result['Snl'] = cur_grad[index]['Snl'] * coef * voltages[index]
+            result['Spl'] = cur_grad[index]['Spl'] * coef * voltages[index]
+            result['Snr'] = cur_grad[index]['Snr'] * coef * voltages[index]
+            result['Spr'] = cur_grad[index]['Spr'] * coef * voltages[index]
+            result['G'] = cur_grad[index]['G'] * coef * voltages[index]
 
-            return eff , result
+            return eff, result
 
         else:
-            gradeff = grad( efficiency , argnums = ( 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 ) )
-            deriv = gradeff( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
+            gradeff = grad(efficiency,
+                           argnums=(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                                    15, 16, 17, 18, 19, 20))
+            deriv = gradeff(np.array(self.grid[1:] - self.grid[:-1]), Vincr,
+                            np.array(self.eps), np.array(self.Chi),
+                            np.array(self.Eg), np.array(self.Nc),
+                            np.array(self.Nv), np.array(self.Ndop),
+                            np.array(self.mn), np.array(self.mp),
+                            np.array(self.Et), np.array(self.tn),
+                            np.array(self.tp), np.array(self.Br),
+                            np.array(self.Cn), np.array(self.Cp),
+                            np.array(self.Snl), np.array(self.Spl),
+                            np.array(self.Snr), np.array(self.Spr), G_used)
             result = {}
             result['eps'] = deriv[0]
             result['Chi'] = deriv[1]
@@ -443,10 +464,7 @@ class JAXPV( object ):
 
             return result
 
-
-
-
-    def IV_curve( self , title = None ):
+    def IV_curve(self, title=None):
         """
         Computes the IV curve for the system.
 
@@ -464,28 +482,36 @@ class JAXPV( object ):
 
         """
         scale = scales()
-        Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        if ( self.opt is 'user' ):
-            G_used = np.array( self.G )
+        Vincr = Vincrement(np.array(self.Chi), np.array(self.Eg),
+                           np.array(self.Nc), np.array(self.Nv),
+                           np.array(self.Ndop))
+        if (self.opt is 'user'):
+            G_used = np.array(self.G)
         else:
-            G_used = compute_G( np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.A ) )
+            G_used = compute_G(np.array(self.grid[1:] - self.grid[:-1]),
+                               np.array(self.Eg), np.array(self.Lambda),
+                               np.array(self.P_in), np.array(self.A))
 
-        current = scale['J'] * calc_IV( np.array( self.grid[1:] - self.grid[:-1] ) , Vincr , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
-        voltages = scale['E'] * np.linspace( start = 0 , stop = (len( current ) - 1) * Vincr , num = len( current ) )
+        current = scale['J'] * calc_IV(
+            np.array(self.grid[1:] - self.grid[:-1]), Vincr, np.array(
+                self.eps), np.array(self.Chi), np.array(self.Eg),
+            np.array(self.Nc), np.array(self.Nv), np.array(self.Ndop),
+            np.array(self.mn), np.array(self.mp), np.array(self.Et),
+            np.array(self.tn), np.array(self.tp), np.array(self.Br),
+            np.array(self.Cn), np.array(self.Cp), np.array(self.Snl),
+            np.array(self.Spl), np.array(self.Snr), np.array(self.Spr), G_used)
+        voltages = scale['E'] * np.linspace(
+            start=0, stop=(len(current) - 1) * Vincr, num=len(current))
         fig = plt.figure()
-        plt.plot( voltages , current , color='blue' , marker='.' )
-        plt.xlabel( 'Voltage (V)' )
-        plt.ylabel( 'current (A.cm-2)' )
+        plt.plot(voltages, current, color='blue', marker='.')
+        plt.xlabel('Voltage (V)')
+        plt.ylabel('current (A.cm-2)')
         if title is not None:
-            plt.savefig( title )
+            plt.savefig(title)
         plt.show()
-        return voltages , current
+        return voltages, current
 
-
-
-
-
-    def solve(self, equilibrium = False,V=0):
+    def solve(self, equilibrium=False, V=0):
         """
         Solves the solar cell equations and outputs common observables.
 
@@ -510,68 +536,99 @@ class JAXPV( object ):
 
         """
         scale = scales()
-        Vincr = Vincrement( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
-        if ( self.opt is 'user' ):
-            G_used = np.array( self.G )
+        Vincr = Vincrement(np.array(self.Chi), np.array(self.Eg),
+                           np.array(self.Nc), np.array(self.Nv),
+                           np.array(self.Ndop))
+        if (self.opt is 'user'):
+            G_used = np.array(self.G)
         else:
-            G_used = compute_G( np.array( self.grid[1:] - self.grid[:-1] ) , np.array( self.Eg ) , np.array( self.Lambda ) , np.array( self.P_in ) , np.array( self.A ) )
+            G_used = compute_G(np.array(self.grid[1:] - self.grid[:-1]),
+                               np.array(self.Eg), np.array(self.Lambda),
+                               np.array(self.P_in), np.array(self.A))
 
         N = self.grid.size
 
-        phi_ini = eq_init_phi( np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+        phi_ini = eq_init_phi(np.array(self.Chi), np.array(self.Eg),
+                              np.array(self.Nc), np.array(self.Nv),
+                              np.array(self.Ndop))
 
         #Solve Equilibrium--
-        phi_eq = solve_eq( np.array( self.grid[1:] - self.grid[:-1] ) , phi_ini , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) )
+        phi_eq = solve_eq(np.array(self.grid[1:] - self.grid[:-1]), phi_ini,
+                          np.array(self.eps), np.array(self.Chi),
+                          np.array(self.Eg), np.array(self.Nc),
+                          np.array(self.Nv), np.array(self.Ndop))
 
         result = {}
-        
+
         V_dim = V / scale['E']
 
         if equilibrium:
-            result['phi_n'] = np.zeros( N )
-            result['phi_p'] = np.zeros( N )
+            result['phi_n'] = np.zeros(N)
+            result['phi_p'] = np.zeros(N)
             result['phi'] = scale['E'] * phi_eq
-            result['n'] = scale['n'] * n( np.zeros( N ) , phi_eq , np.array( self.Chi ) , np.array( self.Nc ) )
-            result['p'] = scale['n'] * p( np.zeros( N ) , phi_eq , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
-            result['Jn'] = np.zeros( N - 1 )
-            result['Jp'] = np.zeros( N - 1 )
+            result['n'] = scale['n'] * n(np.zeros(N), phi_eq, np.array(
+                self.Chi), np.array(self.Nc))
+            result['p'] = scale['n'] * p(np.zeros(N), phi_eq, np.array(
+                self.Chi), np.array(self.Eg), np.array(self.Nv))
+            result['Jn'] = np.zeros(N - 1)
+            result['Jp'] = np.zeros(N - 1)
             return result
         else:
-            num_steps = math.floor( V_dim / Vincr )
+            num_steps = math.floor(V_dim / Vincr)
 
-            phis = np.concatenate( ( np.zeros( 2*N ) , phi_eq ) , axis = 0 )
-            neq_0 = self.Nc[0] * np.exp( self.Chi[0] + phi_eq[0] )
-            neq_L = self.Nc[-1] * np.exp( self.Chi[-1] + phi_eq[-1] )
-            peq_0 = self.Nv[0] * np.exp( - self.Chi[0] - self.Eg[0] - phi_eq[0] )
-            peq_L = self.Nv[-1] * np.exp( - self.Chi[-1] - self.Eg[-1] - phi_eq[-1] )
+            phis = np.concatenate((np.zeros(2 * N), phi_eq), axis=0)
+            neq_0 = self.Nc[0] * np.exp(self.Chi[0] + phi_eq[0])
+            neq_L = self.Nc[-1] * np.exp(self.Chi[-1] + phi_eq[-1])
+            peq_0 = self.Nv[0] * np.exp(-self.Chi[0] - self.Eg[0] - phi_eq[0])
+            peq_L = self.Nv[-1] * np.exp(-self.Chi[-1] - self.Eg[-1] -
+                                         phi_eq[-1])
 
-            volt = [ i * Vincr for i in range( num_steps ) ]
-            volt.append( V_dim )
+            volt = [i * Vincr for i in range(num_steps)]
+            volt.append(V_dim)
 
             for v in volt:
                 print(" ")
                 print("V = {0:.3E}".format(scale['E'] * v) + ' V')
                 print(" ")
-                print( ' Iteration       |F(x)|                Residual     ')
-                print( ' -------------------------------------------------------------------' )
-                sol = solve( np.array( self.grid[1:] - self.grid[:-1] ) , neq_0 , neq_L , peq_0 , peq_L , phis , np.array( self.eps ) , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nc ) , np.array( self.Nv ) , np.array( self.Ndop ) , np.array( self.mn ) , np.array( self.mp ) , np.array( self.Et ) , np.array( self.tn ) , np.array( self.tp ) , np.array( self.Br ) , np.array( self.Cn ) , np.array( self.Cp ) , np.array( self.Snl ) , np.array( self.Spl ) , np.array( self.Snr ) , np.array( self.Spr ) , G_used )
+                print(' Iteration       |F(x)|                Residual     ')
+                print(
+                    ' -------------------------------------------------------------------'
+                )
+                sol = solve(np.array(self.grid[1:] - self.grid[:-1]), neq_0,
+                            neq_L, peq_0, peq_L, phis, np.array(self.eps),
+                            np.array(self.Chi), np.array(self.Eg),
+                            np.array(self.Nc), np.array(self.Nv),
+                            np.array(self.Ndop), np.array(self.mn),
+                            np.array(self.mp), np.array(self.Et),
+                            np.array(self.tn), np.array(self.tp),
+                            np.array(self.Br), np.array(self.Cn),
+                            np.array(self.Cp), np.array(self.Snl),
+                            np.array(self.Spl), np.array(self.Snr),
+                            np.array(self.Spr), G_used)
                 if os.environ['JAX'] == 'YES':
-                    phis = ops.index_update( sol , -1 , phi_eq[-1] + v )
+                    phis = ops.index_update(sol, -1, phi_eq[-1] + v)
                 else:
                     sol[-1] = phi_eq[-1] + v
                     phis = sol
             result['phi_n'] = scale['E'] * phis[0:N]
-            result['phi_p'] = scale['E'] * phis[N:2*N]
-            result['phi'] = scale['E'] * phis[2*N:]
-            result['n'] = scale['n'] * n( phis[0:N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) )
-            result['p'] = scale['n'] * p( phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) )
-            result['Jn'] = scale['J'] * Jn( np.array( self.grid[1:] - self.grid[:-1] ) , phis[0:N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Nc ) , np.array( self.mn ) )
-            result['Jp'] = scale['J'] * Jp( np.array( self.grid[1:] - self.grid[:-1] ) , phis[N:2*N] , phis[2*N:] , np.array( self.Chi ) , np.array( self.Eg ) , np.array( self.Nv ) , np.array( self.mp ) )
+            result['phi_p'] = scale['E'] * phis[N:2 * N]
+            result['phi'] = scale['E'] * phis[2 * N:]
+            result['n'] = scale['n'] * n(phis[0:N], phis[2 * N:],
+                                         np.array(self.Chi), np.array(self.Nc))
+            result['p'] = scale['n'] * p(phis[N:2 * N], phis[2 * N:],
+                                         np.array(self.Chi), np.array(self.Eg),
+                                         np.array(self.Nv))
+            result['Jn'] = scale['J'] * Jn(
+                np.array(self.grid[1:] - self.grid[:-1]), phis[0:N],
+                phis[2 * N:], np.array(self.Chi), np.array(self.Nc),
+                np.array(self.mn))
+            result['Jp'] = scale['J'] * Jp(
+                np.array(self.grid[1:] - self.grid[:-1]), phis[N:2 * N],
+                phis[2 * N:], np.array(self.Chi), np.array(self.Eg),
+                np.array(self.Nv), np.array(self.mp))
             return result
 
-
-
-    def plot_band_diagram( self , result , title = None ):
+    def plot_band_diagram(self, result, title=None):
         """
         Plots the band diagram of the system.
 
@@ -593,25 +650,36 @@ class JAXPV( object ):
 
         """
         scale = scales()
-        Ec = - scale['E'] * np.array( self.Chi ) - result['phi']
-        Ev = - scale['E'] * np.array( self.Chi ) - scale['E'] * np.array( self.Eg ) - result['phi']
+        Ec = -scale['E'] * np.array(self.Chi) - result['phi']
+        Ev = -scale['E'] * np.array(self.Chi) - scale['E'] * np.array(
+            self.Eg) - result['phi']
         fig = plt.figure()
-        plt.plot( scale['d'] * self.grid , Ec , color='red' , label = 'conduction band' , linestyle='dashed' )
-        plt.plot( scale['d'] * self.grid , Ev , color = 'blue' , label = 'valence band' , linestyle='dashed' )
-        plt.plot( scale['d'] * self.grid , result['phi_n'] , color='red' , label = 'e- quasiFermi energy')
-        plt.plot( scale['d'] * self.grid , result['phi_p'] , color = 'blue' , label = 'hole quasiFermi energy' )
-        plt.xlabel( 'thickness (cm)' )
-        plt.ylabel( 'energy (eV)' )
+        plt.plot(scale['d'] * self.grid,
+                 Ec,
+                 color='red',
+                 label='conduction band',
+                 linestyle='dashed')
+        plt.plot(scale['d'] * self.grid,
+                 Ev,
+                 color='blue',
+                 label='valence band',
+                 linestyle='dashed')
+        plt.plot(scale['d'] * self.grid,
+                 result['phi_n'],
+                 color='red',
+                 label='e- quasiFermi energy')
+        plt.plot(scale['d'] * self.grid,
+                 result['phi_p'],
+                 color='blue',
+                 label='hole quasiFermi energy')
+        plt.xlabel('thickness (cm)')
+        plt.ylabel('energy (eV)')
         plt.legend()
         plt.show()
         if title is not None:
-            plt.savefig( title )
+            plt.savefig(title)
 
-
-
-
-
-    def plot_concentration_profile( self , result , title = None ):
+    def plot_concentration_profile(self, result, title=None):
         """
         Plots the concentration profile of carriers in the system.
 
@@ -635,20 +703,19 @@ class JAXPV( object ):
         scale = scales()
         fig = plt.figure()
         plt.yscale('log')
-        plt.plot( scale['d'] * self.grid , result['n'] , color='red' , label = 'e-' )
-        plt.plot( scale['d'] * self.grid , result['p'] , color='blue' , label = 'hole' )
-        plt.xlabel( 'thickness (cm)' )
-        plt.ylabel( 'concentration (cm-3)' )
+        plt.plot(scale['d'] * self.grid, result['n'], color='red', label='e-')
+        plt.plot(scale['d'] * self.grid,
+                 result['p'],
+                 color='blue',
+                 label='hole')
+        plt.xlabel('thickness (cm)')
+        plt.ylabel('concentration (cm-3)')
         plt.legend()
         plt.show()
         if title is not None:
-            plt.savefig( title )
+            plt.savefig(title)
 
-
-
-
-
-    def plot_current_profile( self , result , title = None ):
+    def plot_current_profile(self, result, title=None):
         """
         Plots the current profile in the system.
 
@@ -671,12 +738,22 @@ class JAXPV( object ):
         """
         scale = scales()
         fig = plt.figure()
-        plt.plot( scale['d'] * 0.5 * ( self.grid[1:] + self.grid[:-1] ) , result['Jn'] , color='red' , label = 'e-' )
-        plt.plot( scale['d'] * 0.5 * ( self.grid[1:] + self.grid[:-1] ) , result['Jp'] , color='blue' , label = 'hole' )
-        plt.plot( scale['d'] * 0.5 * ( self.grid[1:] + self.grid[:-1] ) , result['Jn'] + result['Jp'] , color='green' , label = 'total' , linestyle='dashed' )
-        plt.xlabel( 'thickness (cm)' )
-        plt.ylabel( 'current (A.cm-2)' )
+        plt.plot(scale['d'] * 0.5 * (self.grid[1:] + self.grid[:-1]),
+                 result['Jn'],
+                 color='red',
+                 label='e-')
+        plt.plot(scale['d'] * 0.5 * (self.grid[1:] + self.grid[:-1]),
+                 result['Jp'],
+                 color='blue',
+                 label='hole')
+        plt.plot(scale['d'] * 0.5 * (self.grid[1:] + self.grid[:-1]),
+                 result['Jn'] + result['Jp'],
+                 color='green',
+                 label='total',
+                 linestyle='dashed')
+        plt.xlabel('thickness (cm)')
+        plt.ylabel('current (A.cm-2)')
         plt.legend()
         plt.show()
         if title is not None:
-            plt.savefig( title )
+            plt.savefig(title)
