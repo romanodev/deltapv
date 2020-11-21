@@ -10,9 +10,9 @@ class Material(object):
     def __init__(self):
         self.materials = {}
         self.required = {
-            "eps": 10.,
-            "Chi": 5.,
-            "Eg": 1.,
+            "eps": 1.,
+            "Chi": 0.,
+            "Eg": 0.,
             "Nc": 1e18,
             "Nv": 1e18,
             "mn": 100.,
@@ -32,9 +32,15 @@ class Material(object):
         mat = {}
         for prop in self.required:
             value = self.materials[key][prop]
-            mat[prop] = value if value is not None else self.required[key]
+            mat[prop] = value if value is not None else self.required[prop]
         for prop in self.optional:
             value = self.materials[key][prop]
             if value is not None:
                 mat[prop] = value
         return mat
+    
+    def get(self, key):
+        return self.__getitem__(key)
+    
+    def available(self):
+        return sorted(list(self.materials.keys()))
