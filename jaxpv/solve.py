@@ -116,7 +116,7 @@ def step(dgrid, neq0, neqL, peq0, peqL, phis, eps, Chi, Eg, Nc, Nv, Ndop, mn,
     lugradF = spilu(spgradF)
     precond = LinearOperator(gradF.shape, lambda x: lugradF.solve(x))
 
-    move, conv_info = gmres(spgradF, -_F, tol=1e-9, maxiter=10000, M=precond)
+    move, conv_info = gmres(spgradF, -_F, tol=1e-12, maxiter=1000, M=precond)
 
     if conv_info > 0:
         print(f"Early termination of GMRES at {conv_info} iterations")

@@ -77,8 +77,8 @@ def step_eq(dgrid, phi, eps, Chi, Eg, Nc, Nv, Ndop):
 
     move, conv_info = gmres(spgradFeq,
                             -Feq,
-                            tol=1e-9,
-                            maxiter=10000,
+                            tol=1e-12,
+                            maxiter=1000,
                             M=precond)
 
     if conv_info > 0:
