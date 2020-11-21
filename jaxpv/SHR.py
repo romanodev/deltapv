@@ -1,6 +1,7 @@
 from .physics import *
 
-def SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
+
+def SHR(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Et, tn, tp):
     """
     Computes the Schokley-Read-Hall bulk recombination rate density.
 
@@ -33,18 +34,15 @@ def SHR( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
             SHR recombination rate density
 
     """
-    _ni = ni( Eg , Nc , Nv )
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
-    nR = _ni * np.exp( Et ) + _n
-    pR = _ni * np.exp( - Et ) + _p
-    return ( _n * _p - _ni**2 ) / ( tp * nR + tn * pR )
+    _ni = ni(Eg, Nc, Nv)
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
+    nR = _ni * np.exp(Et) + _n
+    pR = _ni * np.exp(-Et) + _p
+    return (_n * _p - _ni**2) / (tp * nR + tn * pR)
 
 
-
-
-
-def SHR_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
+def SHR_deriv(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Et, tn, tp):
     """
     Computes the derivatives of the Schokley-Read-Hall bulk recombination rate density.
 
@@ -84,16 +82,16 @@ def SHR_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Et , tn , tp ):
             derivative of SHR recombination at point i w.r.t phi[i]
 
     """
-    _ni = ni( Eg , Nc , Nv )
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
-    nR = _ni * np.exp( Et ) + _n
-    pR = _ni * np.exp( - Et ) + _p
+    _ni = ni(Eg, Nc, Nv)
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
+    nR = _ni * np.exp(Et) + _n
+    pR = _ni * np.exp(-Et) + _p
     num = _n * _p - _ni**2
-    denom = ( tp * nR + tn * pR )
+    denom = (tp * nR + tn * pR)
 
-    DR_phin = ( ( _n * _p ) * denom - num * ( tp * _n ) ) * denom**-2
-    DR_phip = ( ( - _n * _p ) * denom - num * ( - tn * _p ) ) * denom**-2
-    DR_phi = ( - num * ( tp * _n - tn * _p ) ) * denom**-2
+    DR_phin = ((_n * _p) * denom - num * (tp * _n)) * denom**-2
+    DR_phip = ((-_n * _p) * denom - num * (-tn * _p)) * denom**-2
+    DR_phi = (-num * (tp * _n - tn * _p)) * denom**-2
 
-    return DR_phin , DR_phip , DR_phi
+    return DR_phin, DR_phip, DR_phi

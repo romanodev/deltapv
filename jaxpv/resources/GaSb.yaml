@@ -1,0 +1,16 @@
+name: GaSb
+properties:
+  A: null
+  Br: 1.0e-10
+  Chi: 4.06
+  Cn: 5.0e-30
+  Cp: 5.0e-30
+  Eg: 0.726
+  Et: null
+  Nc: 2.1e+17
+  Nv: 1.8e+19
+  eps: 15.7
+  mn: 3000.0
+  mp: 1000.0
+  tn: null
+  tp: null

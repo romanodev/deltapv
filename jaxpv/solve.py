@@ -6,7 +6,7 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import gmres, spilu, LinearOperator
 
 
-def damp( move ):
+def damp(move):
     """
     Computes a damped move of potentials from the Newton method displacement.
 
@@ -21,19 +21,20 @@ def damp( move ):
             damped displacement in potentials
 
     """
-    approx_sign = np.tanh( 1e50 * move )
+    approx_sign = np.tanh(1e50 * move)
     approx_abs = approx_sign * move
-#    approx_H = 1 - ( 1 + np.exp( - 1e40 * ( move**2 - 1 ) ) )**(-1)
-#    return np.log( 1 + approx_abs ) * approx_sign + approx_H * ( move - np.log( 1 + approx_abs ) * approx_sign )
+    #    approx_H = 1 - ( 1 + np.exp( - 1e40 * ( move**2 - 1 ) ) )**(-1)
+    #    return np.log( 1 + approx_abs ) * approx_sign + approx_H * ( move - np.log( 1 + approx_abs ) * approx_sign )
     thr = 1
-    around_zero = 0.5 * ( np.tanh( 1e50 * ( move + thr ) ) - np.tanh( 1e50 * ( move - thr ) ) )
-    return ( 1 - around_zero ) * approx_sign * np.log( 1 + approx_abs ) + around_zero * move
-
-
+    around_zero = 0.5 * (np.tanh(1e50 * (move + thr)) - np.tanh(1e50 *
+                                                                (move - thr)))
+    return (1 - around_zero
+            ) * approx_sign * np.log(1 + approx_abs) + around_zero * move
 
 
 #@jit
-def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+def step(dgrid, neq0, neqL, peq0, peqL, phis, eps, Chi, Eg, Nc, Nv, Ndop, mn,
+         mp, Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G):
     """
     Computes the next potentials in the Newton method iterative scheme.
 
@@ -103,30 +104,35 @@ def step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , 
     """
     N = dgrid.size + 1
 
-    _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
-    gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
-    
+    _F = F(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
+           phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br,
+           Cn, Cp, Snl, Spl, Snr, Spr, G)
+    gradF = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
+                    phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn,
+                    tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G)
+
     spgradF = csr_matrix(gradF)
-    
+
     lugradF = spilu(spgradF)
     precond = LinearOperator(gradF.shape, lambda x: lugradF.solve(x))
-    
+
     move, conv_info = gmres(spgradF, -_F, tol=1e-9, maxiter=10000, M=precond)
-    
+
     if conv_info > 0:
         print(f"Early termination of GMRES at {conv_info} iterations")
 
     error = np.linalg.norm(move)
-    damp_move = damp( move )
+    damp_move = damp(move)
 
-    return error , np.linalg.norm(_F) , np.concatenate( ( phis[0:N] + damp_move[0:3*N:3] , phis[N:2*N] + damp_move[1:3*N:3] , phis[2*N:]+ damp_move[2:3*N:3] ) , axis = 0 )
-
-
-
+    return error, np.linalg.norm(_F), np.concatenate(
+        (phis[0:N] + damp_move[0:3 * N:3], phis[N:2 * N] +
+         damp_move[1:3 * N:3], phis[2 * N:] + damp_move[2:3 * N:3]),
+        axis=0)
 
 
 #@jit
-def step_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+def step_forgrad(dgrid, neq0, neqL, peq0, peqL, phis, eps, Chi, Eg, Nc, Nv,
+                 Ndop, mn, mp, Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G):
     """
     Computes the next potentials in the Newton method iterative scheme.
 
@@ -192,19 +198,24 @@ def step_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc
 
     """
     N = dgrid.size + 1
-    _F = F( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
-    gradF = F_deriv( dgrid , neq0 , neqL , peq0 , peqL , phis[0:N] , phis[N:2*N] , phis[2*N:] , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
+    _F = F(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
+           phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br,
+           Cn, Cp, Snl, Spl, Snr, Spr, G)
+    gradF = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
+                    phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn,
+                    tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G)
 
-    move = np.linalg.solve( gradF , - _F )
-    damp_move = damp( move )
+    move = np.linalg.solve(gradF, -_F)
+    damp_move = damp(move)
 
-    return np.concatenate( ( phis[0:N] + damp_move[0:3*N:3] , phis[N:2*N] + damp_move[1:3*N:3] , phis[2*N:]+ damp_move[2:3*N:3] ) , axis = 0 )
+    return np.concatenate(
+        (phis[0:N] + damp_move[0:3 * N:3], phis[N:2 * N] +
+         damp_move[1:3 * N:3], phis[2 * N:] + damp_move[2:3 * N:3]),
+        axis=0)
 
 
-
-
-
-def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+def solve(dgrid, neq0, neqL, peq0, peqL, phis_ini, eps, Chi, Eg, Nc, Nv, Ndop,
+          mn, mp, Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G):
     """
     Solves for the e-/hole quasi-Fermi energies and electrostatic potential using the Newton method.
 
@@ -267,7 +278,7 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
             solution for the e- quasi-Fermi energy / hole quasi-Fermi energy / electrostatic potential
 
     """
-    
+
     error = 1
     iter = 0
 
@@ -277,20 +288,23 @@ def solve( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , 
         if iter > 100:
             print("Maximum steps exceeded! Ending iteration")
             break
-        error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
+        error_dx, error_F, next_phis = step(dgrid, neq0, neqL, peq0, peqL,
+                                            phis, eps, Chi, Eg, Nc, Nv, Ndop,
+                                            mn, mp, Et, tn, tp, Br, Cn, Cp,
+                                            Snl, Spl, Snr, Spr, G)
         phis = next_phis
         error = error_dx
         iter += 1
-        print( '                  {0:02d}          {1:.5E}          {2:.5E}'.format( iter , error_F.astype(float) , error_dx.astype(float) ) )
-        
-        # if input("continue? [y/n]") == "n":
-        #     sys.exit()
-        
+
+        print('                  {0:02d}          {1:.5E}          {2:.5E}'.
+              format(iter, error_F.astype(float), error_dx.astype(float)))
+
     return phis
 
 
-
-def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G ):
+def solve_forgrad(dgrid, neq0, neqL, peq0, peqL, phis_ini, eps, Chi, Eg, Nc,
+                  Nv, Ndop, mn, mp, Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr,
+                  G):
     """
     Solves for the e-/hole quasi-Fermi energies and electrostatic potential using the Newton method and computes derivatives.
 
@@ -358,69 +372,84 @@ def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg
     N = dgrid.size + 1
     error = 1
     iter = 0
-    grad_step = jit( jacfwd( step_forgrad , ( 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11, 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23 , 24 ) ) )
+    grad_step = jit(
+        jacfwd(step_forgrad, (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                              15, 16, 17, 18, 19, 20, 21, 22, 23, 24)))
 
     phis = phis_ini
 
-    dphis_dphiini = np.eye( 3 * N )
-    dphis_dneq0 = np.zeros( ( 3 * N , 1 ) )
-    dphis_dneqL = np.zeros( ( 3 * N , 1 ) )
-    dphis_dpeq0 = np.zeros( ( 3 * N , 1 ) )
-    dphis_dpeqL = np.zeros( ( 3 * N , 1 ) )
-    dphis_dSnl = np.zeros( ( 3 * N , 1 ) )
-    dphis_dSpl = np.zeros( ( 3 * N , 1 ) )
-    dphis_dSnr = np.zeros( ( 3 * N , 1 ) )
-    dphis_dSpr = np.zeros( ( 3 * N , 1 ) )
-    dphis_deps = np.zeros( ( 3 * N , N ) )
-    dphis_dChi = np.zeros( ( 3 * N , N ) )
-    dphis_dEg = np.zeros( ( 3 * N , N ) )
-    dphis_dNc = np.zeros( ( 3 * N , N ) )
-    dphis_dNv = np.zeros( ( 3 * N , N ) )
-    dphis_dNdop = np.zeros( ( 3 * N , N ) )
-    dphis_dmn = np.zeros( ( 3 * N , N ) )
-    dphis_dmp = np.zeros( ( 3 * N , N ) )
-    dphis_dEt = np.zeros( ( 3 * N , N ) )
-    dphis_dtn = np.zeros( ( 3 * N , N ) )
-    dphis_dtp = np.zeros( ( 3 * N , N ) )
-    dphis_dBr = np.zeros( ( 3 * N , N ) )
-    dphis_dCn = np.zeros( ( 3 * N , N ) )
-    dphis_dCp = np.zeros( ( 3 * N , N ) )
-    dphis_dG = np.zeros( ( 3 * N , N ) )
+    dphis_dphiini = np.eye(3 * N)
+    dphis_dneq0 = np.zeros((3 * N, 1))
+    dphis_dneqL = np.zeros((3 * N, 1))
+    dphis_dpeq0 = np.zeros((3 * N, 1))
+    dphis_dpeqL = np.zeros((3 * N, 1))
+    dphis_dSnl = np.zeros((3 * N, 1))
+    dphis_dSpl = np.zeros((3 * N, 1))
+    dphis_dSnr = np.zeros((3 * N, 1))
+    dphis_dSpr = np.zeros((3 * N, 1))
+    dphis_deps = np.zeros((3 * N, N))
+    dphis_dChi = np.zeros((3 * N, N))
+    dphis_dEg = np.zeros((3 * N, N))
+    dphis_dNc = np.zeros((3 * N, N))
+    dphis_dNv = np.zeros((3 * N, N))
+    dphis_dNdop = np.zeros((3 * N, N))
+    dphis_dmn = np.zeros((3 * N, N))
+    dphis_dmp = np.zeros((3 * N, N))
+    dphis_dEt = np.zeros((3 * N, N))
+    dphis_dtn = np.zeros((3 * N, N))
+    dphis_dtp = np.zeros((3 * N, N))
+    dphis_dBr = np.zeros((3 * N, N))
+    dphis_dCn = np.zeros((3 * N, N))
+    dphis_dCp = np.zeros((3 * N, N))
+    dphis_dG = np.zeros((3 * N, N))
 
     while (error > 1e-6):
-        error_dx , error_F , next_phis = step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
-        gradstep = grad_step( dgrid , neq0 , neqL , peq0 , peqL , phis , eps , Chi , Eg , Nc , Nv , Ndop , mn , mp , Et , tn , tp , Br , Cn , Cp , Snl , Spl , Snr , Spr , G )
+        error_dx, error_F, next_phis = step(dgrid, neq0, neqL, peq0, peqL,
+                                            phis, eps, Chi, Eg, Nc, Nv, Ndop,
+                                            mn, mp, Et, tn, tp, Br, Cn, Cp,
+                                            Snl, Spl, Snr, Spr, G)
+        gradstep = grad_step(dgrid, neq0, neqL, peq0, peqL, phis, eps, Chi, Eg,
+                             Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br, Cn, Cp, Snl,
+                             Spl, Snr, Spr, G)
         phis = next_phis
 
-        dphis_dphiini = np.dot( gradstep[4] , dphis_dphiini )
-        dphis_dneq0 = np.reshape( gradstep[0] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dneq0 )
-        dphis_dneqL = np.reshape( gradstep[1] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dneqL )
-        dphis_dpeq0 = np.reshape( gradstep[2] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dpeq0 )
-        dphis_dpeqL = np.reshape( gradstep[3] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dpeqL )
-        dphis_dSnl = np.reshape( gradstep[19] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dSnl )
-        dphis_dSpl = np.reshape( gradstep[20] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dSpl )
-        dphis_dSnr = np.reshape( gradstep[21] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dSnr )
-        dphis_dSpr = np.reshape( gradstep[22] , ( 3*N , 1 ) ) + np.dot( gradstep[4] , dphis_dSpr )
-        dphis_deps = gradstep[5] + np.dot( gradstep[4] , dphis_deps )
-        dphis_dChi = gradstep[6] + np.dot( gradstep[4] , dphis_dChi )
-        dphis_dEg = gradstep[7] + np.dot( gradstep[4] , dphis_dEg )
-        dphis_dNc = gradstep[8] + np.dot( gradstep[4] , dphis_dNc )
-        dphis_dNv = gradstep[9] + np.dot( gradstep[4] , dphis_dNv )
-        dphis_dNdop = gradstep[10] + np.dot( gradstep[4] , dphis_dNdop )
-        dphis_dmn = gradstep[11] + np.dot( gradstep[4] , dphis_dmn )
-        dphis_dmp = gradstep[12] + np.dot( gradstep[4] , dphis_dmp )
-        dphis_dEt = gradstep[13] + np.dot( gradstep[4] , dphis_dEt )
-        dphis_dtn = gradstep[14] + np.dot( gradstep[4] , dphis_dtn )
-        dphis_dtp = gradstep[15] + np.dot( gradstep[4] , dphis_dtp )
-        dphis_dBr = gradstep[16] + np.dot( gradstep[4] , dphis_dBr )
-        dphis_dCn = gradstep[17] + np.dot( gradstep[4] , dphis_dCn )
-        dphis_dCp = gradstep[18] + np.dot( gradstep[4] , dphis_dCp )
-        dphis_dG = gradstep[23] + np.dot( gradstep[4] , dphis_dG )
+        dphis_dphiini = np.dot(gradstep[4], dphis_dphiini)
+        dphis_dneq0 = np.reshape(gradstep[0],
+                                 (3 * N, 1)) + np.dot(gradstep[4], dphis_dneq0)
+        dphis_dneqL = np.reshape(gradstep[1],
+                                 (3 * N, 1)) + np.dot(gradstep[4], dphis_dneqL)
+        dphis_dpeq0 = np.reshape(gradstep[2],
+                                 (3 * N, 1)) + np.dot(gradstep[4], dphis_dpeq0)
+        dphis_dpeqL = np.reshape(gradstep[3],
+                                 (3 * N, 1)) + np.dot(gradstep[4], dphis_dpeqL)
+        dphis_dSnl = np.reshape(gradstep[19],
+                                (3 * N, 1)) + np.dot(gradstep[4], dphis_dSnl)
+        dphis_dSpl = np.reshape(gradstep[20],
+                                (3 * N, 1)) + np.dot(gradstep[4], dphis_dSpl)
+        dphis_dSnr = np.reshape(gradstep[21],
+                                (3 * N, 1)) + np.dot(gradstep[4], dphis_dSnr)
+        dphis_dSpr = np.reshape(gradstep[22],
+                                (3 * N, 1)) + np.dot(gradstep[4], dphis_dSpr)
+        dphis_deps = gradstep[5] + np.dot(gradstep[4], dphis_deps)
+        dphis_dChi = gradstep[6] + np.dot(gradstep[4], dphis_dChi)
+        dphis_dEg = gradstep[7] + np.dot(gradstep[4], dphis_dEg)
+        dphis_dNc = gradstep[8] + np.dot(gradstep[4], dphis_dNc)
+        dphis_dNv = gradstep[9] + np.dot(gradstep[4], dphis_dNv)
+        dphis_dNdop = gradstep[10] + np.dot(gradstep[4], dphis_dNdop)
+        dphis_dmn = gradstep[11] + np.dot(gradstep[4], dphis_dmn)
+        dphis_dmp = gradstep[12] + np.dot(gradstep[4], dphis_dmp)
+        dphis_dEt = gradstep[13] + np.dot(gradstep[4], dphis_dEt)
+        dphis_dtn = gradstep[14] + np.dot(gradstep[4], dphis_dtn)
+        dphis_dtp = gradstep[15] + np.dot(gradstep[4], dphis_dtp)
+        dphis_dBr = gradstep[16] + np.dot(gradstep[4], dphis_dBr)
+        dphis_dCn = gradstep[17] + np.dot(gradstep[4], dphis_dCn)
+        dphis_dCp = gradstep[18] + np.dot(gradstep[4], dphis_dCp)
+        dphis_dG = gradstep[23] + np.dot(gradstep[4], dphis_dG)
 
         error = error_dx
         iter += 1
-        print( '    {0:02d}          {1:.5E}          {2:.5E}'.format( iter , float( error_F ) , float( error_dx ) ) )
-
+        print('    {0:02d}          {1:.5E}          {2:.5E}'.format(
+            iter, float(error_F), float(error_dx)))
 
     grad_phis = {}
     grad_phis['neq0'] = dphis_dneq0
@@ -448,4 +477,4 @@ def solve_forgrad( dgrid , neq0 , neqL , peq0 , peqL , phis_ini , eps , Chi , Eg
     grad_phis['Spr'] = dphis_dSpr
     grad_phis['G'] = dphis_dG
 
-    return phis , grad_phis
+    return phis, grad_phis

@@ -2,7 +2,8 @@ from .scales import *
 import os
 from .utils import *
 
-def n( phi_n , phi , Chi , Nc ):
+
+def n(phi_n, phi, Chi, Nc):
     """
     Computes the e- density.
 
@@ -23,13 +24,10 @@ def n( phi_n , phi , Chi , Nc ):
             electron density
 
     """
-    return Nc * np.exp( Chi + phi_n + phi )
+    return Nc * np.exp(Chi + phi_n + phi)
 
 
-
-
-
-def p( phi_p , phi , Chi , Eg , Nv ):
+def p(phi_p, phi, Chi, Eg, Nv):
     """
     Computes the hole density.
 
@@ -52,13 +50,10 @@ def p( phi_p , phi , Chi , Eg , Nv ):
             hole density
 
     """
-    return Nv * np.exp( - Chi - Eg - phi_p - phi )
+    return Nv * np.exp(-Chi - Eg - phi_p - phi)
 
 
-
-
-
-def charge( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Ndop ):
+def charge(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Ndop):
     """
     Computes the charge density.
 
@@ -87,15 +82,12 @@ def charge( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Ndop ):
             charge density
 
     """
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
-    return - _n + _p + Ndop
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
+    return -_n + _p + Ndop
 
 
-
-
-
-def ni( Eg , Nc , Nv ):
+def ni(Eg, Nc, Nv):
     """
     Computes the intrinsic carrier density.
 
@@ -114,4 +106,4 @@ def ni( Eg , Nc , Nv ):
             intrinsic carrier density
 
     """
-    return np.sqrt( Nc * Nv ) * np.exp( - Eg / 2 )
+    return np.sqrt(Nc * Nv) * np.exp(-Eg / 2)

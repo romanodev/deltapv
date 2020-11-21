@@ -1,0 +1,16 @@
+name: Ge
+properties:
+  A: null
+  Br: 6.41e-14
+  Chi: 4.0
+  Cn: 1.0e-30
+  Cp: 1.0e-30
+  Eg: 0.661
+  Et: null
+  Nc: 1.0e+19
+  Nv: 5.0e+18
+  eps: 16.2
+  mn: 3900.0
+  mp: 1900.0
+  tn: 1.0e-3
+  tp: 1.0e-3

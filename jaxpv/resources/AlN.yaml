@@ -1,0 +1,16 @@
+name: AlN
+properties:
+  A: null
+  Br: 4.0e-11
+  Chi: 0.6
+  Cn: null
+  Cp: null
+  Eg: 6.026
+  Et: null
+  Nc: 6.3e+18
+  Nv: 4.8e+20
+  eps: 9.14
+  mn: 300.0
+  mp: 14.0
+  tn: 3.5e-5
+  tp: null

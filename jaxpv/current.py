@@ -1,7 +1,8 @@
 from .scales import *
 from .utils import *
 
-def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
+
+def Jn(dgrid, phi_n, phi, Chi, Nc, mn):
     """
     Computes the e- current.
 
@@ -26,25 +27,25 @@ def Jn( dgrid , phi_n , phi , Chi , Nc , mn ):
             e- current
 
     """
-    psi_n = Chi + np.log( Nc ) + phi
+    psi_n = Chi + np.log(Nc) + phi
     Dpsin = psi_n[:-1] - psi_n[1:]
     thr = 1e-5
-    around_zero = 0.5 * ( np.tanh( 1e50 * ( Dpsin + thr ) ) - np.tanh( 1e50 * ( Dpsin - thr ) ) )
+    around_zero = 0.5 * (np.tanh(1e50 *
+                                 (Dpsin + thr)) - np.tanh(1e50 *
+                                                          (Dpsin - thr)))
 
-    fm = np.exp( phi_n[1:] ) - np.exp( phi_n[:-1] )
+    fm = np.exp(phi_n[1:]) - np.exp(phi_n[:-1])
 
-#    Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
-    numerator = ( 1 - around_zero ) * Dpsin + around_zero * 1
-    denominator = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 ) + around_zero * ( 1 + 0.5*Dpsin + 1/6.0*Dpsin**2 )
-    Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * numerator / denominator
+    #    Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
+    numerator = (1 - around_zero) * Dpsin + around_zero * 1
+    denominator = (1 - around_zero) * (np.exp(Dpsin) - 1) + around_zero * (
+        1 + 0.5 * Dpsin + 1 / 6.0 * Dpsin**2)
+    Dpsin_Dexppsin = np.exp(psi_n[:-1]) * numerator / denominator
 
     return mn[:-1] * Dpsin_Dexppsin * fm / dgrid
 
 
-
-
-
-def Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn ):
+def Jn_deriv(dgrid, phi_n, phi, Chi, Nc, mn):
     """
     Computes the derivatives of the e- current with respect to the e- quasi-Fermi energy and electrostatic potential.
 
@@ -75,30 +76,44 @@ def Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn ):
             derivative of e- current at point i w.r.t. phi[i+1]
 
     """
-    psi_n = Chi + np.log( Nc ) + phi
+    psi_n = Chi + np.log(Nc) + phi
     Dpsin = psi_n[:-1] - psi_n[1:]
     thr = 1e-5
-    around_zero = 0.5 * ( np.tanh( 1e50 * ( Dpsin + thr ) ) - np.tanh( 1e50 * ( Dpsin - thr ) ) )
+    around_zero = 0.5 * (np.tanh(1e50 *
+                                 (Dpsin + thr)) - np.tanh(1e50 *
+                                                          (Dpsin - thr)))
 
-    fm = np.exp( phi_n[1:] ) - np.exp( phi_n[:-1] )
+    fm = np.exp(phi_n[1:]) - np.exp(phi_n[:-1])
 
-#    Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
-    numerator = ( 1 - around_zero ) * Dpsin + around_zero * 1
-    denominator = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 ) + around_zero * ( 1 + 0.5*Dpsin + 1/6.0*Dpsin**2 )
-    Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * numerator / denominator
+    #    Dpsin_Dexppsin = np.exp( psi_n[:-1] ) * Dpsin * ( np.exp( Dpsin ) - 1 )**(-1)
+    numerator = (1 - around_zero) * Dpsin + around_zero * 1
+    denominator = (1 - around_zero) * (np.exp(Dpsin) - 1) + around_zero * (
+        1 + 0.5 * Dpsin + 1 / 6.0 * Dpsin**2)
+    Dpsin_Dexppsin = np.exp(psi_n[:-1]) * numerator / denominator
 
-    fm_deriv_maindiag = - np.exp( phi_n[:-1] )
-    fm_deriv_upperdiag = np.exp( phi_n[1:] )
+    fm_deriv_maindiag = -np.exp(phi_n[:-1])
+    fm_deriv_upperdiag = np.exp(phi_n[1:])
 
-#    Dpsin_Dexppsin_deriv_maindiag = np.exp( psi_n[:-1] ) * ( - Dpsin + np.exp( Dpsin ) - 1 ) * ( np.exp( Dpsin ) - 1 )**(-2)
-#    Dpsin_Dexppsin_deriv_upperdiag = np.exp( psi_n[:-1] ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) * ( np.exp( Dpsin ) - 1 )**(-2)
-    numerator2 = ( 1 - around_zero ) * ( - Dpsin + np.exp( Dpsin ) - 1 ) + around_zero * ( - 3 + psi_n[:-1] + psi_n[1:] + 2*psi_n[:-1]*psi_n[1:] - psi_n[:-1]**2 - psi_n[1:]**2 )
-    denominator2 = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 )**2 + around_zero * ( 1 + 0.5*psi_n[:-1] - 0.5*psi_n[1:] - 1/3.0*psi_n[:-1]*psi_n[1:] + 1/6.0*psi_n[:-1]**2 + 1/6.0*psi_n[1:]**2 )**2
-    numerator3 = ( 1 - around_zero ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) + around_zero * ( - 3 - 2*psi_n[:-1] + 2*psi_n[1:] )
-    denominator3 = ( 1 - around_zero ) * ( np.exp( Dpsin ) - 1 )**2 + around_zero * ( 1 + 0.5*psi_n[:-1] - 0.5*psi_n[1:] - 1/3.0*psi_n[:-1]*psi_n[1:] + 1/6.0*psi_n[:-1]**2 + 1/6.0*psi_n[1:]**2 )**2
+    #    Dpsin_Dexppsin_deriv_maindiag = np.exp( psi_n[:-1] ) * ( - Dpsin + np.exp( Dpsin ) - 1 ) * ( np.exp( Dpsin ) - 1 )**(-2)
+    #    Dpsin_Dexppsin_deriv_upperdiag = np.exp( psi_n[:-1] ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) * ( np.exp( Dpsin ) - 1 )**(-2)
+    numerator2 = (1 - around_zero) * (
+        -Dpsin + np.exp(Dpsin) - 1) + around_zero * (
+            -3 + psi_n[:-1] + psi_n[1:] + 2 * psi_n[:-1] * psi_n[1:] -
+            psi_n[:-1]**2 - psi_n[1:]**2)
+    denominator2 = (1 - around_zero) * (np.exp(Dpsin) - 1)**2 + around_zero * (
+        1 + 0.5 * psi_n[:-1] - 0.5 * psi_n[1:] - 1 / 3.0 * psi_n[:-1] *
+        psi_n[1:] + 1 / 6.0 * psi_n[:-1]**2 + 1 / 6.0 * psi_n[1:]**2)**2
+    numerator3 = (1 - around_zero) * (-np.exp(Dpsin) + 1 +
+                                      Dpsin * np.exp(Dpsin)) + around_zero * (
+                                          -3 - 2 * psi_n[:-1] + 2 * psi_n[1:])
+    denominator3 = (1 - around_zero) * (np.exp(Dpsin) - 1)**2 + around_zero * (
+        1 + 0.5 * psi_n[:-1] - 0.5 * psi_n[1:] - 1 / 3.0 * psi_n[:-1] *
+        psi_n[1:] + 1 / 6.0 * psi_n[:-1]**2 + 1 / 6.0 * psi_n[1:]**2)**2
 
-    Dpsin_Dexppsin_deriv_maindiag = np.exp( psi_n[:-1] ) * numerator2 / denominator2
-    Dpsin_Dexppsin_deriv_upperdiag = np.exp( psi_n[:-1] ) * numerator3 / denominator3
+    Dpsin_Dexppsin_deriv_maindiag = np.exp(
+        psi_n[:-1]) * numerator2 / denominator2
+    Dpsin_Dexppsin_deriv_upperdiag = np.exp(
+        psi_n[:-1]) * numerator3 / denominator3
 
     dJn_phin__ = mn[:-1] * Dpsin_Dexppsin / dgrid * fm_deriv_maindiag
     dJn_phin___ = mn[:-1] * Dpsin_Dexppsin / dgrid * fm_deriv_upperdiag
@@ -106,13 +121,10 @@ def Jn_deriv( dgrid , phi_n , phi , Chi , Nc , mn ):
     dJn_phi__ = mn[:-1] * fm / dgrid * Dpsin_Dexppsin_deriv_maindiag
     dJn_phi___ = mn[:-1] * fm / dgrid * Dpsin_Dexppsin_deriv_upperdiag
 
-    return dJn_phin__ , dJn_phin___ , dJn_phi__ , dJn_phi___
+    return dJn_phin__, dJn_phin___, dJn_phi__, dJn_phi___
 
 
-
-
-
-def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
+def Jp(dgrid, phi_p, phi, Chi, Eg, Nv, mp):
     """
     Computes the hole current.
 
@@ -139,25 +151,25 @@ def Jp( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
             hole current
 
     """
-    psi_p = Chi + Eg - np.log( Nv ) + phi
+    psi_p = Chi + Eg - np.log(Nv) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
     thr = 1e-5
-    around_zero = 0.5 * ( np.tanh( 1e50 * ( Dpsip + thr ) ) - np.tanh( 1e50 * ( Dpsip - thr ) ) )
+    around_zero = 0.5 * (np.tanh(1e50 *
+                                 (Dpsip + thr)) - np.tanh(1e50 *
+                                                          (Dpsip - thr)))
 
-    fm = np.exp( - phi_p[1:] ) - np.exp( - phi_p[:-1] )
+    fm = np.exp(-phi_p[1:]) - np.exp(-phi_p[:-1])
 
-#    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
-    numerator = ( 1 - around_zero ) * Dpsip + around_zero * 1
-    denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) + around_zero * ( - 1 + 0.5*Dpsip - 1/6.0*Dpsip**2 )
-    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * numerator / denominator
+    #    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
+    numerator = (1 - around_zero) * Dpsip + around_zero * 1
+    denominator = (1 - around_zero) * (np.exp(-Dpsip) - 1) + around_zero * (
+        -1 + 0.5 * Dpsip - 1 / 6.0 * Dpsip**2)
+    Dpsip_Dexppsip = np.exp(-psi_p[:-1]) * numerator / denominator
 
     return mp[:-1] * Dpsip_Dexppsip * fm / dgrid
 
 
-
-
-
-def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
+def Jp_deriv(dgrid, phi_p, phi, Chi, Eg, Nv, mp):
     """
     Computes the derivatives of the hole current with respect to the hole quasi-Fermi energy and electrostatic potential.
 
@@ -190,31 +202,46 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
             derivative of hole current at point i w.r.t. phi[i+1]
 
     """
-    psi_p = Chi + Eg - np.log( Nv ) + phi
+    psi_p = Chi + Eg - np.log(Nv) + phi
     Dpsip = psi_p[:-1] - psi_p[1:]
     thr = 1e-5
-    around_zero = 0.5 * ( np.tanh( 1e50 * ( Dpsip + thr ) ) - np.tanh( 1e50 * ( Dpsip - thr ) ) )
+    around_zero = 0.5 * (np.tanh(1e50 *
+                                 (Dpsip + thr)) - np.tanh(1e50 *
+                                                          (Dpsip - thr)))
 
-    fm = np.exp( - phi_p[1:] ) - np.exp( - phi_p[:-1] )
+    fm = np.exp(-phi_p[1:]) - np.exp(-phi_p[:-1])
 
-#    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
-    numerator = ( 1 - around_zero ) * Dpsip + around_zero * 1
-    denominator = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 ) + around_zero * ( - 1 + 0.5*Dpsip - 1/6.0*Dpsip**2 )
-    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * numerator / denominator
+    #    Dpsip_Dexppsip = np.exp( - psi_p[:-1] ) * Dpsip * ( np.exp( - Dpsip ) - 1 )**(-1)
+    numerator = (1 - around_zero) * Dpsip + around_zero * 1
+    denominator = (1 - around_zero) * (np.exp(-Dpsip) - 1) + around_zero * (
+        -1 + 0.5 * Dpsip - 1 / 6.0 * Dpsip**2)
+    Dpsip_Dexppsip = np.exp(-psi_p[:-1]) * numerator / denominator
 
-    fm_deriv_maindiag = np.exp( - phi_p[:-1] )
-    fm_deriv_upperdiag = - np.exp( - phi_p[1:] )
+    fm_deriv_maindiag = np.exp(-phi_p[:-1])
+    fm_deriv_upperdiag = -np.exp(-phi_p[1:])
 
-#    Dpsip_Dexppsip_deriv_maindiag = np.exp( - psi_p[:-1] ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) * ( np.exp( - Dpsip ) - 1 )**(-2)
-#    Dpsip_Dexppsip_deriv_upperdiag = np.exp( - psi_p[:-1] ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) * ( np.exp( - Dpsip ) - 1 )**(-2)
-    numerator2 = ( 1 - around_zero ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) + around_zero * ( - 3 + psi_p[:-1] - psi_p[1:] + 2*psi_p[:-1]*psi_p[1:] - psi_p[:-1]**2 - psi_p[1:]**2 )
-    denominator2 = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 )**2 + around_zero * ( 1 - 0.5*psi_p[:-1] + 0.5*psi_p[1:] - 1/3.0*psi_p[:-1]*psi_p[1:] + 1/6.0*psi_p[:-1]**2 + 1/6.0*psi_p[1:]**2 )**2
-    numerator3 = ( 1 - around_zero ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) + around_zero * ( - 3 + 2*psi_p[:-1] - 2*psi_p[1:] )
-    denominator3 = ( 1 - around_zero ) * ( np.exp( - Dpsip ) - 1 )**2 + around_zero * ( 1 - 0.5*psi_p[:-1] + 0.5*psi_p[1:] - 1/3.0*psi_p[:-1]*psi_p[1:] + 1/6.0*psi_p[:-1]**2 + 1/6.0*psi_p[1:]**2 )**2
+    #    Dpsip_Dexppsip_deriv_maindiag = np.exp( - psi_p[:-1] ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) * ( np.exp( - Dpsip ) - 1 )**(-2)
+    #    Dpsip_Dexppsip_deriv_upperdiag = np.exp( - psi_p[:-1] ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) * ( np.exp( - Dpsip ) - 1 )**(-2)
+    numerator2 = (1 - around_zero) * (
+        Dpsip + np.exp(-Dpsip) - 1) + around_zero * (
+            -3 + psi_p[:-1] - psi_p[1:] + 2 * psi_p[:-1] * psi_p[1:] -
+            psi_p[:-1]**2 - psi_p[1:]**2)
+    denominator2 = (1 - around_zero) * (
+        np.exp(-Dpsip) - 1)**2 + around_zero * (
+            1 - 0.5 * psi_p[:-1] + 0.5 * psi_p[1:] - 1 / 3.0 * psi_p[:-1] *
+            psi_p[1:] + 1 / 6.0 * psi_p[:-1]**2 + 1 / 6.0 * psi_p[1:]**2)**2
+    numerator3 = (1 - around_zero) * (-np.exp(-Dpsip) + 1 -
+                                      Dpsip * np.exp(-Dpsip)) + around_zero * (
+                                          -3 + 2 * psi_p[:-1] - 2 * psi_p[1:])
+    denominator3 = (1 - around_zero) * (
+        np.exp(-Dpsip) - 1)**2 + around_zero * (
+            1 - 0.5 * psi_p[:-1] + 0.5 * psi_p[1:] - 1 / 3.0 * psi_p[:-1] *
+            psi_p[1:] + 1 / 6.0 * psi_p[:-1]**2 + 1 / 6.0 * psi_p[1:]**2)**2
 
-    Dpsip_Dexppsip_deriv_maindiag = np.exp( - psi_p[:-1] ) * numerator2 / denominator2
-    Dpsip_Dexppsip_deriv_upperdiag = np.exp( - psi_p[:-1] ) * numerator3 / denominator3
-
+    Dpsip_Dexppsip_deriv_maindiag = np.exp(
+        -psi_p[:-1]) * numerator2 / denominator2
+    Dpsip_Dexppsip_deriv_upperdiag = np.exp(
+        -psi_p[:-1]) * numerator3 / denominator3
 
     dJp_phip__ = mp[:-1] * Dpsip_Dexppsip / dgrid * fm_deriv_maindiag
     dJp_phip___ = mp[:-1] * Dpsip_Dexppsip / dgrid * fm_deriv_upperdiag
@@ -222,13 +249,10 @@ def Jp_deriv( dgrid , phi_p , phi , Chi , Eg , Nv , mp ):
     dJp_phi__ = mp[:-1] * fm / dgrid * Dpsip_Dexppsip_deriv_maindiag
     dJp_phi___ = mp[:-1] * fm / dgrid * Dpsip_Dexppsip_deriv_upperdiag
 
-    return dJp_phip__ , dJp_phip___ , dJp_phi__ , dJp_phi___
+    return dJp_phip__, dJp_phip___, dJp_phi__, dJp_phi___
 
 
-
-
-
-def total_current( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , mp ):
+def total_current(dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mn, mp):
     """
     Computes the total current and its derivatives.
 
@@ -279,54 +303,83 @@ def total_current( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , mp ):
             'dphi1'   -> derivative with respect to phi[ 1 ]
 
     """
-    psin0 = Chi[0] + np.log( Nc[0] ) + phi[0]
-    psin1 = Chi[1] + np.log( Nc[1] ) + phi[1]
-    psip0 = Chi[0] + Eg[0] - np.log( Nv[0] ) + phi[0]
-    psip1 = Chi[1] + Eg[1] - np.log( Nv[1] ) + phi[1]
+    psin0 = Chi[0] + np.log(Nc[0]) + phi[0]
+    psin1 = Chi[1] + np.log(Nc[1]) + phi[1]
+    psip0 = Chi[0] + Eg[0] - np.log(Nv[0]) + phi[0]
+    psip1 = Chi[1] + Eg[1] - np.log(Nv[1]) + phi[1]
     Dpsin = psin0 - psin1
     Dpsip = psip0 - psip1
     thr = 1e-5
-    around_zero_n = 0.5 * ( np.tanh( 1e50 * ( Dpsin + thr ) ) - np.tanh( 1e50 * ( Dpsin - thr ) ) )
-    around_zero_p = 0.5 * ( np.tanh( 1e50 * ( Dpsip + thr ) ) - np.tanh( 1e50 * ( Dpsip - thr ) ) )
+    around_zero_n = 0.5 * (np.tanh(1e50 *
+                                   (Dpsin + thr)) - np.tanh(1e50 *
+                                                            (Dpsin - thr)))
+    around_zero_p = 0.5 * (np.tanh(1e50 *
+                                   (Dpsip + thr)) - np.tanh(1e50 *
+                                                            (Dpsip - thr)))
 
-    fmn = np.exp( phi_n[1] ) - np.exp( phi_n[0] )
-    numerator = ( 1 - around_zero_n ) * Dpsin + around_zero_n * 1
-    denominator = ( 1 - around_zero_n ) * ( np.exp( Dpsin ) - 1 ) + around_zero_n * ( 1 + 0.5*Dpsin + 1/6.0*Dpsin**2 )
-    Dpsin_Dexppsin = np.exp( psin0 ) * numerator / denominator
-    dfmn_dphin0 = - np.exp( phi_n[0] )
-    dfmn_dphin1 = np.exp( phi_n[1] )
-    numerator2 = ( 1 - around_zero_n ) * ( - Dpsin + np.exp( Dpsin ) - 1 ) + around_zero_n * ( - 3 + psin0 + psin1 + 2*psin0*psin1 - psin0**2 - psin1**2 )
-    denominator2 = ( 1 - around_zero_n ) * ( np.exp( Dpsin ) - 1 )**2 + around_zero_n * ( 1 + 0.5*psin0 - 0.5*psin1 - 1/3.0*psin0*psin1 + 1/6.0*psin0**2 + 1/6.0*psin1**2 )**2
-    numerator3 = ( 1 - around_zero_n ) * ( - np.exp( Dpsin ) + 1 + Dpsin * np.exp( Dpsin ) ) + around_zero_n * ( - 3 - 2*psin0 + 2*psin1 )
-    denominator3 = ( 1 - around_zero_n ) * ( np.exp( Dpsin ) - 1 )**2 + around_zero_n * ( 1 + 0.5*psin0 - 0.5*psin1 - 1/3.0*psin0*psin1 + 1/6.0*psin0**2 + 1/6.0*psin1**2 )**2
-    Dpsin_Dexppsin_dpsin0 = np.exp( psin0 ) * numerator2 / denominator2
-    Dpsin_Dexppsin_dpsin1 = np.exp( psin0 ) * numerator3 / denominator3
+    fmn = np.exp(phi_n[1]) - np.exp(phi_n[0])
+    numerator = (1 - around_zero_n) * Dpsin + around_zero_n * 1
+    denominator = (1 - around_zero_n) * (np.exp(Dpsin) - 1) + around_zero_n * (
+        1 + 0.5 * Dpsin + 1 / 6.0 * Dpsin**2)
+    Dpsin_Dexppsin = np.exp(psin0) * numerator / denominator
+    dfmn_dphin0 = -np.exp(phi_n[0])
+    dfmn_dphin1 = np.exp(phi_n[1])
+    numerator2 = (1 - around_zero_n) * (
+        -Dpsin + np.exp(Dpsin) - 1) + around_zero_n * (
+            -3 + psin0 + psin1 + 2 * psin0 * psin1 - psin0**2 - psin1**2)
+    denominator2 = (1 - around_zero_n) * (
+        np.exp(Dpsin) - 1)**2 + around_zero_n * (
+            1 + 0.5 * psin0 - 0.5 * psin1 - 1 / 3.0 * psin0 * psin1 +
+            1 / 6.0 * psin0**2 + 1 / 6.0 * psin1**2)**2
+    numerator3 = (1 - around_zero_n) * (
+        -np.exp(Dpsin) + 1 +
+        Dpsin * np.exp(Dpsin)) + around_zero_n * (-3 - 2 * psin0 + 2 * psin1)
+    denominator3 = (1 - around_zero_n) * (
+        np.exp(Dpsin) - 1)**2 + around_zero_n * (
+            1 + 0.5 * psin0 - 0.5 * psin1 - 1 / 3.0 * psin0 * psin1 +
+            1 / 6.0 * psin0**2 + 1 / 6.0 * psin1**2)**2
+    Dpsin_Dexppsin_dpsin0 = np.exp(psin0) * numerator2 / denominator2
+    Dpsin_Dexppsin_dpsin1 = np.exp(psin0) * numerator3 / denominator3
 
-    fmp = np.exp( - phi_p[1] ) - np.exp( - phi_p[0] )
-    _numerator = ( 1 - around_zero_p ) * Dpsip + around_zero_p * 1
-    _denominator = ( 1 - around_zero_p ) * ( np.exp( - Dpsip ) - 1 ) + around_zero_p * ( - 1 + 0.5*Dpsip - 1/6.0*Dpsip**2 )
-    Dpsip_Dexppsip = np.exp( - psip0 ) * _numerator / _denominator
-    dfmp_dphip0 = np.exp( - phi_p[0] )
-    dfmp_dphip1 = - np.exp( - phi_p[1] )
-    _numerator2 = ( 1 - around_zero_p ) * ( Dpsip + np.exp( - Dpsip ) - 1 ) + around_zero_p * ( - 3 + psip0 - psip1 + 2*psip0*psip1 - psip0**2 - psip1**2 )
-    _denominator2 = ( 1 - around_zero_p ) * ( np.exp( - Dpsip ) - 1 )**2 + around_zero_p * ( 1 - 0.5*psip0 + 0.5*psip1 - 1/3.0*psip0*psip1 + 1/6.0*psip0**2 + 1/6.0*psip1**2 )**2
-    _numerator3 = ( 1 - around_zero_p ) * ( - np.exp( - Dpsip ) + 1 - Dpsip * np.exp( - Dpsip ) ) + around_zero_p * ( - 3 + 2*psip0 - 2*psip1 )
-    _denominator3 = ( 1 - around_zero_p ) * ( np.exp( - Dpsip ) - 1 )**2 + around_zero_p * ( 1 - 0.5*psip0 + 0.5*psip1 - 1/3.0*psip0*psip1 + 1/6.0*psip0**2 + 1/6.0*psip1**2 )**2
-    Dpsip_Dexppsip_dpsip0 = np.exp( - psip0 ) * _numerator2 / _denominator2
-    Dpsip_Dexppsip_dpsip1 = np.exp( - psip0 ) * _numerator3 / _denominator3
+    fmp = np.exp(-phi_p[1]) - np.exp(-phi_p[0])
+    _numerator = (1 - around_zero_p) * Dpsip + around_zero_p * 1
+    _denominator = (1 - around_zero_p) * (np.exp(
+        -Dpsip) - 1) + around_zero_p * (-1 + 0.5 * Dpsip - 1 / 6.0 * Dpsip**2)
+    Dpsip_Dexppsip = np.exp(-psip0) * _numerator / _denominator
+    dfmp_dphip0 = np.exp(-phi_p[0])
+    dfmp_dphip1 = -np.exp(-phi_p[1])
+    _numerator2 = (1 - around_zero_p) * (
+        Dpsip + np.exp(-Dpsip) - 1) + around_zero_p * (
+            -3 + psip0 - psip1 + 2 * psip0 * psip1 - psip0**2 - psip1**2)
+    _denominator2 = (1 - around_zero_p) * (
+        np.exp(-Dpsip) - 1)**2 + around_zero_p * (
+            1 - 0.5 * psip0 + 0.5 * psip1 - 1 / 3.0 * psip0 * psip1 +
+            1 / 6.0 * psip0**2 + 1 / 6.0 * psip1**2)**2
+    _numerator3 = (1 - around_zero_p) * (
+        -np.exp(-Dpsip) + 1 -
+        Dpsip * np.exp(-Dpsip)) + around_zero_p * (-3 + 2 * psip0 - 2 * psip1)
+    _denominator3 = (1 - around_zero_p) * (
+        np.exp(-Dpsip) - 1)**2 + around_zero_p * (
+            1 - 0.5 * psip0 + 0.5 * psip1 - 1 / 3.0 * psip0 * psip1 +
+            1 / 6.0 * psip0**2 + 1 / 6.0 * psip1**2)**2
+    Dpsip_Dexppsip_dpsip0 = np.exp(-psip0) * _numerator2 / _denominator2
+    Dpsip_Dexppsip_dpsip1 = np.exp(-psip0) * _numerator3 / _denominator3
 
-    Fcurrent = mn[0] * Dpsin_Dexppsin * fmn / dgrid[0] + mp[0] * Dpsip_Dexppsip * fmp / dgrid[0]
+    Fcurrent = mn[0] * Dpsin_Dexppsin * fmn / dgrid[0] + mp[
+        0] * Dpsip_Dexppsip * fmp / dgrid[0]
 
     deriv = {}
 
-    deriv['dChi0'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
-    deriv['dChi1'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv['dChi0'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0 + mp[
+        0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
+    deriv['dChi1'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1 + mp[
+        0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
     deriv['dEg0'] = mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
     deriv['dEg1'] = mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
     deriv['dNc0'] = 1 / Nc[0] * mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0
     deriv['dNc1'] = 1 / Nc[1] * mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1
-    deriv['dNv0'] = - 1 / Nv[0] * mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
-    deriv['dNv1'] = - 1 / Nv[1] * mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv['dNv0'] = -1 / Nv[0] * mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
+    deriv['dNv1'] = -1 / Nv[1] * mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
     deriv['dmn0'] = Dpsin_Dexppsin * fmn / dgrid[0]
     deriv['dmp0'] = Dpsip_Dexppsip * fmp / dgrid[0]
 
@@ -334,7 +387,9 @@ def total_current( dgrid , phi_n , phi_p , phi , Chi , Eg , Nc , Nv , mn , mp ):
     deriv['dphin1'] = mn[0] * Dpsin_Dexppsin / dgrid[0] * dfmn_dphin1
     deriv['dphip0'] = mp[0] * Dpsip_Dexppsip / dgrid[0] * dfmp_dphip0
     deriv['dphip1'] = mp[0] * Dpsip_Dexppsip / dgrid[0] * dfmp_dphip1
-    deriv['dphi0'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
-    deriv['dphi1'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1 + mp[0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv['dphi0'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin0 + mp[
+        0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip0
+    deriv['dphi1'] = mn[0] * fmn / dgrid[0] * Dpsin_Dexppsin_dpsin1 + mp[
+        0] * fmp / dgrid[0] * Dpsip_Dexppsip_dpsip1
 
-    return Fcurrent , deriv
+    return Fcurrent, deriv

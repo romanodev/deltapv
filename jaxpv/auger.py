@@ -1,6 +1,7 @@
 from .physics import *
 
-def auger( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp ):
+
+def auger(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Cn, Cp):
     """
     Computes the Auger bulk recombination rate density.
 
@@ -31,16 +32,13 @@ def auger( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp ):
             Auger recombination rate density
 
     """
-    _ni = ni( Eg , Nc , Nv )
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
-    return ( Cn * _n + Cp * _p ) * ( _n * _p - _ni**2 )
+    _ni = ni(Eg, Nc, Nv)
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
+    return (Cn * _n + Cp * _p) * (_n * _p - _ni**2)
 
 
-
-
-
-def auger_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp ):
+def auger_deriv(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Cn, Cp):
     """
     Computes the derivatives of the Auger bulk recombination rate density.
 
@@ -78,12 +76,13 @@ def auger_deriv( phi_n , phi_p , phi , Chi , Eg , Nc , Nv , Cn , Cp ):
             derivative of Auger recombination at point i w.r.t phi[i]
 
     """
-    _ni = ni( Eg , Nc , Nv )
-    _n = n( phi_n , phi , Chi , Nc )
-    _p = p( phi_p , phi , Chi , Eg , Nv )
+    _ni = ni(Eg, Nc, Nv)
+    _n = n(phi_n, phi, Chi, Nc)
+    _p = p(phi_p, phi, Chi, Eg, Nv)
 
-    DR_phin = ( Cn * _n ) * ( _n * _p - _ni**2 ) + ( Cn * _n + Cp * _p ) * ( _n * _p )
-    DR_phip = ( - Cp * _p ) * ( _n * _p - _ni**2 ) + ( Cn * _n + Cp * _p ) * ( - _n * _p )
-    DR_phi = ( Cn * _n - Cp * _p ) * ( _n * _p - _ni**2 )
+    DR_phin = (Cn * _n) * (_n * _p - _ni**2) + (Cn * _n + Cp * _p) * (_n * _p)
+    DR_phip = (-Cp * _p) * (_n * _p - _ni**2) + (Cn * _n + Cp * _p) * (-_n *
+                                                                       _p)
+    DR_phi = (Cn * _n - Cp * _p) * (_n * _p - _ni**2)
 
-    return DR_phin , DR_phip , DR_phi
+    return DR_phin, DR_phip, DR_phi

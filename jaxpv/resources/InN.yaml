@@ -1,0 +1,16 @@
+name: InN
+properties:
+  A: null
+  Br: 2.0e-10
+  Chi: null
+  Cn: null
+  Cp: null
+  Eg: 1.970
+  Et: null
+  Nc: 9.0e+17
+  Nv: 5.3e+19
+  eps: 15.3
+  mn: 3200.0
+  mp: null
+  tn: null
+  tp: null

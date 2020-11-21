@@ -1,0 +1,16 @@
+name: Si
+properties:
+  A: null
+  Br: 1.1e-14
+  Chi: 4.05
+  Cn: 1.1e-30
+  Cp: 3.0e-31
+  Eg: 1.12
+  Et: null
+  Nc: 3.2e+19
+  Nv: 1.8e+19
+  eps: 11.7
+  mn: 1400.0
+  mp: 450.0
+  tn: null
+  tp: null
