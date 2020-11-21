@@ -1,0 +1,16 @@
+name: InAs
+properties:
+  A: null
+  Br: 1.1e-10
+  Chi: 4.9
+  Cn: 2.2e-27
+  Cp: 2.2e-27
+  Eg: 0.354
+  Et: null
+  Nc: 8.7e+16
+  Nv: 6.6e+18
+  eps: 15.15
+  mn: 4e+4
+  mp: 5e+2
+  tn: 3.0e-8
+  tp: 3.0e-6

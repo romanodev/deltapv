@@ -1,0 +1,16 @@
+name: GaN
+properties:
+  A: null
+  Br: 1.1e-8
+  Chi: 4.1
+  Cn: null
+  Cp: null
+  Eg: 3.2
+  Et: null
+  Nc: 1.2e+18
+  Nv: 4.1e+19
+  eps: 8.9
+  mn: 1000.0
+  mp: 350.0
+  tn: null
+  tp: null

@@ -1,0 +1,16 @@
+name: BN
+properties:
+  A: null
+  Br: null
+  Chi: 4.5
+  Cn: null
+  Cp: null
+  Eg: 6.1
+  Et: null
+  Nc: 2.1e+19
+  Nv: 2.6e+19
+  eps: 7.1
+  mn: 200.0
+  mp: 500.0
+  tn: null
+  tp: null

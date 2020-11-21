@@ -1,0 +1,16 @@
+name: InSb
+properties:
+  A: null
+  Br: 5.0e-11
+  Chi: 4.59
+  Cn: 5.0e-26
+  Cp: 5.0e-26
+  Eg: 0.17
+  Et: null
+  Nc: 4.2e+16
+  Nv: 7.3e+18
+  eps: 16.8
+  mn: 7.7e+4
+  mp: 850.0
+  tn: 5.0e-8
+  tp: 5.0e-8

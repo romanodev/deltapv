@@ -1,7 +1,7 @@
 import os
 
-if os.environ['JAX'] == 'YES':
-    print("JAX available. Using JAX.")
+if os.environ.get("JAX") == "YES":
+    print("Using JAX.")
     from jax.config import config
     config.update("jax_enable_x64", True)
     import jax.numpy as np
