@@ -2,8 +2,11 @@ from .F_eq import *
 from .utils import *
 import matplotlib.pyplot as plt
 
-from scipy.sparse import csr_matrix
+from scipy.linalg import inv
+from scipy.sparse import csc_matrix, diags, block_diag
 from scipy.sparse.linalg import gmres, spilu, LinearOperator
+
+from .spilu import *
 
 
 def damp(move):
@@ -70,15 +73,26 @@ def step_eq(dgrid, phi, eps, Chi, Eg, Nc, Nv, Ndop):
     gradFeq = F_eq_deriv(dgrid, np.zeros(phi.size), np.zeros(phi.size), phi,
                          eps, Chi, Eg, Nc, Nv)
 
-    spgradFeq = csr_matrix(gradFeq)
-
-    lugradFeq = spilu(spgradFeq)
-    precond = LinearOperator(gradFeq.shape, lambda x: lugradFeq.solve(x))
+    spgradFeq = csc_matrix(gradFeq)
+    
+    # jacobi preconditioning
+    # precond = diags(np.reciprocal(spgradFeq.diagonal()), format="csr")
+    
+    # block jacobi preconditioning
+    # K = 20
+    # precond = block_diag([inv(gradFeq[i:i+K, i:i+K]) for i in range(0, gradFeq.shape[0], K)])
+    
+    # spilu preconditioning
+    # lugradFeq = spilu(spgradFeq)
+    # precond = LinearOperator(gradFeq.shape, lambda x: lugradFeq.solve(x))
+    
+    # home-made ilu(0)
+    precond = ilu0(gradFeq)
 
     move, conv_info = gmres(spgradFeq,
                             -Feq,
-                            tol=1e-12,
-                            maxiter=1000,
+                            tol=1e-10,
+                            maxiter=100,
                             M=precond)
 
     if conv_info > 0:

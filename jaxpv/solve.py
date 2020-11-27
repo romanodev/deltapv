@@ -2,8 +2,11 @@ from .F import *
 from .utils import *
 import matplotlib.pyplot as plt
 
-from scipy.sparse import csr_matrix
+from scipy.linalg import inv
+from scipy.sparse import csc_matrix, diags, block_diag
 from scipy.sparse.linalg import gmres, spilu, LinearOperator
+
+from .spilu import *
 
 
 def damp(move):
@@ -110,13 +113,29 @@ def step(dgrid, neq0, neqL, peq0, peqL, phis, eps, Chi, Eg, Nc, Nv, Ndop, mn,
     gradF = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
                     phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn,
                     tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G)
+    
+    
+    spgradF = csc_matrix(gradF)
+    
+    # jacobi preconditioning
+    # precond = diags(np.reciprocal(spgradF.diagonal()), format="csr")
+    
+    # block jacobi preconditioning
+    # K = 20
+    # precond = block_diag([inv(gradF[i:i+K, i:i+K]) for i in range(0, gradF.shape[0], K)])
+    
+    # spilu preconditioning
+    # lugradF = spilu(spgradF)
+    # precond = LinearOperator(gradF.shape, lambda x: lugradF.solve(x))
+    
+    # home-made ilu(0)
+    precond = ilu0(gradF)
 
-    spgradF = csr_matrix(gradF)
-
-    lugradF = spilu(spgradF)
-    precond = LinearOperator(gradF.shape, lambda x: lugradF.solve(x))
-
-    move, conv_info = gmres(spgradF, -_F, tol=1e-12, maxiter=1000, M=precond)
+    move, conv_info = gmres(spgradF,
+                            -_F,
+                            tol=1e-10,
+                            maxiter=100,
+                            M=precond)
 
     if conv_info > 0:
         print(f"Early termination of GMRES at {conv_info} iterations")
