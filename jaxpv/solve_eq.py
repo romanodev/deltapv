@@ -2,11 +2,10 @@ from .F_eq import *
 from .utils import *
 import matplotlib.pyplot as plt
 
-from scipy.linalg import inv
-from scipy.sparse import csc_matrix, diags, block_diag
-from scipy.sparse.linalg import gmres, spilu, LinearOperator
+from scipy.sparse.linalg import gmres, LinearOperator
+from scipy.sparse import csc_matrix
 
-from .spilu import *
+from .ilu import *
 
 
 def damp(move):
@@ -74,26 +73,9 @@ def step_eq(dgrid, phi, eps, Chi, Eg, Nc, Nv, Ndop):
                          eps, Chi, Eg, Nc, Nv)
 
     spgradFeq = csc_matrix(gradFeq)
-    
-    # jacobi preconditioning
-    # precond = diags(np.reciprocal(spgradFeq.diagonal()), format="csr")
-    
-    # block jacobi preconditioning
-    # K = 20
-    # precond = block_diag([inv(gradFeq[i:i+K, i:i+K]) for i in range(0, gradFeq.shape[0], K)])
-    
-    # spilu preconditioning
-    # lugradFeq = spilu(spgradFeq)
-    # precond = LinearOperator(gradFeq.shape, lambda x: lugradFeq.solve(x))
-    
-    # home-made ilu(0)
-    precond = ilu0(gradFeq)
+    precond = LinearOperator(gradFeq.shape, ilu0(gradFeq))
 
-    move, conv_info = gmres(spgradFeq,
-                            -Feq,
-                            tol=1e-10,
-                            maxiter=100,
-                            M=precond)
+    move, conv_info = gmres(spgradFeq, -Feq, tol=1e-10, maxiter=100, M=precond)
 
     if conv_info > 0:
         print(f"Early termination of GMRES at {conv_info} iterations")

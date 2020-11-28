@@ -38,9 +38,9 @@ class Material(object):
             if value is not None:
                 mat[prop] = value
         return mat
-    
+
     def get(self, key):
         return self.__getitem__(key)
-    
+
     def available(self):
         return sorted(list(self.materials.keys()))
