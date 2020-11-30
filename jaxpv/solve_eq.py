@@ -70,12 +70,13 @@ def step_eq(dgrid, phi, eps, Chi, Eg, Nc, Nv, Ndop):
 
     Feq = F_eq(dgrid, np.zeros(phi.size), np.zeros(phi.size), phi, eps, Chi,
                Eg, Nc, Nv, Ndop)
-    data, indices, indptr = F_eq_deriv(dgrid, np.zeros(phi.size), np.zeros(phi.size), phi,
-                            eps, Chi, Eg, Nc, Nv)
+    data, indices, indptr = F_eq_deriv(dgrid, np.zeros(phi.size),
+                                       np.zeros(phi.size), phi, eps, Chi, Eg,
+                                       Nc, Nv)
 
     gradFeq_jvp = lambda x: spdot(data, indices, indptr, x)
     invgradFeq_jvp = spilu0(data, indices, indptr)
-    
+
     operator = LinearOperator((N, N), gradFeq_jvp)
     precond = LinearOperator((N, N), invgradFeq_jvp)
 

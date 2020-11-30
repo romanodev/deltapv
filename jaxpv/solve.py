@@ -109,13 +109,14 @@ def step(dgrid, neq0, neqL, peq0, peqL, phis, eps, Chi, Eg, Nc, Nv, Ndop, mn,
     _F = F(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
            phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br,
            Cn, Cp, Snl, Spl, Snr, Spr, G)
-    data, indices, indptr = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
-                            phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn,
-                            tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G)
-    
+    data, indices, indptr = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N],
+                                    phis[N:2 * N], phis[2 * N:], eps, Chi, Eg,
+                                    Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br, Cn,
+                                    Cp, Snl, Spl, Snr, Spr, G)
+
     gradF_jvp = lambda x: spdot(data, indices, indptr, x)
     invgradF_jvp = spilu0(data, indices, indptr)
-    
+
     operator = LinearOperator((3 * N, 3 * N), gradF_jvp)
     precond = LinearOperator((3 * N, 3 * N), invgradF_jvp)
 

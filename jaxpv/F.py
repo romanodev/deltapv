@@ -300,15 +300,15 @@ def F_deriv(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg,
     # remove zero elements
     nonzero_idx = dF != 0
     row, col, dF = row[nonzero_idx], col[nonzero_idx], dF[nonzero_idx]
-    
+
     # sort col elements
     sortcol_idx = np.argsort(col, kind="stable")
     row, col, dF = row[sortcol_idx], col[sortcol_idx], dF[sortcol_idx]
-    
+
     # sort row elements
     sortrow_idx = np.argsort(row, kind="stable")
     row, col, dF = row[sortrow_idx], col[sortrow_idx], dF[sortrow_idx]
-    
+
     # create "indptr" for csr format. "data" is "dF", "indices" is "col"
     indptr = np.nonzero(np.diff(np.concatenate([[-1], row, [3 * N]])))[0]
 
