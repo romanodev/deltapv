@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.sparse.linalg import gmres, LinearOperator
 from scipy.sparse import csc_matrix
 
-from .ilu import *
+from .spilu import *
 
 
 def damp(move):
@@ -66,16 +66,20 @@ def step_eq(dgrid, phi, eps, Chi, Eg, Nc, Nv, Ndop):
             next electrostatic potential
 
     """
+    N = dgrid.size + 1
 
     Feq = F_eq(dgrid, np.zeros(phi.size), np.zeros(phi.size), phi, eps, Chi,
                Eg, Nc, Nv, Ndop)
-    gradFeq = F_eq_deriv(dgrid, np.zeros(phi.size), np.zeros(phi.size), phi,
-                         eps, Chi, Eg, Nc, Nv)
+    data, indices, indptr = F_eq_deriv(dgrid, np.zeros(phi.size), np.zeros(phi.size), phi,
+                            eps, Chi, Eg, Nc, Nv)
 
-    spgradFeq = csc_matrix(gradFeq)
-    precond = LinearOperator(gradFeq.shape, ilu0(gradFeq))
+    gradFeq_jvp = lambda x: spdot(data, indices, indptr, x)
+    invgradFeq_jvp = spilu0(data, indices, indptr)
+    
+    operator = LinearOperator((N, N), gradFeq_jvp)
+    precond = LinearOperator((N, N), invgradFeq_jvp)
 
-    move, conv_info = gmres(spgradFeq, -Feq, tol=1e-10, maxiter=100, M=precond)
+    move, conv_info = gmres(operator, -Feq, tol=1e-10, maxiter=100, M=precond)
 
     if conv_info > 0:
         print(f"Early termination of GMRES at {conv_info} iterations")

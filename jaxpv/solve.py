@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.sparse.linalg import gmres, LinearOperator
 from scipy.sparse import csc_matrix
 
-from .ilu import *
+from .spilu import *
 
 
 def damp(move):
@@ -109,14 +109,17 @@ def step(dgrid, neq0, neqL, peq0, peqL, phis, eps, Chi, Eg, Nc, Nv, Ndop, mn,
     _F = F(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
            phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br,
            Cn, Cp, Snl, Spl, Snr, Spr, G)
-    gradF = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
-                    phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn,
-                    tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G)
+    data, indices, indptr = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
+                            phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn,
+                            tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G)
+    
+    gradF_jvp = lambda x: spdot(data, indices, indptr, x)
+    invgradF_jvp = spilu0(data, indices, indptr)
+    
+    operator = LinearOperator((3 * N, 3 * N), gradF_jvp)
+    precond = LinearOperator((3 * N, 3 * N), invgradF_jvp)
 
-    spgradF = csc_matrix(gradF)
-    precond = LinearOperator(gradF.shape, ilu0(gradF))
-
-    move, conv_info = gmres(spgradF, -_F, tol=1e-10, maxiter=100, M=precond)
+    move, conv_info = gmres(operator, -_F, tol=1e-10, maxiter=100, M=precond)
 
     if conv_info > 0:
         print(f"Early termination of GMRES at {conv_info} iterations")

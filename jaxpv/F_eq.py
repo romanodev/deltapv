@@ -95,11 +95,20 @@ def F_eq_deriv(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
     row = np.concatenate((row, np.array([N - 1])))
     col = np.concatenate((col, np.array([N - 1])))
     dFeq = np.concatenate((dFeq, np.array([1.0])))
+    
+    # remove zero elements
+    nonzero_idx = dFeq != 0
+    row, col, dFeq = row[nonzero_idx], col[nonzero_idx], dFeq[nonzero_idx]
+    
+    # sort col elements
+    sortcol_idx = np.argsort(col, kind="stable")
+    row, col, dFeq = row[sortcol_idx], col[sortcol_idx], dFeq[sortcol_idx]
+    
+    # sort row elements
+    sortrow_idx = np.argsort(row, kind="stable")
+    row, col, dFeq = row[sortrow_idx], col[sortrow_idx], dFeq[sortrow_idx]
+    
+    # create "indptr" for csr format. "data" is "dFeq", "indices" is "col"
+    indptr = np.nonzero(np.diff(np.concatenate([[-1], row, [N]])))[0]
 
-    result = np.zeros((N, N))
-    if os.environ['JAX'] == 'YES':
-        return ops.index_update(result, (row, col), dFeq)
-    else:
-        for i in range(len(row)):
-            result[row[i], col[i]] = dFeq[i]
-        return result
+    return dFeq, col, indptr
