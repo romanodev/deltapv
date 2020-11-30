@@ -2,6 +2,11 @@ from .F_eq import *
 from .utils import *
 import matplotlib.pyplot as plt
 
+from scipy.sparse.linalg import gmres, LinearOperator
+from scipy.sparse import csc_matrix
+
+from .spilu import *
+
 
 def damp(move):
     """
@@ -61,12 +66,27 @@ def step_eq(dgrid, phi, eps, Chi, Eg, Nc, Nv, Ndop):
             next electrostatic potential
 
     """
+    N = dgrid.size + 1
+
     Feq = F_eq(dgrid, np.zeros(phi.size), np.zeros(phi.size), phi, eps, Chi,
                Eg, Nc, Nv, Ndop)
-    gradFeq = F_eq_deriv(dgrid, np.zeros(phi.size), np.zeros(phi.size), phi,
-                         eps, Chi, Eg, Nc, Nv)
-    move = np.linalg.solve(gradFeq, -Feq)
+    data, indices, indptr = F_eq_deriv(dgrid, np.zeros(phi.size),
+                                       np.zeros(phi.size), phi, eps, Chi, Eg,
+                                       Nc, Nv)
+
+    gradFeq_jvp = lambda x: spdot(data, indices, indptr, x)
+    invgradFeq_jvp = spilu0(data, indices, indptr)
+
+    operator = LinearOperator((N, N), gradFeq_jvp)
+    precond = LinearOperator((N, N), invgradFeq_jvp)
+
+    move, conv_info = gmres(operator, -Feq, tol=1e-10, maxiter=100, M=precond)
+
+    if conv_info > 0:
+        print(f"Early termination of GMRES at {conv_info} iterations")
+
     error = np.linalg.norm(move)
+
     damp_move = damp(move)
 
     return error, np.linalg.norm(Feq), phi + damp_move
@@ -144,9 +164,6 @@ def solve_eq(dgrid, phi_ini, eps, Chi, Eg, Nc, Nv, Ndop):
 
     """
 
-    dxs = []
-    Fs = []
-
     error = 1
     iter = 0
     print(' ')
@@ -157,7 +174,7 @@ def solve_eq(dgrid, phi_ini, eps, Chi, Eg, Nc, Nv, Ndop):
         ' -------------------------------------------------------------------')
 
     phi = phi_ini
-    while (error > 1e-6):
+    while (error > 1e-9):
         if iter > 100:
             print("Maximum steps exceeded! Ending iteration")
             break
@@ -165,22 +182,16 @@ def solve_eq(dgrid, phi_ini, eps, Chi, Eg, Nc, Nv, Ndop):
                                               Ndop)
         phi = next_phi
         error = error_dx
-        dxs.append(error_dx)
-        Fs.append(error_F)
+
         iter += 1
         print('    {0:02d}          {1:.5E}          {2:.5E}'.format(
             iter, error_F.astype(float), error_dx.astype(float)))
-        # print(iter)
+
     print(
         ' -------------------------------------------------------------------')
     print(' ')
     print('Solving equilibrium... done.')
     print(' ')
-
-    # plt.plot(np.log(dxs), label='log dx')
-    # plt.plot(np.log(Fs), label='log F')
-    # plt.legend()
-    # plt.show()
 
     return phi
 

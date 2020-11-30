@@ -2,6 +2,11 @@ from .F import *
 from .utils import *
 import matplotlib.pyplot as plt
 
+from scipy.sparse.linalg import gmres, LinearOperator
+from scipy.sparse import csc_matrix
+
+from .spilu import *
+
 
 def damp(move):
     """
@@ -104,11 +109,21 @@ def step(dgrid, neq0, neqL, peq0, peqL, phis, eps, Chi, Eg, Nc, Nv, Ndop, mn,
     _F = F(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
            phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br,
            Cn, Cp, Snl, Spl, Snr, Spr, G)
-    gradF = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
-                    phis[2 * N:], eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn,
-                    tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G)
+    data, indices, indptr = F_deriv(dgrid, neq0, neqL, peq0, peqL, phis[0:N],
+                                    phis[N:2 * N], phis[2 * N:], eps, Chi, Eg,
+                                    Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br, Cn,
+                                    Cp, Snl, Spl, Snr, Spr, G)
 
-    move = np.linalg.solve(gradF, -_F)
+    gradF_jvp = lambda x: spdot(data, indices, indptr, x)
+    invgradF_jvp = spilu0(data, indices, indptr)
+
+    operator = LinearOperator((3 * N, 3 * N), gradF_jvp)
+    precond = LinearOperator((3 * N, 3 * N), invgradF_jvp)
+
+    move, conv_info = gmres(operator, -_F, tol=1e-10, maxiter=100, M=precond)
+
+    if conv_info > 0:
+        print(f"Early termination of GMRES at {conv_info} iterations")
 
     error = np.linalg.norm(move)
     damp_move = damp(move)
@@ -268,9 +283,6 @@ def solve(dgrid, neq0, neqL, peq0, peqL, phis_ini, eps, Chi, Eg, Nc, Nv, Ndop,
 
     """
 
-    dxs = []
-    Fs = []
-
     error = 1
     iter = 0
 
@@ -286,17 +298,10 @@ def solve(dgrid, neq0, neqL, peq0, peqL, phis_ini, eps, Chi, Eg, Nc, Nv, Ndop,
                                             Snl, Spl, Snr, Spr, G)
         phis = next_phis
         error = error_dx
-        dxs.append(error_dx)
-        Fs.append(error_F)
         iter += 1
-        print('    {0:02d}          {1:.5E}          {2:.5E}'.format(
-            iter, error_F.astype(float), error_dx.astype(float)))
-        # print(iter)
 
-    # plt.plot(np.log(dxs), label='log dx')
-    # plt.plot(np.log(Fs), label='log F')
-    # plt.legend()
-    # plt.show()
+        print('                  {0:02d}          {1:.5E}          {2:.5E}'.
+              format(iter, error_F.astype(float), error_dx.astype(float)))
 
     return phis
 

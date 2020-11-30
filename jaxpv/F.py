@@ -297,10 +297,19 @@ def F_deriv(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg,
     col = np.concatenate((col, np.arange(4, 3 * (N - 1) + 1, 3)))
     dF = np.concatenate((dF, dpois_dphip__))
 
-    result = np.zeros((3 * N, 3 * N))
-    if os.environ['JAX'] == 'YES':
-        return ops.index_update(result, (row, col), dF)
-    else:
-        for i in range(len(row)):
-            result[row[i], col[i]] = dF[i]
-        return result
+    # remove zero elements
+    nonzero_idx = dF != 0
+    row, col, dF = row[nonzero_idx], col[nonzero_idx], dF[nonzero_idx]
+
+    # sort col elements
+    sortcol_idx = np.argsort(col, kind="stable")
+    row, col, dF = row[sortcol_idx], col[sortcol_idx], dF[sortcol_idx]
+
+    # sort row elements
+    sortrow_idx = np.argsort(row, kind="stable")
+    row, col, dF = row[sortrow_idx], col[sortrow_idx], dF[sortrow_idx]
+
+    # create "indptr" for csr format. "data" is "dF", "indices" is "col"
+    indptr = np.nonzero(np.diff(np.concatenate([[-1], row, [3 * N]])))[0]
+
+    return dF, col, indptr
