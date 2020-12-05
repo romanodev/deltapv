@@ -1,78 +1,11 @@
-from .e_drift_diffusion import *
-from .h_drift_diffusion import *
-from .poisson import *
-from .boundary_conditions import *
-from .utils import *
+from . import e_drift_diffusion
+from . import h_drift_diffusion
+from . import poisson
+from . import boundary_conditions
 
 
 def F(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg, Nc,
       Nv, Ndop, mn, mp, Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G):
-    """
-    Computes the system of equations to solve for the out of equilibrium potentials.
-
-    Parameters
-    ----------
-        dgrid    : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        neq0     : float
-            e- equilibrium density at left boundary
-        neqL     : float
-            e- equilibrium density at right boundary
-        peq0     : float
-            hole equilibrium density at left boundary
-        peqL     : float
-            hole equilibrium density at right boundary
-        phi_n    : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi_p    : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi      : numpy array , shape = ( N )
-            electrostatic potential
-        eps      : numpy array , shape = ( N )
-            relative dieclectric constant
-        Chi      : numpy array , shape = ( N )
-            electron affinity
-        Eg       : numpy array , shape = ( N )
-            band gap
-        Nc       : numpy array , shape = ( N )
-            e- density of states
-        Nv       : numpy array , shape = ( N )
-            hole density of states
-        Ndop     : numpy array , shape = ( N )
-            dopant density ( positive for donors , negative for acceptors )
-        mn       : numpy array , shape = ( N )
-            e- mobility
-        mp       : numpy array , shape = ( N )
-            hole mobility
-        Et       : numpy array , shape = ( N )
-            SHR trap state energy level
-        tn       : numpy array , shape = ( N )
-            SHR e- lifetime
-        tp       : numpy array , shape = ( N )
-            SHR hole lifetime
-        Br       : numpy array , shape = ( N )
-            radiative recombination coefficient
-        Cn       : numpy array , shape = ( N )
-            electron Auger coefficient
-        Cp       : numpy array , shape = ( N )
-            hole Auger coefficient
-        Snl      : float
-            e- surface recombination velocity at left boundary
-        Spl      : float
-            hole surface recombination velocity at left boundary
-        Snr      : float
-            e- surface recombination velocity at right boundary
-        Spr      : float
-            hole surface recombination velocity at right boundary
-        G        : numpy array , shape = ( N )
-            e-/hole pair generation rate density
-
-    Returns
-    -------
-        numpy array , shape = ( 3N )
-            out of equilibrium equation system at current value of potentials
-
-    """
 
     _ddn = ddn(dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mn, Et, tn, tp, Br,
                Cn, Cp, G)
@@ -96,72 +29,7 @@ def F(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg, Nc,
 def F_deriv(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg,
             Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr,
             G):
-    """
-    Computes the Jacobian of the system of equations to solve for the out of equilibrium potentials.
-
-    Parameters
-    ----------
-        dgrid    : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        neq0     : float
-            e- equilibrium density at left boundary
-        neqL     : float
-            e- equilibrium density at right boundary
-        peq0     : float
-            hole equilibrium density at left boundary
-        peqL     : float
-            hole equilibrium density at right boundary
-        phi_n    : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi_p    : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi      : numpy array , shape = ( N )
-            electrostatic potential
-        eps      : numpy array , shape = ( N )
-            relative dieclectric constant
-        Chi      : numpy array , shape = ( N )
-            electron affinity
-        Eg       : numpy array , shape = ( N )
-            band gap
-        Nc       : numpy array , shape = ( N )
-            e- density of states
-        Nv       : numpy array , shape = ( N )
-            hole density of states
-        Ndop     : numpy array , shape = ( N )
-            dopant density ( positive for donors , negative for acceptors )
-        mn       : numpy array , shape = ( N )
-            e- mobility
-        mp       : numpy array , shape = ( N )
-            hole mobility
-        Et       : numpy array , shape = ( N )
-            SHR trap state energy level
-        tn       : numpy array , shape = ( N )
-            SHR e- lifetime
-        tp       : numpy array , shape = ( N )
-            SHR hole lifetime
-        Br       : numpy array , shape = ( N )
-            radiative recombination coefficient
-        Cn       : numpy array , shape = ( N )
-            electron Auger coefficient
-        Cp       : numpy array , shape = ( N )
-            hole Auger coefficient
-        Snl      : float
-            e- surface recombination velocity at left boundary
-        Spl      : float
-            hole surface recombination velocity at left boundary
-        Snr      : float
-            e- surface recombination velocity at right boundary
-        Spr      : float
-            hole surface recombination velocity at right boundary
-        G        : numpy array , shape = ( N )
-            e-/hole pair generation rate density
-
-    Returns
-    -------
-        numpy array , shape = ( 3N x 3N )
-            Jacobian matrix of the out of equilibrium equation system at current value of potentials
-
-    """
+    
     dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = ddn_deriv(
         dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mn, Et, tn, tp, Br, Cn, Cp,
         G)
@@ -313,3 +181,53 @@ def F_deriv(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg,
     indptr = np.nonzero(np.diff(np.concatenate([[-1], row, [3 * N]])))[0]
 
     return dF, col, indptr
+
+
+def F_eq(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv, Ndop):
+    
+    _pois = pois(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv, Ndop)
+    return np.concatenate((np.array([0.0]), _pois, np.array([0.0])))
+
+
+def F_eq_deriv(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
+    
+    N = phi.size
+    dpois_phi_, dpois_phi__, dpois_phi___ = pois_deriv_eq(
+        dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv)
+
+    row = np.array([0])
+    col = np.array([0])
+    dFeq = np.array([1.0])
+
+    row = np.concatenate((row, np.arange(1, N - 1, 1)))
+    col = np.concatenate((col, np.arange(0, N - 2, 1)))
+    dFeq = np.concatenate((dFeq, dpois_phi_))
+
+    row = np.concatenate((row, np.arange(1, N - 1, 1)))
+    col = np.concatenate((col, np.arange(1, N - 1, 1)))
+    dFeq = np.concatenate((dFeq, dpois_phi__))
+
+    row = np.concatenate((row, np.arange(1, N - 1, 1)))
+    col = np.concatenate((col, np.arange(2, N, 1)))
+    dFeq = np.concatenate((dFeq, dpois_phi___))
+
+    row = np.concatenate((row, np.array([N - 1])))
+    col = np.concatenate((col, np.array([N - 1])))
+    dFeq = np.concatenate((dFeq, np.array([1.0])))
+
+    # remove zero elements
+    nonzero_idx = dFeq != 0
+    row, col, dFeq = row[nonzero_idx], col[nonzero_idx], dFeq[nonzero_idx]
+
+    # sort col elements
+    sortcol_idx = np.argsort(col, kind="stable")
+    row, col, dFeq = row[sortcol_idx], col[sortcol_idx], dFeq[sortcol_idx]
+
+    # sort row elements
+    sortrow_idx = np.argsort(row, kind="stable")
+    row, col, dFeq = row[sortrow_idx], col[sortrow_idx], dFeq[sortrow_idx]
+
+    # create "indptr" for csr format. "data" is "dFeq", "indices" is "col"
+    indptr = np.nonzero(np.diff(np.concatenate([np.array([-1]), row, np.array([N])])))[0]
+    
+    return dFeq, col, indptr

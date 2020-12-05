@@ -1,20 +1,12 @@
+import jax.numpy as np
+
 # Air Mass 1.5 global spectrum on a horizontal plane ( Hulstrom, Bird and Riordan, Solar Cells, vol 15, 365-391 (1985) )
 # the initial data for the incident power sums to 962.58 W/m2, here it is normalised to 1 sun = 1000 W/m2
 
 
-def sun():
-    """
-    Returns the sun spectrum and incident power.
-
-    Returns
-    -------
-        wavelength_sun : list , length = M
-            list of light wavelengths for the description of the sun spectrum (unit : nm)
-        power_sun      : list , length = M
-            list of incident power for every wavelength (unit : W/m2)
-
-    """
-    wavelength_sun = [
+def solar():
+    
+    wavelength_sun = np.array([
         305.0, 310.0, 315.0, 320.0, 325.0, 330.0, 335.0, 340.0, 345.0, 350.0,
         360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0, 450.0,
         460.0, 470.0, 480.0, 490.0, 500.0, 510.0, 520.0, 530.0, 540.0, 550.0,
@@ -28,9 +20,9 @@ def sun():
         2035.0, 2065.0, 2100.0, 2148.0, 2198.0, 2270.0, 2360.0, 2450.0, 2494.0,
         2537.0, 2941.0, 2973.0, 3005.0, 3056.0, 3132.0, 3156.0, 3204.0, 3245.0,
         3317.0, 3344.0, 3450.0, 3573.0, 3765.0, 4045.0
-    ]
+    ])
 
-    power_sun = [
+    power_sun = np.array([
         0.04800, 0.23238, 0.54450, 0.90135, 1.28742, 1.88289, 1.98457, 2.15306,
         2.22299, 3.65008, 5.34591, 6.54581, 7.08628, 7.57170, 9.95916,
         11.44670, 11.68187, 11.15997, 13.02812, 15.09041, 15.89996, 15.91177,
@@ -48,6 +40,6 @@ def sun():
         5.61576, 5.22307, 1.86556, 0.73717, 0.85958, 0.90637, 0.22564, 0.25458,
         0.24642, 0.29146, 0.54884, 0.17814, 0.26120, 0.52581, 0.38099, 1.36829,
         1.85006, 2.27700, 1.12998
-    ]
+    ])
 
     return wavelength_sun, power_sun

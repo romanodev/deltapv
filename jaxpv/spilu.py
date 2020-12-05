@@ -12,8 +12,9 @@ def spget(i, j, data, indices, indptr):
 
 def spdot(data, indices, indptr, x):
     n = len(indptr) - 1
-    onerow = lambda i: np.dot(data[indptr[i]:indptr[i + 1]], x[indices[indptr[
-        i]:indptr[i + 1]]])
+    def onerow(i):
+        return np.dot(data[indptr[i]:indptr[i + 1]],
+                      x[(indices[indptr[i]:indptr[i + 1]],)])
     vfunc = np.vectorize(onerow)
 
     return vfunc(np.arange(n))

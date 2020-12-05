@@ -1,7 +1,3 @@
-from .scales import *
-from .utils import *
-
-
 def Jn(dgrid, phi_n, phi, Chi, Nc, mn):
     """
     Computes the e- current.

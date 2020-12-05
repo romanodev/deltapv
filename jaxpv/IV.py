@@ -1,70 +1,27 @@
-from .initial_guess import *
-from .solve_eq import *
-from .solve import *
-from .utils import *
+from . import initial_guess
+from . import solve_eq
+from . import solve
+from . import scaling
+
+scale = scaling.scales()
 
 
-def calc_IV(dgrid, Vincrement, eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn, tp,
-            Br, Cn, Cp, Snl, Spl, Snr, Spr, G_used):
-    """
-    Compute the I-V curve.
-
-    Parameters
-    ----------
-        dgrid      : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        Vincrement : float
-            increment voltage for I-V curve
-        eps        : numpy array , shape = ( N )
-            relative dieclectric constant
-        Chi        : numpy array , shape = ( N )
-            electron affinity
-        Eg         : numpy array , shape = ( N )
-            band gap
-        Nc         : numpy array , shape = ( N )
-            e- density of states
-        Nv         : numpy array , shape = ( N )
-            hole density of states
-        Ndop       : numpy array , shape = ( N )
-            dopant density ( positive for donors , negative for acceptors )
-        mn         : numpy array , shape = ( N )
-            e- mobility
-        mp         : numpy array , shape = ( N )
-            hole mobility
-        Et         : numpy array , shape = ( N )
-            SHR trap state energy level
-        tn         : numpy array , shape = ( N )
-            SHR e- lifetime
-        tp         : numpy array , shape = ( N )
-            SHR hole lifetime
-        Br         : numpy array , shape = ( N )
-            radiative recombination coefficient
-        Cn         : numpy array , shape = ( N )
-            electron Auger coefficient
-        Cp         : numpy array , shape = ( N )
-            hole Auger coefficient
-        Snl        : float
-            e- surface recombination velocity at left boundary
-        Spl        : float
-            hole surface recombination velocity at left boundary
-        Snr        : float
-            e- surface recombination velocity at right boundary
-        Spr        : float
-            hole surface recombination velocity at right boundary
-        G_used     : numpy array , shape = ( N )
-            e-/hole pair generation rate density ( computed or user defined )
-
-    Returns
-    -------
-        numpy array , shape = ( L <= max_iter )
-            array of total currents, if length L < max_iter, current switched signs
-
-    """
-    scale = scales()
-    N = dgrid.size + 1
-
-    phi_ini = eq_init_phi(Chi, Eg, Nc, Nv, Ndop)
-    phi_eq = solve_eq(dgrid, phi_ini, eps, Chi, Eg, Nc, Nv, Ndop)
+def calc_IV(data, Vincrement):
+    dgrid = data["dgrid"]
+    Chi = data["Chi"]
+    Eg = data["Eg"]
+    Nc = data["Nc"]
+    Nv = data["Nv"]
+    Ndop = data["Ndop"]
+    
+    N = Chi.size
+    
+    phi_ini = initial_guess.eq_init_phi(Chi, Eg, Nc, Nv, Ndop)
+    
+    
+    
+    phi_eq = solve_eq(data, phi_ini)
+    
     neq_0 = Nc[0] * np.exp(Chi[0] + phi_eq[0])
     neq_L = Nc[-1] * np.exp(Chi[-1] + phi_eq[-1])
     peq_0 = Nv[0] * np.exp(-Chi[0] - Eg[0] - phi_eq[0])
@@ -101,7 +58,7 @@ def calc_IV(dgrid, Vincrement, eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn, tp,
 
         v = v + Vincrement
 
-        if os.environ['JAX'] == 'YES':
+        if os.environ.get("JAX") == 'YES':
             phis = ops.index_update(sol, -1, phi_eq[-1] + v)
         else:
             sol[-1] = phi_eq[-1] + v
@@ -203,7 +160,6 @@ def grad_IV(dgrid, Vincrement, eps, Chi, Eg, Nc, Nv, Ndop, mn, mp, Et, tn, tp,
             'G'    -> derivative with respect to G
 
     """
-    scale = scales()
     N = dgrid.size + 1
 
     phi_ini = eq_init_phi(Chi, Eg, Nc, Nv, Ndop)
