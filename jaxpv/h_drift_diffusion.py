@@ -5,19 +5,23 @@ from . import current
 
 
 def ddp(data, phi_n, phi_p, phi):
-    
-    R = SHR.comp_SHR(data, phi_n, phi_p, phi) + auger.comp_auger(data, phi_n, phi_p, phi)
+
+    R = SHR.comp_SHR(data, phi_n, phi_p, phi) + auger.comp_auger(
+        data, phi_n, phi_p, phi)
     Jp = current.Jp(data, phi_p, phi)
     ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
     return np.diff(Jp) / ave_dgrid + R[1:-1] - G[1:-1]
 
 
 def ddp_deriv(data, phi_n, phi_p, phi):
-    
-    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = SHR.comp_SHR_deriv(data, phi_n, phi_p, phi)
-    DR_rad_phin, DR_rad_phip, DR_rad_phi = radiative.comp_rad_deriv(data, phi_n, phi_p, phi)
-    DR_auger_phin, DR_auger_phip, DR_auger_phi = auger.comp_auger_deriv(data, phi_n, phi_p, phi)
-    
+
+    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = SHR.comp_SHR_deriv(
+        data, phi_n, phi_p, phi)
+    DR_rad_phin, DR_rad_phip, DR_rad_phi = radiative.comp_rad_deriv(
+        data, phi_n, phi_p, phi)
+    DR_auger_phin, DR_auger_phip, DR_auger_phi = auger.comp_auger_deriv(
+        data, phi_n, phi_p, phi)
+
     DR_phin = DR_SHR_phin + DR_rad_phin + DR_auger_phin
     DR_phip = DR_SHR_phip + DR_rad_phip + DR_auger_phip
     DR_phi = DR_SHR_phi + DR_rad_phi + DR_auger_phi

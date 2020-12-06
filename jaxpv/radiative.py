@@ -2,7 +2,7 @@ from . import physics
 
 
 def comp_rad(data, phi_n, phi_p, phi):
-    
+
     Br = data["Br"]
     ni = physics.ni(data)
     n = physics.n(data, phi_n, phi)
@@ -11,7 +11,7 @@ def comp_rad(data, phi_n, phi_p, phi):
 
 
 def comp_rad_deriv(data, phi_n, phi_p, phi):
-    
+
     Br = data["Br"]
     n = physics.n(data, phi_n, phi)
     p = physics.p(data, phi_p, phi)

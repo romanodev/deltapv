@@ -2,7 +2,7 @@ from . import physics
 
 
 def comp_auger(data, phi_n, phi_p, phi):
-    
+
     Cn = data["Cn"]
     Cp = data["Cp"]
     ni = physics.ni(data)
@@ -12,7 +12,7 @@ def comp_auger(data, phi_n, phi_p, phi):
 
 
 def comp_auger_deriv(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Cn, Cp):
-    
+
     Cn = data["Cn"]
     Cp = data["Cp"]
     ni = physics.ni(data)

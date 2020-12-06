@@ -1,5 +1,5 @@
 def Jn(data, phi_n, phi):
-    
+
     dgrid = data["dgrid"]
     Chi = data["Chi"]
     Nc = data["Nc"]
@@ -22,7 +22,7 @@ def Jn(data, phi_n, phi):
 
 
 def Jn_deriv(data, phi_n, phi):
-    
+
     dgrid = data["dgrid"]
     Chi = data["Chi"]
     Nc = data["Nc"]
@@ -73,7 +73,7 @@ def Jn_deriv(data, phi_n, phi):
 
 
 def Jp(data, phi_p, phi):
-    
+
     dgrid = data["dgrid"]
     Chi = data["Chi"]
     Eg = data["Eg"]
@@ -97,7 +97,7 @@ def Jp(data, phi_p, phi):
 
 
 def Jp_deriv(data, phi_p, phi):
-    
+
     dgrid = data["dgrid"]
     Chi = data["Chi"]
     Eg = data["Eg"]
@@ -151,7 +151,7 @@ def Jp_deriv(data, phi_p, phi):
 
 
 def total_current(data, phi_n, phi_p, phi):
-    
+
     dgrid = data["dgrid"]
     Chi = data["Chi"]
     Eg = data["Eg"]

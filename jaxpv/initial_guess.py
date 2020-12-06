@@ -4,13 +4,13 @@ import jax.numpy as np
 
 
 def eq_init_phi(data):
-    
+
     Chi = data["Chi"]
     Eg = data["Eg"]
     Nc = data["Nc"]
     Nv = data["Nv"]
     Ndop = data["Ndop"]
-    
+
     if Ndop[0] > 0:
         phi_ini_left = -Chi[0] + np.log(Ndop[0] / Nc[0])
     else:
@@ -19,18 +19,18 @@ def eq_init_phi(data):
         phi_ini_right = -Chi[-1] + np.log(Ndop[-1] / Nc[-1])
     else:
         phi_ini_right = -Chi[-1] - Eg[-1] - np.log(-Ndop[-1] / Nv[-1])
-        
+
     return np.linspace(phi_ini_left, phi_ini_right, Chi.size)
 
 
 def eq_init_phi_deriv(data):
-    
+
     Chi = data["Chi"]
     Eg = data["Eg"]
     Nc = data["Nc"]
     Nv = data["Nv"]
     Ndop = data["Ndop"]
-    
+
     if Ndop[0] > 0:
         dphi_ini_left_dChi0 = -1
         dphi_ini_left_dEg0 = 0
@@ -57,7 +57,7 @@ def eq_init_phi_deriv(data):
         dphi_ini_right_dNvL = 1 / Nv[-1]
 
     N = Chi.size
-    
+
     dphi_ini_dChi0 = np.linspace(dphi_ini_left_dChi0, 0, N)
     dphi_ini_dEg0 = np.linspace(dphi_ini_left_dEg0, 0, N)
     dphi_ini_dNc0 = np.linspace(dphi_ini_left_dNc0, 0, N)

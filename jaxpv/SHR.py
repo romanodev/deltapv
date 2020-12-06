@@ -2,7 +2,7 @@ from . import physics
 
 
 def comp_SHR(data, phi_n, phi_p, phi):
-    
+
     Et = data["Et"]
     tp = data["tp"]
     tn = data["tn"]
@@ -15,7 +15,7 @@ def comp_SHR(data, phi_n, phi_p, phi):
 
 
 def comp_SHR_deriv(data, phi_n, phi_p, phi):
-    
+
     Et = data["Et"]
     tp = data["tp"]
     tn = data["tn"]
