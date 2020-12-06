@@ -1,127 +1,23 @@
-from .SHR import *
-from .auger import *
-from .radiative import *
-from .current import *
+from . import SHR
+from . import auger
+from . import radiative
+from . import current
 
 
-def ddp(dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mp, Et, tn, tp, Br, Cn, Cp,
-        G):
-    """
-    Computes the left side term of the drift-diffusion equation for holes.
-
-    Parameters
-    ----------
-        dgrid       : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        phi_n    : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi_p    : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi      : numpy array , shape = ( N )
-            electrostatic potential
-        Chi      : numpy array , shape = ( N )
-            electron affinity
-        Eg       : numpy array , shape = ( N )
-            band gap
-        Nc       : numpy array , shape = ( N )
-            e- density of states
-        Nv       : numpy array , shape = ( N )
-            hole density of states
-        mp       : numpy array , shape = ( N )
-            hole mobility
-        Et       : numpy array , shape = ( N )
-            SHR trap state energy level
-        tn       : numpy array , shape = ( N )
-            SHR e- lifetime
-        tp       : numpy array , shape = ( N )
-            SHR hole lifetime
-        Br       : numpy array , shape = ( N )
-            radiative recombination coefficient
-        Cn       : numpy array , shape = ( N )
-            electron Auger coefficient
-        Cp       : numpy array , shape = ( N )
-            hole Auger coefficient
-        G        : numpy array , shape = ( N )
-            e-/hole pair generation rate density
-
-    Returns
-    -------
-        numpy array , shape = ( N - 2 )
-            left side term of the drift-diffusion equation for holes
-
-    """
-    R = SHR(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Et, tn, tp) + rad(
-        phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Br) + auger(
-            phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Cn, Cp)
-    _Jp = Jp(dgrid, phi_p, phi, Chi, Eg, Nv, mp)
+def ddp(data, phi_n, phi_p, phi):
+    
+    R = SHR.comp_SHR(data, phi_n, phi_p, phi) + auger.comp_auger(data, phi_n, phi_p, phi)
+    Jp = current.Jp(data, phi_p, phi)
     ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
-    return (_Jp[1:] - _Jp[:-1]) / ave_dgrid + R[1:-1] - G[1:-1]
+    return np.diff(Jp) / ave_dgrid + R[1:-1] - G[1:-1]
 
 
-def ddp_deriv(dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mp, Et, tn, tp, Br,
-              Cn, Cp, G):
-    """
-    Compute the derivatives of the drift-diffusion equation for holes with respect to the potentials.
-
-    Parameters
-    ----------
-        dgrid       : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        phi_n       : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi_p       : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi         : numpy array , shape = ( N )
-            electrostatic potential
-        Chi         : numpy array , shape = ( N )
-            electron affinity
-        Eg          : numpy array , shape = ( N )
-            band gap
-        Nc          : numpy array , shape = ( N )
-            e- density of states
-        Nv          : numpy array , shape = ( N )
-            hole density of states
-        mp          : numpy array , shape = ( N )
-            hole mobility
-        Et          : numpy array , shape = ( N )
-            SHR trap state energy level
-        tn          : numpy array , shape = ( N )
-            SHR e- lifetime
-        tp          : numpy array , shape = ( N )
-            SHR hole lifetime
-        Br          : numpy array , shape = ( N )
-            radiative recombination coefficient
-        Cn          : numpy array , shape = ( N )
-            electron Auger coefficient
-        Cp          : numpy array , shape = ( N )
-            hole Auger coefficient
-        G           : numpy array , shape = ( N )
-            e-/hole pair generation rate density
-
-    Returns
-    -------
-        ddp_phin__  : numpy array , shape = ( N - 2 )
-            derivative of drift-diffusion equation for holes at point i i w.r.t. phi_n[i]
-        ddp_phip_   : numpy array , shape = ( N - 2 )
-            derivative of drift-diffusion equation for holes at point i i w.r.t. phi_p[i-1]
-        ddp_phip__  : numpy array , shape = ( N - 2 )
-            derivative of drift-diffusion equation for holes at point i i w.r.t. phi_p[i]
-        ddp_phip___ : numpy array , shape = ( N - 2 )
-            derivative of drift-diffusion equation for holes at point i i w.r.t. phi_p[i+1]
-        ddp_phi_    : numpy array , shape = ( N - 2 )
-            derivative of drift-diffusion equation for holes at point i i w.r.t. phi[i-1]
-        ddp_phi__   : numpy array , shape = ( N - 2 )
-            derivative of drift-diffusion equation for holes at point i i w.r.t. phi[i]
-        ddp_phi___  : numpy array , shape = ( N - 2 )
-            derivative of drift-diffusion equation for holes at point i i w.r.t. phi[i+1]
-
-    """
-    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = SHR_deriv(phi_n, phi_p, phi, Chi,
-                                                     Eg, Nc, Nv, Et, tn, tp)
-    DR_rad_phin, DR_rad_phip, DR_rad_phi = rad_deriv(phi_n, phi_p, phi, Chi,
-                                                     Eg, Nc, Nv, Br)
-    DR_auger_phin, DR_auger_phip, DR_auger_phi = auger_deriv(
-        phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Cn, Cp)
+def ddp_deriv(data, phi_n, phi_p, phi):
+    
+    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = SHR.comp_SHR_deriv(data, phi_n, phi_p, phi)
+    DR_rad_phin, DR_rad_phip, DR_rad_phi = radiative.comp_rad_deriv(data, phi_n, phi_p, phi)
+    DR_auger_phin, DR_auger_phip, DR_auger_phi = auger.comp_auger_deriv(data, phi_n, phi_p, phi)
+    
     DR_phin = DR_SHR_phin + DR_rad_phin + DR_auger_phin
     DR_phip = DR_SHR_phip + DR_rad_phip + DR_auger_phip
     DR_phi = DR_SHR_phi + DR_rad_phi + DR_auger_phi

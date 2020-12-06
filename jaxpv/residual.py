@@ -1,46 +1,42 @@
-from . import e_drift_diffusion
-from . import h_drift_diffusion
+from . import e_drift_diffusion as edd
+from . import h_drift_diffusion as hdd
+from . import boundary_conditions as bc
 from . import poisson
-from . import boundary_conditions
+
+import jax.numpy as np
+from jax import ops
 
 
-def F(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg, Nc,
-      Nv, Ndop, mn, mp, Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr, G):
+def F(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
 
-    _ddn = ddn(dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mn, Et, tn, tp, Br,
-               Cn, Cp, G)
-    _ddp = ddp(dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mp, Et, tn, tp, Br,
-               Cn, Cp, G)
-    _pois = pois(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv, Ndop)
-    ctct_0_phin, ctct_L_phin = contact_phin(dgrid, neq_0, neq_L, phi_n, phi,
-                                            Chi, Nc, mn, Snl, Snr)
-    ctct_0_phip, ctct_L_phip = contact_phip(dgrid, peq_0, peq_L, phi_p, phi,
-                                            Chi, Eg, Nv, mp, Spl, Spr)
-
-    result = [ctct_0_phin, ctct_0_phip, 0.0]
-    for i in range(len(_pois)):
-        result.append(_ddn[i])
-        result.append(_ddp[i])
-        result.append(_pois[i])
-    result = result + [ctct_L_phin, ctct_L_phip, 0.0]
-    return np.array(result)
-
-
-def F_deriv(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg,
-            Nc, Nv, Ndop, mn, mp, Et, tn, tp, Br, Cn, Cp, Snl, Spl, Snr, Spr,
-            G):
+    ddn = edd.ddn(data, phi_n, phi_p, phi)
+    ddp = hdd.ddp(data, phi_n, phi_p, phi)
+    pois = poisson.pois(data, phi_n, phi_p, phi)
     
-    dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = ddn_deriv(
-        dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mn, Et, tn, tp, Br, Cn, Cp,
-        G)
-    ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___, ddp_phi_, ddp_phi__, ddp_phi___ = ddp_deriv(
-        dgrid, phi_n, phi_p, phi, Chi, Eg, Nc, Nv, mp, Et, tn, tp, Br, Cn, Cp,
-        G)
-    dpois_phi_, dpois_phi__, dpois_phi___, dpois_dphin__, dpois_dphip__ = pois_deriv(
-        dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv)
-    dctct_phin = contact_phin_deriv(dgrid, phi_n, phi, Chi, Nc, mn, Snl, Snr)
-    dctct_phip = contact_phip_deriv(dgrid, phi_p, phi, Chi, Eg, Nv, mp, Spl,
-                                    Spr)
+    ctct_0_phin, ctct_L_phin = bc.contact_phin(data, neq_0, neq_L, phi_n, phi)
+    ctct_0_phip, ctct_L_phip = bc.contact_phip(data, peq_0, peq_L, phi_p, phi)
+
+    lenF = 3 + 3 * len(pois) + 3
+    result = np.zeros(lenF, dtype=np.float64)
+    result = ops.index_update(result, ops.index[0:3], np.array([ctct_0_phin, ctct_0_phip, 0.0]))
+    result = ops.index_update(result, ops.index[3:lenF - 5:3], ddn)
+    result = ops.index_update(result, ops.index[4:lenF - 4:3], ddp)
+    result = ops.index_update(result, ops.index[5:lenF - 3:3], pois)
+    result = ops.index_update(result, ops.index[-3:], np.array([ctct_L_phin, ctct_L_phip, 0.0]))
+    
+    return result
+
+
+def F_deriv(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
+    
+    dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = edd.ddn_deriv(
+        data, phi_n, phi_p, phi)
+    ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___, ddp_phi_, ddp_phi__, ddp_phi___ = hdd.ddp_deriv(
+        data, phi_n, phi_p, phi)
+    dpois_phi_, dpois_phi__, dpois_phi___, dpois_dphin__, dpois_dphip__ = poisson.pois_deriv(
+        data, phi_n, phi_p, phi)
+    dctct_phin = bc.contact_phin_deriv(data, phi_n, phi)
+    dctct_phip = bc.contact_phip_deriv(data, phi_p, phi)
 
     N = phi.size
 
@@ -170,11 +166,11 @@ def F_deriv(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg,
     row, col, dF = row[nonzero_idx], col[nonzero_idx], dF[nonzero_idx]
 
     # sort col elements
-    sortcol_idx = np.argsort(col, kind="stable")
+    sortcol_idx = np.argsort(col) # NOTE: this has no stability guarantee!
     row, col, dF = row[sortcol_idx], col[sortcol_idx], dF[sortcol_idx]
 
     # sort row elements
-    sortrow_idx = np.argsort(row, kind="stable")
+    sortrow_idx = np.argsort(row) # NOTE: this has no stability guarantee!
     row, col, dF = row[sortrow_idx], col[sortrow_idx], dF[sortrow_idx]
 
     # create "indptr" for csr format. "data" is "dF", "indices" is "col"
@@ -183,17 +179,16 @@ def F_deriv(dgrid, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi, eps, Chi, Eg,
     return dF, col, indptr
 
 
-def F_eq(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv, Ndop):
+def F_eq(data, phi_n, phi_p, phi):
     
-    _pois = pois(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv, Ndop)
-    return np.concatenate((np.array([0.0]), _pois, np.array([0.0])))
+    pois = poisson.pois(data, phi_n, phi_p, phi)
+    return np.concatenate((np.array([0.]), pois, np.array([0.])))
 
 
-def F_eq_deriv(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
+def F_eq_deriv(data, phi_n, phi_p, phi):
     
     N = phi.size
-    dpois_phi_, dpois_phi__, dpois_phi___ = pois_deriv_eq(
-        dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv)
+    dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(data, phi_n, phi_p, phi)
 
     row = np.array([0])
     col = np.array([0])
@@ -220,11 +215,11 @@ def F_eq_deriv(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
     row, col, dFeq = row[nonzero_idx], col[nonzero_idx], dFeq[nonzero_idx]
 
     # sort col elements
-    sortcol_idx = np.argsort(col, kind="stable")
+    sortcol_idx = np.argsort(col) # NOTE: this has no stability guarantee!
     row, col, dFeq = row[sortcol_idx], col[sortcol_idx], dFeq[sortcol_idx]
 
     # sort row elements
-    sortrow_idx = np.argsort(row, kind="stable")
+    sortrow_idx = np.argsort(row)  # NOTE: this has no stability guarantee!
     row, col, dFeq = row[sortrow_idx], col[sortrow_idx], dFeq[sortrow_idx]
 
     # create "indptr" for csr format. "data" is "dFeq", "indices" is "col"

@@ -1,6 +1,8 @@
 from . import IV
 from . import scaling
 
+import jax.numpy as np
+
 scale = scaling.scales()
 
 
@@ -29,8 +31,8 @@ def compute_eff(data, Vincrement):
     current = IV.calc_IV(data, Vincrement)
     
     voltages = np.linspace(start=0,
-                           stop=len(current) * Vincrement,
-                           num=len(current))
+                           stop=(current.size - 1) * Vincrement,
+                           num=current.size)
     
     Pmax = np.max(scale['E'] * voltages * scale['J'] * current) * 1e4  # W/m2
     

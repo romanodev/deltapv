@@ -1,95 +1,30 @@
-from .physics import *
+from . import physics
+
+import jax.numpy as np
 
 
-def pois(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv, Ndop):
-    """
-    Computes the left side term of the Poisson equation.
-
-    This function computes the left side of the Poissson equation,
-    i.e. it returns the array : d/dx( eps d/dx phi ) - charge.
-
-    Parameters
-    ----------
-        dgrid : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        phi_n : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi_p : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi   : numpy array , shape = ( N )
-            electrostatic potential
-        eps   : numpy array , shape = ( N )
-            relative dieclectric constant
-        Chi   : numpy array , shape = ( N )
-            electron affinity
-        Eg    : numpy array , shape = ( N )
-            band gap
-        Nc    : numpy array , shape = ( N )
-            e- density of states
-        Nv    : numpy array , shape = ( N )
-            hole density of states
-        Ndop  : numpy array , shape = ( N - 2 )
-            dopant density ( positive for donors , negative for acceptors )
-
-    Returns
-    -------
-        numpy array , shape = ( N - 2 )
-            d/dx( eps d/dx ( phi ) ) - charge
-
-    """
+def pois(data, phi_n, phi_p, phi):
+    
+    dgrid = data["dgrid"]
+    eps = data["eps"]
     ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
     ave_eps = 0.5 * (eps[1:] + eps[:-1])
-    pois = (ave_eps[:-1] * (phi[1:-1] - phi[:-2]) / dgrid[:-1] - ave_eps[1:] *
-            (phi[2:] - phi[1:-1]) / dgrid[1:]) / ave_dgrid - charge(
-                phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Ndop)[1:-1]
+    pois = (ave_eps[:-1] * np.diff(phi)[:-1] / dgrid[:-1] - ave_eps[1:] *
+            np.diff(phi)[1:] / dgrid[1:]) / ave_dgrid - physics.charge(
+                data, phi_n, phi_p, phi)[1:-1]
     return pois
 
 
-def pois_deriv_eq(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
-    """
-    Computes the derivatives of the left side term of the Poisson equation at equilibirum.
-
-    This function computes the Jacobian matrix of the left side of the Poissson equation,
-    with respect to the electrostatic potential at equilibrium.
-    It returns only the non-zero values of the matrix.
-
-    Parameters
-    ----------
-        dgrid : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        phi_n : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi_p : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi   : numpy array , shape = ( N )
-            electrostatic potential
-        eps   : numpy array , shape = ( N )
-            relative dieclectric constant
-        Chi   : numpy array , shape = ( N )
-            electron affinity
-        Eg    : numpy array , shape = ( N )
-            band gap
-        Nc    : numpy array , shape = ( N )
-            e- density of states
-        Nv    : numpy array , shape = ( N )
-            hole density of states
-
-    Returns
-    -------
-        dpois_phi_ : numpy array , shape = ( N - 2 )
-            derivative of the i-th Poisson term with respect to phi[i-1]
-        dpois_phi__ : numpy array , shape = ( N - 2 )
-            derivative of the i-th Poisson term with respect to phi[i]
-        dpois_phi___ : numpy array , shape = ( N - 2 )
-            derivative of the i-th Poisson term with respect to phi[i+1]
-
-    """
+def pois_deriv_eq(data, phi_n, phi_p, phi):
+    
+    dgrid = data["dgrid"]
+    eps = data["eps"]
     ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
     ave_eps = 0.5 * (eps[1:] + eps[:-1])
-    _n = n(phi_n, phi, Chi, Nc)
-    _p = p(phi_p, phi, Chi, Eg, Nv)
+    n = physics.n(data, phi_n, phi)
+    p = physics.p(data, phi_p, phi)
 
-    dchg_phi = -_n - _p
+    dchg_phi = -n - p
 
     dpois_phi_ = -ave_eps[:-1] / dgrid[:-1] / ave_dgrid
     dpois_phi__ = (ave_eps[:-1] / dgrid[:-1] +
@@ -99,57 +34,18 @@ def pois_deriv_eq(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
     return dpois_phi_, dpois_phi__, dpois_phi___
 
 
-def pois_deriv(dgrid, phi_n, phi_p, phi, eps, Chi, Eg, Nc, Nv):
-    """
-    Computes the derivatives of the left side term of the Poisson equation.
-
-    This function computes the Jacobian matrix of the left side of the Poissson equation,
-    with respect to the potentials (i.e. e- and hole quasi-Fermi energy and electrostatic potential).
-    It returns only the non-zero values of the matrix.
-
-    Parameters
-    ----------
-        phi_n : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi_p : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi   : numpy array , shape = ( N )
-            electrostatic potential
-        dgrid : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        eps   : numpy array , shape = ( N )
-            relative dieclectric constant
-        Chi   : numpy array , shape = ( N )
-            electron affinity
-        Eg    : numpy array , shape = ( N )
-            band gap
-        Nc    : numpy array , shape = ( N )
-            e- density of states
-        Nv    : numpy array , shape = ( N )
-            hole density of states
-
-    Returns
-    -------
-        dpois_phi_ : numpy array , shape = ( N - 2 )
-            derivative of the i-th Poisson term with respect to phi[i-1]
-        dpois_phi__ : numpy array , shape = ( N - 2 )
-            derivative of the i-th Poisson term with respect to phi[i]
-        dpois_phi___ : numpy array , shape = ( N - 2 )
-            derivative of the i-th Poisson term with respect to phi[i+1]
-        dpois_dphin__ : numpy array , shape = ( N - 2 )
-            derivative of the i-th Poisson term with respect to phi_n[i]
-        dpois_dphip__ : numpy array , shape = ( N - 2 )
-            derivative of the i-th Poisson term with respect to phi_p[i]
-
-    """
+def pois_deriv(data, phi_n, phi_p, phi):
+    
+    dgrid = data["dgrid"]
+    eps = data["eps"]
     ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
     ave_eps = 0.5 * (eps[1:] + eps[:-1])
-    _n = n(phi_n, phi, Chi, Nc)
-    _p = p(phi_p, phi, Chi, Eg, Nv)
+    n = physics.n(data, phi_n, phi)
+    p = physics.p(data, phi_p, phi)
 
-    dchg_phi_n = -_n
-    dchg_phi_p = -_p
-    dchg_phi = -_n - _p
+    dchg_phi_n = -n
+    dchg_phi_p = -p
+    dchg_phi = -n - p
 
     dpois_phi_ = -ave_eps[:-1] / dgrid[:-1] / ave_dgrid
     dpois_phi__ = (ave_eps[:-1] / dgrid[:-1] +

@@ -1,5 +1,7 @@
 from . import physics
 
+import jax.numpy as np
+
 
 def eq_init_phi(data):
     
@@ -67,6 +69,4 @@ def eq_init_phi_deriv(data):
     dphi_ini_dNvL = np.linspace(0, dphi_ini_right_dNvL, N)
     dphi_ini_dNdopL = np.linspace(0, dphi_ini_right_dNdopL, N)
 
-    return dphi_ini_dChi0, dphi_ini_dEg0, dphi_ini_dNc0, dphi_ini_dNv0,
-           dphi_ini_dNdop0, dphi_ini_dChiL, dphi_ini_dEgL, dphi_ini_dNcL,
-           dphi_ini_dNvL, dphi_ini_dNdopL
+    return dphi_ini_dChi0, dphi_ini_dEg0, dphi_ini_dNc0, dphi_ini_dNv0, dphi_ini_dNdop0, dphi_ini_dChiL, dphi_ini_dEgL, dphi_ini_dNcL, dphi_ini_dNvL, dphi_ini_dNdopL
