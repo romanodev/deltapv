@@ -1,5 +1,7 @@
 from . import physics
 
+import jax.numpy as np
+
 
 def comp_rad(data, phi_n, phi_p, phi):
 

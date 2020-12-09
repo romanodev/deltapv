@@ -2,6 +2,8 @@ from . import initial_guess
 from . import solver
 from . import scaling
 
+import jax.numpy as np
+
 scale = scaling.scales()
 
 
@@ -16,7 +18,6 @@ def calc_IV(data, Vincrement):
     N = Chi.size
 
     phi_ini = initial_guess.eq_init_phi(data)
-    print(f"\nSolving equilibrium...")
     phi_eq = solver.solve_eq(data, phi_ini)
 
     neq_0 = Nc[0] * np.exp(Chi[0] + phi_eq[0])
@@ -32,8 +33,6 @@ def calc_IV(data, Vincrement):
     terminate = False
 
     while not terminate and niter < max_iter:
-
-        print(f"\nSolving...")
 
         sol = solver.solve(data, neq_0, neq_L, peq_0, peq_L, phis)
         tot_current, _ = current.total_current(data, sol[0:N], sol[N:2 * N],

@@ -11,7 +11,7 @@ def comp_auger(data, phi_n, phi_p, phi):
     return (Cn * n + Cp * p) * (n * p - ni**2)
 
 
-def comp_auger_deriv(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Cn, Cp):
+def comp_auger_deriv(data, phi_n, phi_p, phi):
 
     Cn = data["Cn"]
     Cp = data["Cp"]

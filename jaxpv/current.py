@@ -1,3 +1,6 @@
+import jax.numpy as np
+
+
 def Jn(data, phi_n, phi):
 
     dgrid = data["dgrid"]

@@ -3,9 +3,13 @@ from . import auger
 from . import radiative
 from . import current
 
+import jax.numpy as np
+
 
 def ddp(data, phi_n, phi_p, phi):
 
+    dgrid = data["dgrid"]
+    G = data["G"]
     R = SHR.comp_SHR(data, phi_n, phi_p, phi) + auger.comp_auger(
         data, phi_n, phi_p, phi)
     Jp = current.Jp(data, phi_p, phi)
@@ -15,6 +19,8 @@ def ddp(data, phi_n, phi_p, phi):
 
 def ddp_deriv(data, phi_n, phi_p, phi):
 
+    dgrid = data["dgrid"]
+    G = data["G"]
     DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = SHR.comp_SHR_deriv(
         data, phi_n, phi_p, phi)
     DR_rad_phin, DR_rad_phip, DR_rad_phi = radiative.comp_rad_deriv(
@@ -26,8 +32,7 @@ def ddp_deriv(data, phi_n, phi_p, phi):
     DR_phip = DR_SHR_phip + DR_rad_phip + DR_auger_phip
     DR_phi = DR_SHR_phi + DR_rad_phi + DR_auger_phi
 
-    dJp_phip_maindiag, dJp_phip_upperdiag, dJp_phi_maindiag, dJp_phi_upperdiag = Jp_deriv(
-        dgrid, phi_p, phi, Chi, Eg, Nv, mp)
+    dJp_phip_maindiag, dJp_phip_upperdiag, dJp_phi_maindiag, dJp_phi_upperdiag = current.Jp_deriv(data, phi_p, phi)
 
     ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
 

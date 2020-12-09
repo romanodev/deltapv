@@ -96,3 +96,5 @@ def dense(values, indices, indptr):
         matrix = ops.index_update(
             matrix, ops.index[i, indices[indptr[i]:indptr[i + 1]]],
             values[indptr[i]:indptr[i + 1]])
+    
+    return matrix

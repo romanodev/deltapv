@@ -19,8 +19,6 @@ def damp(move):
 
 def step(data, neq0, neqL, peq0, peqL, phis):
 
-    print("\tTaking Newton step...")
-
     dgrid = data["dgrid"]
     N = dgrid.size + 1
 
@@ -30,10 +28,14 @@ def step(data, neq0, neqL, peq0, peqL, phis):
                                                phis[0:N], phis[N:2 * N],
                                                phis[2 * N:])
 
-    gradF_jvp = lambda x: splinalg.spdot(values, indices, indptr, x)
-    precond_jvp = splinalg.spilu(values, indices, indptr)
+    # gradF_jvp = lambda x: splinalg.spdot(values, indices, indptr, x)
+    # precond_jvp = splinalg.spilu(values, indices, indptr)
 
-    move, conv_info = gmres(gradF_jvp, -F, tol=1e-10, maxiter=5, M=precond_jvp)
+    # move, conv_info = gmres(gradF_jvp, -F, tol=1e-10, maxiter=5, M=precond_jvp)
+    
+    jacobian = splinalg.dense(values, indices, indptr)
+    move = np.linalg.solve(jacobian, -F)
+    
     error = np.linalg.norm(move)
     damp_move = damp(move)
 
@@ -45,6 +47,7 @@ def step(data, neq0, neqL, peq0, peqL, phis):
 
 def solve(data, neq0, neqL, peq0, peqL, phis_ini):
 
+    print("Solving...")
     dgrid = data["dgrid"]
     N = dgrid.size + 1
 
@@ -56,13 +59,12 @@ def solve(data, neq0, neqL, peq0, peqL, phis_ini):
 
         phis, error = step(data, neq0, neqL, peq0, peqL, phis)
         niter += 1
+        print(f"\t iteration: {niter}    error: {error}")
 
     return phis
 
 
 def step_eq(data, phi):
-
-    print("\tTaking Newton step...")
 
     dgrid = data["dgrid"]
     N = dgrid.size + 1
@@ -71,16 +73,16 @@ def step_eq(data, phi):
     values, indices, indptr = residual.F_eq_deriv(data, np.zeros(phi.size),
                                                   np.zeros(phi.size), phi)
 
-    gradFeq_jvp = lambda x: splinalg.spdot(values, indices, indptr, x)
-    precond_jvp = splinalg.spilu(values, indices, indptr)
-    move, conv_info = gmres(gradFeq_jvp,
-                            -Feq,
-                            tol=1e-10,
-                            maxiter=5,
-                            M=precond_jvp)
+    # gradFeq_jvp = lambda x: splinalg.spdot(values, indices, indptr, x)
+    # precond_jvp = splinalg.spilu(values, indices, indptr)
+    # move, conv_info = gmres(gradFeq_jvp,
+    #                         -Feq,
+    #                         tol=1e-10,
+    #                         maxiter=5,
+    #                         M=precond_jvp)
 
-    # jacobian = splinalg.dense(values, indices, indptr)
-    # move = np.linalg.solve(jacobian, -Feq)
+    jacobian = splinalg.dense(values, indices, indptr)
+    move = np.linalg.solve(jacobian, -Feq)
 
     error = np.linalg.norm(move)
     damp_move = damp(move)
@@ -89,7 +91,8 @@ def step_eq(data, phi):
 
 
 def solve_eq(data, phi_ini):
-
+    
+    print("Solving equilibrium...")
     dgrid = data["dgrid"]
     N = dgrid.size + 1
 
@@ -101,5 +104,6 @@ def solve_eq(data, phi_ini):
 
         phi, error = step_eq(data, phi)
         niter += 1
+        print(f"\t iteration: {niter}    error: {error}")
 
     return phi

@@ -3,13 +3,15 @@ from . import auger
 from . import radiative
 from . import current
 
+import jax.numpy as np
+
 
 def ddn(data, phi_n, phi_p, phi):
 
     dgrid = data["dgrid"]
     G = data["G"]
     R = SHR.comp_SHR(data, phi_n, phi_p, phi) \
-        + radiative.comp_radiative(data, phi_n, phi_p, phi) \
+        + radiative.comp_rad(data, phi_n, phi_p, phi) \
         + auger.comp_auger(data, phi_n, phi_p, phi)
 
     Jn = current.Jn(data, phi_n, phi)
@@ -21,6 +23,8 @@ def ddn(data, phi_n, phi_p, phi):
 
 def ddn_deriv(data, phi_n, phi_p, phi):
 
+    dgrid = data["dgrid"]
+    G = data["G"]
     DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = SHR.comp_SHR_deriv(
         data, phi_n, phi_p, phi)
     DR_rad_phin, DR_rad_phip, DR_rad_phi = radiative.comp_rad_deriv(
