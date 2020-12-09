@@ -16,7 +16,7 @@ def pois(data, phi_n, phi_p, phi):
 
 
 def pois_deriv_eq(data, phi_n, phi_p, phi):
-    
+
     dgrid = data["dgrid"]
     eps = data["eps"]
     ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.

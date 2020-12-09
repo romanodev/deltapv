@@ -178,7 +178,9 @@ def F_deriv(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
     row, col, dF = row[sortrow_idx], col[sortrow_idx], dF[sortrow_idx]
 
     # create "indptr" for csr format. "data" is "dF", "indices" is "col"
-    indptr = np.nonzero(np.diff(np.concatenate([np.array([-1]), row, np.array([3 * N])])))[0]
+    indptr = np.nonzero(
+        np.diff(np.concatenate([np.array([-1]), row,
+                                np.array([3 * N])])))[0]
 
     return dF, col, indptr
 
@@ -193,7 +195,7 @@ def F_eq_deriv(data, phi_n, phi_p, phi):
 
     N = phi.size
     dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(
-        data, phi_n, phi_p, phi) # dpois_phi__ is around 1e35 times too large
+        data, phi_n, phi_p, phi)  # dpois_phi__ is around 1e35 times too large
 
     row = np.array([0])
     col = np.array([0])
@@ -231,5 +233,5 @@ def F_eq_deriv(data, phi_n, phi_p, phi):
     indptr = np.nonzero(
         np.diff(np.concatenate([np.array([-1]), row,
                                 np.array([N])])))[0]
-    
+
     return dFeq, col, indptr

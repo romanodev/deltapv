@@ -1,8 +1,10 @@
 from . import initial_guess
 from . import solver
 from . import scaling
+from . import current
 
 import jax.numpy as np
+from jax import ops
 
 scale = scaling.scales()
 
@@ -26,7 +28,7 @@ def calc_IV(data, Vincrement):
     peq_L = Nv[-1] * np.exp(-Chi[-1] - Eg[-1] - phi_eq[-1])
     phis = np.concatenate([np.zeros(2 * N), phi_eq], axis=0)
 
-    current = np.array([], dtype=np.float64)
+    jcurve = np.array([], dtype=np.float64)
     max_iter = 100
     niter = 0
     v = 0
@@ -34,17 +36,19 @@ def calc_IV(data, Vincrement):
 
     while not terminate and niter < max_iter:
 
+        scaled_V = v * scale["E"]
+        print(f"Solving for V = {scaled_V}")
         sol = solver.solve(data, neq_0, neq_L, peq_0, peq_L, phis)
-        tot_current, _ = current.total_current(data, sol[0:N], sol[N:2 * N],
-                                               sol[2 * N:])
+        total_j, _ = current.total_current(data, sol[0:N], sol[N:2 * N],
+                                           sol[2 * N:])
 
-        current = np.concatenate([current, tot_current])
+        jcurve = np.concatenate([jcurve, np.array([total_j])])
 
         v = v + Vincrement
         phis = ops.index_update(sol, -1, phi_eq[-1] + v)
         niter += 1
 
-        if current.size > 2:
-            terminate = (current[-2] * current[-1] <= 0)
+        if jcurve.size > 2:
+            terminate = (jcurve[-2] * jcurve[-1] <= 0)
 
-    return current
+    return jcurve

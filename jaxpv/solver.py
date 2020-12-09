@@ -32,10 +32,10 @@ def step(data, neq0, neqL, peq0, peqL, phis):
     # precond_jvp = splinalg.spilu(values, indices, indptr)
 
     # move, conv_info = gmres(gradF_jvp, -F, tol=1e-10, maxiter=5, M=precond_jvp)
-    
+
     jacobian = splinalg.dense(values, indices, indptr)
     move = np.linalg.solve(jacobian, -F)
-    
+
     error = np.linalg.norm(move)
     damp_move = damp(move)
 
@@ -47,7 +47,6 @@ def step(data, neq0, neqL, peq0, peqL, phis):
 
 def solve(data, neq0, neqL, peq0, peqL, phis_ini):
 
-    print("Solving...")
     dgrid = data["dgrid"]
     N = dgrid.size + 1
 
@@ -91,7 +90,7 @@ def step_eq(data, phi):
 
 
 def solve_eq(data, phi_ini):
-    
+
     print("Solving equilibrium...")
     dgrid = data["dgrid"]
     N = dgrid.size + 1

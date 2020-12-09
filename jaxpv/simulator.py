@@ -5,6 +5,7 @@ from . import sun
 from . import initial_guess
 from . import IV
 
+import matplotlib.pyplot as plt
 import jax.numpy as np
 from jax import ops
 
@@ -71,9 +72,9 @@ class JAXPV(object):
 
     def single_pn_junction(self, Nleft, Nright, junction_position):
 
-        self.data["Ndop"] = np.where(self.data["grid"] < junction_position,
-                                     Nleft * self.vparams["Ndop"],
-                                     Nright * self.vparams["Ndop"])
+        self.data["Ndop"] = np.where(
+            self.data["grid"] < junction_position / self.gparams["grid"],
+            Nleft / self.vparams["Ndop"], Nright / self.vparams["Ndop"])
 
     def doping_profile(self, doping, subgrid):
 
@@ -115,7 +116,7 @@ class JAXPV(object):
 
         self.opt = kind
         if kind == "user":
-            self.data["G"] = np.float64(G * self.vparams["G"])
+            self.data["G"] = np.float64(G / self.vparams["G"])
 
     def efficiency(self):
 

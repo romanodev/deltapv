@@ -32,7 +32,8 @@ def ddp_deriv(data, phi_n, phi_p, phi):
     DR_phip = DR_SHR_phip + DR_rad_phip + DR_auger_phip
     DR_phi = DR_SHR_phi + DR_rad_phi + DR_auger_phi
 
-    dJp_phip_maindiag, dJp_phip_upperdiag, dJp_phi_maindiag, dJp_phi_upperdiag = current.Jp_deriv(data, phi_p, phi)
+    dJp_phip_maindiag, dJp_phip_upperdiag, dJp_phi_maindiag, dJp_phi_upperdiag = current.Jp_deriv(
+        data, phi_p, phi)
 
     ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
 
