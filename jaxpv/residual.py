@@ -193,7 +193,7 @@ def F_eq_deriv(data, phi_n, phi_p, phi):
 
     N = phi.size
     dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(
-        data, phi_n, phi_p, phi)
+        data, phi_n, phi_p, phi) # dpois_phi__ is around 1e35 times too large
 
     row = np.array([0])
     col = np.array([0])

@@ -16,11 +16,11 @@ def pois(data, phi_n, phi_p, phi):
 
 
 def pois_deriv_eq(data, phi_n, phi_p, phi):
-
+    
     dgrid = data["dgrid"]
     eps = data["eps"]
-    ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.0
-    ave_eps = 0.5 * (eps[1:] + eps[:-1])
+    ave_dgrid = (dgrid[:-1] + dgrid[1:]) / 2.
+    ave_eps = (eps[1:] + eps[:-1]) / 2.
     n = physics.n(data, phi_n, phi)
     p = physics.p(data, phi_p, phi)
 
