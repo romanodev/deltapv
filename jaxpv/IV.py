@@ -1,12 +1,10 @@
 from . import initial_guess
 from . import solver
-from . import scaling
+from . import scales
 from . import current
 
 import jax.numpy as np
 from jax import ops
-
-scale = scaling.scales()
 
 
 def calc_IV(data, Vincrement):
@@ -36,7 +34,7 @@ def calc_IV(data, Vincrement):
 
     while not terminate and niter < max_iter:
 
-        scaled_V = v * scale["E"]
+        scaled_V = v * scales.E
         print(f"Solving for V = {scaled_V}")
         sol = solver.solve(data, neq_0, neq_L, peq_0, peq_L, phis)
         total_j, _ = current.total_current(data, sol[0:N], sol[N:2 * N],

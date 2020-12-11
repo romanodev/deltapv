@@ -1,12 +1,10 @@
-from . import scaling
+from . import scales
 from . import physics
 
 import jax.numpy as np
 from jax import vmap
 import scipy.constants as const
 from functools import partial
-
-scale = scaling.scales()
 
 
 def photonflux(data):
@@ -71,7 +69,7 @@ def compute_G(data):
     
     tot_generation = np.sum(all_generations, axis=0)
 
-    return tot_generation / scale['U']
+    return tot_generation / scales.U
 
 
 def deriv_G(data):
@@ -90,6 +88,6 @@ def deriv_G(data):
         dG_dEg = -G_at_lambda * np.cumsum(dalpha_dEg, dgrid)
         dG_dA = -G_at_lambda * np.cumsum(dalpha_dA, dgrid)
 
-    G /= scale['U']
+    G /= scales.U
 
-    return dG_dEg / scale['U'], dG_dA / scale['U']
+    return dG_dEg / scales.U, dG_dA / scales.U

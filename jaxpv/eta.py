@@ -1,9 +1,5 @@
 from . import IV
-from . import scaling
-
-import jax.numpy as np
-
-scale = scaling.scales()
+from . import scales
 
 
 def Vincrement(data, num_vals=50):
@@ -35,7 +31,7 @@ def comp_eff(data, Vincrement):
                            stop=(current.size - 1) * Vincrement,
                            num=current.size)
 
-    Pmax = np.max(scale['E'] * voltages * scale['J'] * current) * 1e4  # W/m2
+    Pmax = np.max(scales.E * voltages * scales.J * current) * 1e4  # W/m2
 
     eff = Pmax / 1e3  # P_in is normalized: np.sum( P_in ) = 1000 W/m2 = 1 sun
 

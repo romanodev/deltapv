@@ -1,4 +1,4 @@
-from . import scaling
+from . import scales
 from . import eta
 from . import optical
 from . import sun
@@ -9,36 +9,34 @@ import matplotlib.pyplot as plt
 import jax.numpy as np
 from jax import ops, lax
 
-scale = scaling.scales()
-
 
 class JAXPV(object):
     def __init__(self, grid):
 
-        self.gparams = {"grid": scale["d"], "dgrid": scale["d"]}
+        self.gparams = {"grid": scales.d, "dgrid": scales.d}
         self.vparams = {
             "eps": 1,
-            "Chi": scale["E"],
-            "Eg": scale["E"],
-            "Nc": scale["n"],
-            "Nv": scale["n"],
-            "mn": scale["m"],
-            "mp": scale["m"],
-            "Ndop": scale["n"],
-            "Et": scale["E"],
-            "tn": scale["t"],
-            "tp": scale["t"],
-            "Br": 1 / (scale["t"] * scale["n"]),
-            "Cn": 1 / (scale["t"] * scale["n"]**2),
-            "Cp": 1 / (scale["t"] * scale["n"]**2),
-            "A": scale["d"],
-            "G": scale["U"]
+            "Chi": scales.E,
+            "Eg": scales.E,
+            "Nc": scales.n,
+            "Nv": scales.n,
+            "mn": scales.m,
+            "mp": scales.m,
+            "Ndop": scales.n,
+            "Et": scales.E,
+            "tn": scales.t,
+            "tp": scales.t,
+            "Br": 1 / (scales.t * scales.n),
+            "Cn": 1 / (scales.t * scales.n**2),
+            "Cp": 1 / (scales.t * scales.n**2),
+            "A": scales.d,
+            "G": scales.U
         }
         self.sparams = {
-            "Snl": scale["v"],
-            "Snr": scale["v"],
-            "Spl": scale["v"],
-            "Spr": scale["v"]
+            "Snl": scales.v,
+            "Snr": scales.v,
+            "Spl": scales.v,
+            "Spr": scales.v
         }
         self.oparams = {"Lambda": 1, "P_in": 1}
         self.opt = "user"
@@ -85,9 +83,8 @@ class JAXPV(object):
     def incident_light(self, kind="sun", Lambda=None, P_in=None):
 
         if kind == "sun":
-            Lambda_sun, P_in_sun = sun.solar()
-            self.data["Lambda"] = Lambda_sun
-            self.data["P_in"] = P_in_sun
+            self.data["Lambda"] = sun.wavelength
+            self.data["P_in"] = sun.power
 
         elif kind == "white":
             if Lambda is None:
@@ -141,9 +138,9 @@ def IV_curve(data, opt):
                          lambda data: optical.compute_G(data),
                          data)
 
-    current = scale["J"] * IV.calc_IV(data, Vincr)
+    current = scales.J * IV.calc_IV(data, Vincr)
 
-    voltages = scale["E"] * np.linspace(
+    voltages = scales.E * np.linspace(
         start=0, stop=(current.size - 1) * Vincr, num=current.size)
 
     return voltages, current
@@ -165,10 +162,10 @@ def solve_equilibrium(data):
     result = {}
     result["phi_n"] = np.zeros(N, dtype=np.float64)
     result["phi_p"] = np.zeros(N, dtype=np.float64)
-    result["phi"] = scale["E"] * phi_eq
-    result["n"] = scale["n"] * physics.n(self.data, np.zeros(N),
+    result["phi"] = scales.E * phi_eq
+    result["n"] = scales.n * physics.n(self.data, np.zeros(N),
                                          phi_eq)
-    result["p"] = scale["n"] * physics.p(self.data, np.zeros(N),
+    result["p"] = scales.n * physics.p(self.data, np.zeros(N),
                                          phi_eq)
     result["Jn"] = np.zeros(N - 1, dtype=np.float64)
     result["Jp"] = np.zeros(N - 1, dtype=np.float64)
@@ -190,7 +187,7 @@ def solve_bias(data, V):
 
     N = data["grid"].size
     result = {}
-    V_dim = V / scale["E"]
+    V_dim = V / scales.E
     num_steps = V_dim // Vincr
 
     phis = np.concatenate((np.zeros(2 * N), phi_eq), axis=0)
@@ -212,16 +209,16 @@ def solve_bias(data, V):
         sol = solver.solve(self.data, neq_0, neq_L, peq_0, peq_L, phis)
         phis = ops.index_update(sol, ops.index[-1], phi_eq[-1] + v)
 
-    result["phi_n"] = scale["E"] * phis[0:N]
-    result["phi_p"] = scale["E"] * phis[N:2 * N]
-    result["phi"] = scale["E"] * phis[2 * N:]
-    result["n"] = scale["n"] * physics.n(self.data, phis[0:N],
+    result["phi_n"] = scales.E * phis[0:N]
+    result["phi_p"] = scales.E * phis[N:2 * N]
+    result["phi"] = scales.E * phis[2 * N:]
+    result["n"] = scales.n * physics.n(self.data, phis[0:N],
                                          phis[2 * N:])
-    result["p"] = scale["n"] * physics.p(self.data, phis[N:2 * N],
+    result["p"] = scales.n * physics.p(self.data, phis[N:2 * N],
                                          phis[2 * N:])
-    result["Jn"] = scale["J"] * current.Jn(self.data, phis[0:N],
+    result["Jn"] = scales.J * current.Jn(self.data, phis[0:N],
                                            phis[2 * N:])
-    result["Jp"] = scale["J"] * current.Jp(self.data, phis[N:2 * N],
+    result["Jp"] = scales.J * current.Jp(self.data, phis[N:2 * N],
                                            phis[2 * N:])
 
     return result
@@ -240,25 +237,25 @@ def plot_IV(voltages, current):
 
 def plot_band_diagram(self, result, title=None):
 
-    Ec = -scale["E"] * self.data["Chi"] - result["phi"]
-    Ev = -scale["E"] * self.data["Chi"] - scale["E"] * self.data[
+    Ec = -scales.E * self.data["Chi"] - result["phi"]
+    Ev = -scales.E * self.data["Chi"] - scales.E * self.data[
         "Eg"] - result["phi"]
     fig = plt.figure()
-    plt.plot(scale["d"] * self.data["grid"],
+    plt.plot(scales.d * self.data["grid"],
              Ec,
              color="red",
              label="conduction band",
              linestyle="dashed")
-    plt.plot(scale["d"] * self.data["grid"],
+    plt.plot(scales.d * self.data["grid"],
              Ev,
              color="blue",
              label="valence band",
              linestyle="dashed")
-    plt.plot(scale["d"] * self.data["grid"],
+    plt.plot(scales.d * self.data["grid"],
              result["phi_n"],
              color="red",
              label="e- quasiFermi energy")
-    plt.plot(scale["d"] * self.data["grid"],
+    plt.plot(scales.d * self.data["grid"],
              result["phi_p"],
              color="blue",
              label="hole quasiFermi energy")
@@ -274,11 +271,11 @@ def plot_concentration_profile(self, result, title=None):
 
     fig = plt.figure()
     plt.yscale("log")
-    plt.plot(scale["d"] * self.data["grid"],
+    plt.plot(scales.d * self.data["grid"],
              result["n"],
              color="red",
              label="e-")
-    plt.plot(scale["d"] * self.data["grid"],
+    plt.plot(scales.d * self.data["grid"],
              result["p"],
              color="blue",
              label="hole")
@@ -293,17 +290,17 @@ def plot_concentration_profile(self, result, title=None):
 def plot_current_profile(self, result, title=None):
 
     fig = plt.figure()
-    plt.plot(scale["d"] * 0.5 *
+    plt.plot(scales.d * 0.5 *
              (self.data["grid"][1:] + self.data["grid"][:-1]),
              result["Jn"],
              color="red",
              label="e-")
-    plt.plot(scale["d"] * 0.5 *
+    plt.plot(scales.d * 0.5 *
              (self.data["grid"][1:] + self.data["grid"][:-1]),
              result["Jp"],
              color="blue",
              label="hole")
-    plt.plot(scale["d"] * 0.5 *
+    plt.plot(scales.d * 0.5 *
              (self.data["grid"][1:] + self.data["grid"][:-1]),
              result["Jn"] + result["Jp"],
              color="green",
