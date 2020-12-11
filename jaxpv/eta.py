@@ -27,7 +27,7 @@ def Vincrement(data, num_vals=50):
     return incr_sign * incr_step
 
 
-def compute_eff(data, Vincrement):
+def comp_eff(data, Vincrement):
 
     current = IV.calc_IV(data, Vincrement)
 

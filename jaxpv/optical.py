@@ -1,7 +1,10 @@
 from . import scaling
 from . import physics
 
+import jax.numpy as np
+from jax import vmap
 import scipy.constants as const
+from functools import partial
 
 scale = scaling.scales()
 
@@ -10,6 +13,7 @@ def photonflux(data):
 
     Lambda, P_in = data["Lambda"], data["P_in"]
     hc = const.c * const.h * 1e9  # J.nm
+
     return P_in / (hc / Lambda)
 
 
@@ -46,7 +50,7 @@ def generation_lambda(data, phi_0, alpha):
 
     dgrid = data["dgrid"]
     phi = phi_0 * np.exp(-np.cumsum(
-        np.concatenate([np.zeros(1, dtpye=np.float64), alpha[:-1] * dgrid])))
+        np.concatenate([np.zeros(1, dtype=np.float64), alpha[:-1] * dgrid])))
     g = phi * alpha
 
     return g
@@ -57,47 +61,24 @@ def compute_G(data):
     dgrid = data["dgrid"]
     Lambda = data["Lambda"]
 
-    phi_0 = photonflux(data)
+    phis = photonflux(data)
 
-    valpha = np.vectorize(alpha, excluded=[0])
-    vgenlambda = np.vectorize(generation_lambda, excluded=[0])
-
-    alphas = valpha(data, Lambda)
-    all_generations = vgenlambda(data, phi_0, alphas)
-
+    valpha = vmap(alpha, (None, 0))
+    alphas = valpha(data, data["Lambda"])
+    
+    vgenlambda = vmap(generation_lambda, (None, 0, 0))
+    all_generations = vgenlambda(data, phis, alphas)
+    
     tot_generation = np.sum(all_generations, axis=0)
 
     return tot_generation / scale['U']
 
 
 def deriv_G(data):
-
+    
+    # There are issues with this function
     dgrid = data["dgrid"]
     Lambda = data["Lambda"]
-    """
-    Computes the derivative of total e-/hole pair generation rate density with respect to the material parameters.
-
-    Parameters
-    ----------
-        dgrid  : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        Eg     : numpy array , shape = ( N )
-            array of band gaps
-        Lambda : numpy array , shape = ( M )
-            array of light wavelengths
-        P_in   : numpy array , shape = ( M )
-            array of incident power for every wavelength
-        A      : numpy array , shape = ( N )
-            array of coefficients for direct band gap absorption coefficient model
-
-    Returns
-    -------
-        dG_dEg : numpy array , shape = ( N x N )
-            Jacobian matrix of the derivatives of G with respect to the band gap
-        dG_dA : numpy array , shape = ( N x N )
-            Jacobian matrix of the derivatives of G with respect to the coefficient of direct band gap absorption
-
-    """
 
     phi_0 = photonflux(data)
     G = 0

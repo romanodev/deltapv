@@ -1,5 +1,5 @@
 from . import scaling
-from . import efficiency
+from . import eta
 from . import optical
 from . import sun
 from . import initial_guess
@@ -7,7 +7,7 @@ from . import IV
 
 import matplotlib.pyplot as plt
 import jax.numpy as np
-from jax import ops
+from jax import ops, lax
 
 scale = scaling.scales()
 
@@ -54,6 +54,7 @@ class JAXPV(object):
              for key in self.oparams})
         self.data["grid"] = grid / self.gparams["grid"]
         self.data["dgrid"] = np.diff(self.data["grid"])
+        self.data["opt"] = 0 # 0: user, 1: 
 
     def add_material(self, properties, subgrid):
 
@@ -118,175 +119,199 @@ class JAXPV(object):
         if kind == "user":
             self.data["G"] = np.float64(G / self.vparams["G"])
 
-    def efficiency(self):
 
-        Vincr = efficiency.Vincrement(self.data)
+def efficiency(data, opt):
 
-        if self.opt != "user":
-            self.data["G"] = optical.compute_G(self.data)
+    Vincr = eta.Vincrement(data)
+        
+    data["G"] = lax.cond(opt == "user",
+                         lambda data: data["G"],
+                         lambda data: optical.compute_G(data),
+                         data)
+    
+    return eta.comp_eff(data, Vincr)
 
-        return efficiency.comp_eff(self.data, Vincr)
 
-    def IV_curve(self, title=None):
+def IV_curve(data, opt):
 
-        Vincr = efficiency.Vincrement(self.data)
+    Vincr = eta.Vincrement(data)
+        
+    data["G"] = lax.cond(opt == "user",
+                         lambda data: data["G"],
+                         lambda data: optical.compute_G(data),
+                         data)
 
-        if self.opt != "user":
-            self.data["G"] = optical.compute_G(self.data)
+    current = scale["J"] * IV.calc_IV(data, Vincr)
 
-        current = scale["J"] * IV.calc_IV(self.data, Vincr)
+    voltages = scale["E"] * np.linspace(
+        start=0, stop=(current.size - 1) * Vincr, num=current.size)
 
-        voltages = scale["E"] * np.linspace(
-            start=0, stop=(len(current) - 1) * Vincr, num=len(current))
+    return voltages, current
 
-        fig = plt.figure()
-        plt.plot(voltages, current, color="blue", marker=".")
-        plt.xlabel("Voltage (V)")
-        plt.ylabel("current (A.cm-2)")
-        if title is not None:
-            plt.savefig(title)
-        plt.show()
-        return voltages, current
 
-    def plot_band_diagram(self, result, title=None):
+def solve_equilibrium(data):
+    
+    Vincr = eta.Vincrement(data)
+        
+    data["G"] = lax.cond(opt == "user",
+                         lambda data: data["G"],
+                         lambda data: optical.compute_G(data),
+                         data)
 
-        Ec = -scale["E"] * self.data["Chi"] - result["phi"]
-        Ev = -scale["E"] * self.data["Chi"] - scale["E"] * self.data[
-            "Eg"] - result["phi"]
-        fig = plt.figure()
-        plt.plot(scale["d"] * self.data["grid"],
-                 Ec,
-                 color="red",
-                 label="conduction band",
-                 linestyle="dashed")
-        plt.plot(scale["d"] * self.data["grid"],
-                 Ev,
-                 color="blue",
-                 label="valence band",
-                 linestyle="dashed")
-        plt.plot(scale["d"] * self.data["grid"],
-                 result["phi_n"],
-                 color="red",
-                 label="e- quasiFermi energy")
-        plt.plot(scale["d"] * self.data["grid"],
-                 result["phi_p"],
-                 color="blue",
-                 label="hole quasiFermi energy")
-        plt.xlabel("thickness (cm)")
-        plt.ylabel("energy (eV)")
-        plt.legend()
-        plt.show()
-        if title is not None:
-            plt.savefig(title)
+    phi_ini = initial_guess.eq_init_phi(data)
+    phi_eq = solver.solve_eq(data, phi_ini)
 
-    def plot_concentration_profile(self, result, title=None):
+    N = data["grid"].size
+    result = {}
+    result["phi_n"] = np.zeros(N, dtype=np.float64)
+    result["phi_p"] = np.zeros(N, dtype=np.float64)
+    result["phi"] = scale["E"] * phi_eq
+    result["n"] = scale["n"] * physics.n(self.data, np.zeros(N),
+                                         phi_eq)
+    result["p"] = scale["n"] * physics.p(self.data, np.zeros(N),
+                                         phi_eq)
+    result["Jn"] = np.zeros(N - 1, dtype=np.float64)
+    result["Jp"] = np.zeros(N - 1, dtype=np.float64)
 
-        fig = plt.figure()
-        plt.yscale("log")
-        plt.plot(scale["d"] * self.data["grid"],
-                 result["n"],
-                 color="red",
-                 label="e-")
-        plt.plot(scale["d"] * self.data["grid"],
-                 result["p"],
-                 color="blue",
-                 label="hole")
-        plt.xlabel("thickness (cm)")
-        plt.ylabel("concentration (cm-3)")
-        plt.legend()
-        plt.show()
-        if title is not None:
-            plt.savefig(title)
+    return result
 
-    def plot_current_profile(self, result, title=None):
 
-        fig = plt.figure()
-        plt.plot(scale["d"] * 0.5 *
-                 (self.data["grid"][1:] + self.data["grid"][:-1]),
-                 result["Jn"],
-                 color="red",
-                 label="e-")
-        plt.plot(scale["d"] * 0.5 *
-                 (self.data["grid"][1:] + self.data["grid"][:-1]),
-                 result["Jp"],
-                 color="blue",
-                 label="hole")
-        plt.plot(scale["d"] * 0.5 *
-                 (self.data["grid"][1:] + self.data["grid"][:-1]),
-                 result["Jn"] + result["Jp"],
-                 color="green",
-                 label="total",
-                 linestyle="dashed")
-        plt.xlabel("thickness (cm)")
-        plt.ylabel("current (A.cm-2)")
-        plt.legend()
-        plt.show()
-        if title is not None:
-            plt.savefig(title)
+def solve_bias(data, V):
+    
+    Vincr = eta.Vincrement(data)
+        
+    data["G"] = lax.cond(opt == "user",
+                         lambda data: data["G"],
+                         lambda data: optical.compute_G(data),
+                         data)
 
-    def custom_solve(self, equilibrium=False, V=0):
+    phi_ini = initial_guess.eq_init_phi(data)
+    phi_eq = solver.solve_eq(data, phi_ini)
 
-        Vincr = efficiency.Vincrement(self.data)
+    N = data["grid"].size
+    result = {}
+    V_dim = V / scale["E"]
+    num_steps = V_dim // Vincr
 
-        if self.opt != "user":
-            self.data["G"] = optical.compute_G(self.data)
+    phis = np.concatenate((np.zeros(2 * N), phi_eq), axis=0)
+    neq_0 = self.data["Nc"][0] * np.exp(self.data["Chi"][0] +
+                                        phi_eq[0])
+    neq_L = self.data["Nc"][-1] * np.exp(self.data["Chi"][-1] +
+                                         phi_eq[-1])
+    peq_0 = self.data["Nv"][0] * np.exp(-self.data["Chi"][0] -
+                                        self.data["Eg"][0] - phi_eq[0])
+    peq_L = self.data["Nv"][-1] * np.exp(-self.data["Chi"][-1] -
+                                         self.data["Eg"][-1] -
+                                         phi_eq[-1])
 
-        N = self.data["grid"].size
+    volt = [i * Vincr for i in range(num_steps)]
+    
+    volt.append(V_dim)
 
-        phi_ini = initial_guess.eq_init_phi(self.data)
-        phi_eq = solver.solve_eq(self.data, phi_ini)
+    for v in volt:
+        sol = solver.solve(self.data, neq_0, neq_L, peq_0, peq_L, phis)
+        phis = ops.index_update(sol, ops.index[-1], phi_eq[-1] + v)
 
-        result = {}
+    result["phi_n"] = scale["E"] * phis[0:N]
+    result["phi_p"] = scale["E"] * phis[N:2 * N]
+    result["phi"] = scale["E"] * phis[2 * N:]
+    result["n"] = scale["n"] * physics.n(self.data, phis[0:N],
+                                         phis[2 * N:])
+    result["p"] = scale["n"] * physics.p(self.data, phis[N:2 * N],
+                                         phis[2 * N:])
+    result["Jn"] = scale["J"] * current.Jn(self.data, phis[0:N],
+                                           phis[2 * N:])
+    result["Jp"] = scale["J"] * current.Jp(self.data, phis[N:2 * N],
+                                           phis[2 * N:])
 
-        V_dim = V / scale["E"]
+    return result
 
-        if equilibrium:
 
-            result["phi_n"] = np.zeros(N, dtype=np.float64)
-            result["phi_p"] = np.zeros(N, dtype=np.float64)
-            result["phi"] = scale["E"] * phi_eq
-            result["n"] = scale["n"] * physics.n(self.data, np.zeros(N),
-                                                 phi_eq)
-            result["p"] = scale["n"] * physics.p(self.data, np.zeros(N),
-                                                 phi_eq)
-            result["Jn"] = np.zeros(N - 1, dtype=np.float64)
-            result["Jp"] = np.zeros(N - 1, dtype=np.float64)
+def plot_IV(voltages, current):
+    
+    fig = plt.figure()
+    plt.plot(voltages, current, color="blue", marker=".")
+    plt.xlabel("Voltage (V)")
+    plt.ylabel("current (A.cm-2)")
+    if title is not None:
+        plt.savefig(title)
+    plt.show()
 
-            return result
 
-        else:
+def plot_band_diagram(self, result, title=None):
 
-            num_steps = V_dim // Vincr
+    Ec = -scale["E"] * self.data["Chi"] - result["phi"]
+    Ev = -scale["E"] * self.data["Chi"] - scale["E"] * self.data[
+        "Eg"] - result["phi"]
+    fig = plt.figure()
+    plt.plot(scale["d"] * self.data["grid"],
+             Ec,
+             color="red",
+             label="conduction band",
+             linestyle="dashed")
+    plt.plot(scale["d"] * self.data["grid"],
+             Ev,
+             color="blue",
+             label="valence band",
+             linestyle="dashed")
+    plt.plot(scale["d"] * self.data["grid"],
+             result["phi_n"],
+             color="red",
+             label="e- quasiFermi energy")
+    plt.plot(scale["d"] * self.data["grid"],
+             result["phi_p"],
+             color="blue",
+             label="hole quasiFermi energy")
+    plt.xlabel("thickness (cm)")
+    plt.ylabel("energy (eV)")
+    plt.legend()
+    plt.show()
+    if title is not None:
+        plt.savefig(title)
 
-            phis = np.concatenate((np.zeros(2 * N), phi_eq), axis=0)
-            neq_0 = self.data["Nc"][0] * np.exp(self.data["Chi"][0] +
-                                                phi_eq[0])
-            neq_L = self.data["Nc"][-1] * np.exp(self.data["Chi"][-1] +
-                                                 phi_eq[-1])
-            peq_0 = self.data["Nv"][0] * np.exp(-self.data["Chi"][0] -
-                                                self.data["Eg"][0] - phi_eq[0])
-            peq_L = self.data["Nv"][-1] * np.exp(-self.data["Chi"][-1] -
-                                                 self.data["Eg"][-1] -
-                                                 phi_eq[-1])
 
-            volt = [i * Vincr for i in range(num_steps)]
-            volt.append(V_dim)
+def plot_concentration_profile(self, result, title=None):
 
-            for v in volt:
+    fig = plt.figure()
+    plt.yscale("log")
+    plt.plot(scale["d"] * self.data["grid"],
+             result["n"],
+             color="red",
+             label="e-")
+    plt.plot(scale["d"] * self.data["grid"],
+             result["p"],
+             color="blue",
+             label="hole")
+    plt.xlabel("thickness (cm)")
+    plt.ylabel("concentration (cm-3)")
+    plt.legend()
+    plt.show()
+    if title is not None:
+        plt.savefig(title)
 
-                sol = solver.solve(self.data, neq_0, neq_L, peq_0, peq_L, phis)
-                phis = ops.index_update(sol, ops.index[-1], phi_eq[-1] + v)
 
-            result["phi_n"] = scale["E"] * phis[0:N]
-            result["phi_p"] = scale["E"] * phis[N:2 * N]
-            result["phi"] = scale["E"] * phis[2 * N:]
-            result["n"] = scale["n"] * physics.n(self.data, phis[0:N],
-                                                 phis[2 * N:])
-            result["p"] = scale["n"] * physics.p(self.data, phis[N:2 * N],
-                                                 phis[2 * N:])
-            result["Jn"] = scale["J"] * current.Jn(self.data, phis[0:N],
-                                                   phis[2 * N:])
-            result["Jp"] = scale["J"] * current.Jp(self.data, phis[N:2 * N],
-                                                   phis[2 * N:])
+def plot_current_profile(self, result, title=None):
 
-            return result
+    fig = plt.figure()
+    plt.plot(scale["d"] * 0.5 *
+             (self.data["grid"][1:] + self.data["grid"][:-1]),
+             result["Jn"],
+             color="red",
+             label="e-")
+    plt.plot(scale["d"] * 0.5 *
+             (self.data["grid"][1:] + self.data["grid"][:-1]),
+             result["Jp"],
+             color="blue",
+             label="hole")
+    plt.plot(scale["d"] * 0.5 *
+             (self.data["grid"][1:] + self.data["grid"][:-1]),
+             result["Jn"] + result["Jp"],
+             color="green",
+             label="total",
+             linestyle="dashed")
+    plt.xlabel("thickness (cm)")
+    plt.ylabel("current (A.cm-2)")
+    plt.legend()
+    plt.show()
+    if title is not None:
+        plt.savefig(title)

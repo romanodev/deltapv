@@ -16,9 +16,11 @@ class Material(object):
             "Nc": 1e18,
             "Nv": 1e18,
             "mn": 100.,
-            "mp": 100.
+            "mp": 100.,
+            "tn": 1e-8,
+            "tp": 1e-8
         }
-        self.optional = {"Et", "tn", "tp", "Br", "Cn", "Cp", "A"}
+        self.optional = {"Et", "Br", "Cn", "Cp", "A"}
         for file in MATERIAL_FILES:
             try:
                 with open(file, "r") as f:
