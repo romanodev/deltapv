@@ -3,42 +3,31 @@ from . import physics
 
 import jax.numpy as np
 from jax import vmap
-import scipy.constants as const
 
 
 def photonflux(data):
 
     Lambda, P_in = data["Lambda"], data["P_in"]
-    hc = const.c * const.h * 1e9  # J.nm
 
-    return P_in / (hc / Lambda)
+    return P_in / (scales.hc / Lambda)
 
 
 def alpha(data, lambdax):
 
     Eg, A = data["Eg"], data["A"]
-    T = 300.
-    KB = const.k
-    hc = const.c * const.h * 1e9  # J.nm
-
-    alpha = np.where(hc / lambdax / (KB * T) > Eg,
-                     A * np.sqrt(hc / lambdax / (KB * T) - Eg), 0)
-
+    alpha = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+                     A * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
+    
     return alpha
 
 
 def alpha_deriv(data, lambdax):
 
     Eg, A = data["Eg"], data["A"]
-    T = 300.
-    KB = const.k
-    hc = const.c * const.h * 1e9  # J.nm
-
-    dalpha_dEg = np.where(hc / lambdax / (KB * T) > Eg,
-                          -1 / (2 * np.sqrt(hc / lambdax / (KB * T) - Eg)), 0)
-
-    dalpha_dA = np.where(hc / lambdax / (KB * T) > Eg,
-                         np.sqrt(hc / lambdax / (KB * T) - Eg), 0)
+    dalpha_dEg = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+                          -1 / (2 * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg)), 0)
+    dalpha_dA = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+                         np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
 
     return dalpha_dEg, dalpha_dA
 
@@ -46,7 +35,6 @@ def alpha_deriv(data, lambdax):
 def generation_lambda(data, phi_0, alpha):
 
     dgrid = data["dgrid"]
-    
     phi = phi_0 * np.exp(-np.cumsum(
         np.concatenate([np.zeros(1), alpha[:-1] * dgrid])))
     g = phi * alpha
@@ -58,33 +46,12 @@ def compute_G(data):
 
     dgrid = data["dgrid"]
     Lambda = data["Lambda"]
-    
-    print("dgrid")
-    print(dgrid, "\n")
-    print("Lambda")
-    print(Lambda, "\n")
-
     phis = photonflux(data)
-    print("phis")
-    print(phis, "\n")
-
-    # valpha = vmap(alpha, (None, 0))
-    # alphas = valpha(data, data["Lambda"])
-    
-    alphas = np.stack([alpha(data, lam) for lam in data["Lambda"]])
-    print("alphas")
-    print(alphas, "\n")
-    
-    # vgenlambda = vmap(generation_lambda, (None, 0, 0))
-    # all_generations = vgenlambda(data, phis, alphas)
-    
-    all_generations = np.stack([generation_lambda(data, p, a) for p, a in zip(phis, alphas)])
-    print("all_generations")
-    print(all_generations, "\n")
-    
+    valpha = vmap(alpha, (None, 0))
+    alphas = valpha(data, data["Lambda"])
+    vgenlambda = vmap(generation_lambda, (None, 0, 0))
+    all_generations = vgenlambda(data, phis, alphas)
     tot_generation = np.sum(all_generations, axis=0)
-    print("tot_generation")
-    print(tot_generation, "\n")
 
     return tot_generation / scales.U
 
@@ -94,7 +61,6 @@ def deriv_G(data):
     # There are issues with this function
     dgrid = data["dgrid"]
     Lambda = data["Lambda"]
-
     phi_0 = photonflux(data)
     G = 0
     dG_dEg, dG_dA = np.zeros((Eg.size, Eg.size))

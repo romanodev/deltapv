@@ -29,7 +29,7 @@ class JAXPV(object):
             "Br": 1 / (scales.t * scales.n),
             "Cn": 1 / (scales.t * scales.n**2),
             "Cp": 1 / (scales.t * scales.n**2),
-            "A": scales.d,
+            "A": 1 / scales.d,
             "G": scales.U
         }
         self.sparams = {
