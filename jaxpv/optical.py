@@ -4,7 +4,6 @@ from . import physics
 import jax.numpy as np
 from jax import vmap
 import scipy.constants as const
-from functools import partial
 
 
 def photonflux(data):
@@ -47,8 +46,9 @@ def alpha_deriv(data, lambdax):
 def generation_lambda(data, phi_0, alpha):
 
     dgrid = data["dgrid"]
+    
     phi = phi_0 * np.exp(-np.cumsum(
-        np.concatenate([np.zeros(1, dtype=np.float64), alpha[:-1] * dgrid])))
+        np.concatenate([np.zeros(1), alpha[:-1] * dgrid])))
     g = phi * alpha
 
     return g
@@ -58,16 +58,33 @@ def compute_G(data):
 
     dgrid = data["dgrid"]
     Lambda = data["Lambda"]
+    
+    print("dgrid")
+    print(dgrid, "\n")
+    print("Lambda")
+    print(Lambda, "\n")
 
     phis = photonflux(data)
+    print("phis")
+    print(phis, "\n")
 
-    valpha = vmap(alpha, (None, 0))
-    alphas = valpha(data, data["Lambda"])
+    # valpha = vmap(alpha, (None, 0))
+    # alphas = valpha(data, data["Lambda"])
     
-    vgenlambda = vmap(generation_lambda, (None, 0, 0))
-    all_generations = vgenlambda(data, phis, alphas)
+    alphas = np.stack([alpha(data, lam) for lam in data["Lambda"]])
+    print("alphas")
+    print(alphas, "\n")
+    
+    # vgenlambda = vmap(generation_lambda, (None, 0, 0))
+    # all_generations = vgenlambda(data, phis, alphas)
+    
+    all_generations = np.stack([generation_lambda(data, p, a) for p, a in zip(phis, alphas)])
+    print("all_generations")
+    print(all_generations, "\n")
     
     tot_generation = np.sum(all_generations, axis=0)
+    print("tot_generation")
+    print(tot_generation, "\n")
 
     return tot_generation / scales.U
 

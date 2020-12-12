@@ -52,7 +52,6 @@ class JAXPV(object):
              for key in self.oparams})
         self.data["grid"] = grid / self.gparams["grid"]
         self.data["dgrid"] = np.diff(self.data["grid"])
-        self.data["opt"] = 0 # 0: user, 1: 
 
     def add_material(self, properties, subgrid):
 

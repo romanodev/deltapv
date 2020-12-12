@@ -1,6 +1,8 @@
 from . import IV
 from . import scales
 
+import jax.numpy as np
+
 
 def Vincrement(data, num_vals=50):
 
