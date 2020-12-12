@@ -1,196 +1,76 @@
-from .scales import *
-import scipy.constants as const
-from .physics import *
+from . import scales
+from . import physics
+
+import jax.numpy as np
+from jax import vmap
 
 
-def photonflux(Lambda, P_in):
-    """
-    Computes the incident photon flux.
+def photonflux(data):
 
-    Parameters
-    ----------
-        Lambda : numpy array , shape = ( M )
-            array of light wavelengths
-        P_in   : numpy array , shape = ( M )
-            array of incident power for every wavelength
+    Lambda, P_in = data["Lambda"], data["P_in"]
 
-    Returns
-    -------
-        numpy array , shape = ( M )
-            array of photon flux for every wavelength
-
-    """
-    hc = const.c * const.h * 1e9  # J.nm
-    return P_in / (hc / Lambda)
+    return P_in / (scales.hc / Lambda)
 
 
-def alpha(lambdax, Eg, A):
-    """
-    Computes the absorption coefficient for a specific wavelength across the system.
+def alpha(data, lambdax):
 
-    The absorption coefficient is computed based on material properties.
-    Currently only the simplest direct band gap semiconductor is implemented.
-
-    Parameters
-    ----------
-        lambdax : float
-            light wavelength
-        Eg      : numpy array , shape = ( N )
-            array of band gaps
-        A       : numpy array , shape = ( N )
-            array of coefficients for direct band gap absorption coefficient model
-
-    Returns
-    -------
-        numpy array , shape = ( N )
-            array of absorption coefficient for wavelength lambdax
-
-    """
-    T = 300
-    KB = const.k
-    hc = const.c * const.h * 1e9  # J.nm
-    alpha = [0.0 for i in range(Eg.size)]
-    for i in range(len(alpha)):
-        if (hc / lambdax / (KB * T) > Eg[i]):
-            alpha[i] = A[i] * np.sqrt(hc / lambdax / (KB * T) - Eg[i])
-    return np.array(alpha)
+    Eg, A = data["Eg"], data["A"]
+    alpha = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+                     A * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
+    
+    return alpha
 
 
-def alpha_deriv(lambdax, Eg, A):
-    """
-    Computes the derivatives of the absorption coefficient for a specific wavelength across the system.
+def alpha_deriv(data, lambdax):
 
-    Currently only the simplest direct band gap semiconductor is implemented.
+    Eg, A = data["Eg"], data["A"]
+    dalpha_dEg = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+                          -1 / (2 * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg)), 0)
+    dalpha_dA = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+                         np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
 
-    Parameters
-    ----------
-        lambdax    : float
-            light wavelength
-        Eg         : numpy array , shape = ( N )
-            array of band gaps
-        A          : numpy array , shape = ( N )
-            array of coefficients for direct band gap absorption coefficient model
-
-    Returns
-    -------
-        dalpha_dEg : numpy array , shape = ( N )
-            derivative of alpha[i] with respect to Eg[i]
-        dalpha_dA  : numpy array , shape = ( N )
-            derivative of alpha[i] with respect to A[i]
-
-    """
-    T = 300
-    KB = const.k
-    hc = const.c * const.h * 1e9  # J.nm
-    dalpha_dEg = [0.0 for i in range(Eg.size)]
-    dalpha_dA = [0.0 for i in range(Eg.size)]
-    for i in range(len(dalpha_dEg)):
-        if (hc / lambdax / (KB * T) > Eg[i]):
-            dalpha_dEg[i] = -1 / (2 * np.sqrt(hc / lambdax / (KB * T) - Eg[i]))
-            dalpha_dA[i] = np.sqrt(hc / lambdax / (KB * T) - Eg[i])
-    return np.array(dalpha_dEg), np.array(dalpha_dA)
+    return dalpha_dEg, dalpha_dA
 
 
-def generation_lambda(dgrid, alpha, phi_0):
-    """
-    Computes the e-/hole pair generation rate density for a specific wavelength across the system.
+def generation_lambda(data, phi_0, alpha):
 
-    The function takes the array of absorption coefficients linked to that specific wavelength.
-
-    Parameters
-    ----------
-        dgrid : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        alpha : numpy array , shape = ( N )
-            array of absorption coefficient
-        phi_0 : float
-            incoming photon flux
-
-    Returns
-    -------
-        numpy array , shape = ( N )
-            array of generation rate density across the system
-
-    """
+    dgrid = data["dgrid"]
     phi = phi_0 * np.exp(-np.cumsum(
-        np.concatenate((np.zeros(1, dtype=np.float32), alpha[:-1] * dgrid))))
-    return phi * alpha
+        np.concatenate([np.zeros(1), alpha[:-1] * dgrid])))
+    g = phi * alpha
+
+    return g
 
 
-def compute_G(dgrid, Eg, Lambda, P_in, A):
-    """
-    Computes the total e-/hole pair generation rate density across the system.
+def compute_G(data):
 
-    Parameters
-    ----------
-        dgrid  : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        Eg     : numpy array , shape = ( N )
-            array of band gaps
-        Lambda : numpy array , shape = ( M )
-            array of light wavelengths
-        P_in   : numpy array , shape = ( M )
-            array of incident power for every wavelength
-        A      : numpy array , shape = ( N )
-            array of coefficients for direct band gap absorption coefficient model
+    dgrid = data["dgrid"]
+    Lambda = data["Lambda"]
+    phis = photonflux(data)
+    valpha = vmap(alpha, (None, 0))
+    alphas = valpha(data, data["Lambda"])
+    vgenlambda = vmap(generation_lambda, (None, 0, 0))
+    all_generations = vgenlambda(data, phis, alphas)
+    tot_generation = np.sum(all_generations, axis=0)
 
-    Returns
-    -------
-        numpy array , shape = ( N )
-            array of total generation rate density across the system
-
-    """
-    print('Lambda')
-    print(Lambda)
-    print('P_in')
-    print(P_in)
-    scale = scales()
-    phi_0 = photonflux(Lambda, P_in)
-    tot_generation = 0
-    for i in range(Lambda.size):
-        tot_generation += generation_lambda(dgrid, alpha(Lambda[i], Eg, A),
-                                            phi_0[i])
-    return 1 / scale['U'] * tot_generation
+    return tot_generation / scales.U
 
 
-def deriv_G(dgrid, Eg, Lambda, P_in, A):
-    """
-    Computes the derivative of total e-/hole pair generation rate density with respect to the material parameters.
-
-    Parameters
-    ----------
-        dgrid  : numpy array , shape = ( N - 1 )
-            array of distances between consecutive grid points
-        Eg     : numpy array , shape = ( N )
-            array of band gaps
-        Lambda : numpy array , shape = ( M )
-            array of light wavelengths
-        P_in   : numpy array , shape = ( M )
-            array of incident power for every wavelength
-        A      : numpy array , shape = ( N )
-            array of coefficients for direct band gap absorption coefficient model
-
-    Returns
-    -------
-        dG_dEg : numpy array , shape = ( N x N )
-            Jacobian matrix of the derivatives of G with respect to the band gap
-        dG_dA : numpy array , shape = ( N x N )
-            Jacobian matrix of the derivatives of G with respect to the coefficient of direct band gap absorption
-
-    """
-    scale = scales()
-    phi_0 = photonflux(Lambda, P_in)
+def deriv_G(data):
+    
+    # There are issues with this function
+    dgrid = data["dgrid"]
+    Lambda = data["Lambda"]
+    phi_0 = photonflux(data)
     G = 0
     dG_dEg, dG_dA = np.zeros((Eg.size, Eg.size))
     for i in range(Lambda.size):
-        G_at_lambda = generation_lambda(dgrid, alpha(Lambda[i], Eg, A),
-                                        phi_0[i])
+        G_at_lambda = generation_lambda(data, phi_0[i], alpha(data, Lambda[i]))
         G += G_at_lambda
-        dalpha_dEg, dalpha_dA = alpha_deriv(Lambda[i], Eg, A)
+        dalpha_dEg, dalpha_dA = alpha_deriv(data, Lambda[i])
         dG_dEg = -G_at_lambda * np.cumsum(dalpha_dEg, dgrid)
         dG_dA = -G_at_lambda * np.cumsum(dalpha_dA, dgrid)
 
-    G *= 1 / scale['U']
-    dG_dEg *= 1 / scale['U']
-    dG_dA *= 1 / scale['U']
-    return dG_dEg, dG_dA
+    G /= scales.U
+
+    return dG_dEg / scales.U, dG_dA / scales.U

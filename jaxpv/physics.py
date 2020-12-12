@@ -1,109 +1,32 @@
-from .scales import *
-import os
-from .utils import *
+import jax.numpy as np
 
 
-def n(phi_n, phi, Chi, Nc):
-    """
-    Computes the e- density.
+def n(data, phi_n, phi):
 
-    Parameters
-    ----------
-        phi_n : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi   : numpy array , shape = ( N )
-            electrostatic potential
-        Chi   : numpy array , shape = ( N )
-            electron affinity
-        Nc    : numpy array , shape = ( N )
-            e- density of states
-
-    Returns
-    -------
-        numpy array , shape = ( N )
-            electron density
-
-    """
+    Chi = data["Chi"]
+    Nc = data["Nc"]
     return Nc * np.exp(Chi + phi_n + phi)
 
 
-def p(phi_p, phi, Chi, Eg, Nv):
-    """
-    Computes the hole density.
+def p(data, phi_p, phi):
 
-    Parameters
-    ----------
-        phi_p : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi   : numpy array , shape = ( N )
-            electrostatic potential
-        Chi   : numpy array , shape = ( N )
-            electron affinity
-        Eg    : numpy array , shape = ( N )
-            band gap
-        Nv    : numpy array , shape = ( N )
-            hole density of states
-
-    Returns
-    -------
-        numpy array , shape = ( N )
-            hole density
-
-    """
+    Chi = data["Chi"]
+    Eg = data["Eg"]
+    Nv = data["Nv"]
     return Nv * np.exp(-Chi - Eg - phi_p - phi)
 
 
-def charge(phi_n, phi_p, phi, Chi, Eg, Nc, Nv, Ndop):
-    """
-    Computes the charge density.
+def charge(data, phi_n, phi_p, phi):
 
-    Parameters
-    ----------
-        phi_n : numpy array , shape = ( N )
-            e- quasi-Fermi energy
-        phi_p : numpy array , shape = ( N )
-            hole quasi-Fermi energy
-        phi   : numpy array , shape = ( N )
-            electrostatic potential
-        Chi   : numpy array , shape = ( N )
-            electron affinity
-        Eg    : numpy array , shape = ( N )
-            band gap
-        Nc    : numpy array , shape = ( N )
-            e- density of states
-        Nv    : numpy array , shape = ( N )
-            hole density of states
-        Ndop  : numpy array , shape = ( N )
-            dopant density ( positive for donors , negative for acceptors )
-
-    Returns
-    -------
-        numpy array , shape = ( N )
-            charge density
-
-    """
-    _n = n(phi_n, phi, Chi, Nc)
-    _p = p(phi_p, phi, Chi, Eg, Nv)
+    Ndop = data["Ndop"]
+    _n = n(data, phi_n, phi)
+    _p = p(data, phi_p, phi)
     return -_n + _p + Ndop
 
 
-def ni(Eg, Nc, Nv):
-    """
-    Computes the intrinsic carrier density.
+def ni(data):
 
-    Parameters
-    ----------
-        Eg    : numpy array , shape = ( N )
-            band gap
-        Nc    : numpy array , shape = ( N )
-            e- density of states
-        Nv    : numpy array , shape = ( N )
-            hole density of states
-
-    Returns
-    -------
-        numpy array , shape = ( N )
-            intrinsic carrier density
-
-    """
+    Nc = data["Nc"]
+    Nv = data["Nv"]
+    Eg = data["Eg"]
     return np.sqrt(Nc * Nv) * np.exp(-Eg / 2)
