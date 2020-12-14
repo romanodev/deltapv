@@ -7,14 +7,13 @@ from jax.scipy.sparse.linalg import gmres
 import matplotlib.pyplot as plt
 
 
-def damp(move):
-
-    tmp = 1e10
-    approx_sign = np.tanh(tmp * move)
-    approx_abs = approx_sign * move
-    approx_H = 1 - (1 + tmp * np.exp(-(move**2 - 1)))**(-1)
-    return np.log(1 + approx_abs) * approx_sign + approx_H * (
-        move - np.log(1 + approx_abs) * approx_sign)
+def damp(dx):
+    
+    damped = np.where(np.abs(dx) > 1,
+                      np.log(1 + np.abs(dx) * 1.72) * np.sign(dx),
+                      dx)
+    
+    return damped
 
 
 def step(data, neq0, neqL, peq0, peqL, phis):
@@ -30,9 +29,12 @@ def step(data, neq0, neqL, peq0, peqL, phis):
     gradF_jvp = lambda x: splinalg.spmatvec(spgradF, x)
     precond_jvp = splinalg.invjvp(spgradF)
 
-    move, conv_info = gmres(gradF_jvp, -F, tol=1e-12, maxiter=5, M=precond_jvp)
+    move, conv_info = gmres(gradF_jvp, -F,
+                            M=precond_jvp,
+                            tol=1e-12,
+                            atol=0.)
 
-    error = np.linalg.norm(move)
+    error = np.max(np.abs(move))
     damp_move = damp(move)
 
     return np.concatenate(
@@ -54,7 +56,7 @@ def solve(data, neq0, neqL, peq0, peqL, phis_ini):
 
         phis, error = step(data, neq0, neqL, peq0, peqL, phis)
         niter += 1
-        print(f"\t iteration: {niter}    error: {error}")
+        print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
     return phis
 
@@ -70,13 +72,12 @@ def step_eq(data, phi):
 
     gradFeq_jvp = lambda x: splinalg.spmatvec(spgradFeq, x)
     precond_jvp = splinalg.invjvp(spgradFeq)
-    move, conv_info = gmres(gradFeq_jvp,
-                            -Feq,
+    move, conv_info = gmres(gradFeq_jvp, -Feq,
+                            M=precond_jvp,
                             tol=1e-12,
-                            maxiter=5,
-                            M=precond_jvp)
+                            atol=0.)
 
-    error = np.linalg.norm(move)
+    error = np.max(np.abs(move))
     damp_move = damp(move)
 
     return phi + damp_move, error
@@ -96,6 +97,6 @@ def solve_eq(data, phi_ini):
 
         phi, error = step_eq(data, phi)
         niter += 1
-        print(f"\t iteration: {niter}    error: {error}")
+        print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
     return phi
