@@ -15,19 +15,23 @@ def photonflux(data):
 def alpha(data, lambdax):
 
     Eg, A = data["Eg"], data["A"]
-    alpha = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
-                     A * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
-    
+    alpha = np.where(
+        scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+        A * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
+
     return alpha
 
 
 def alpha_deriv(data, lambdax):
 
     Eg, A = data["Eg"], data["A"]
-    dalpha_dEg = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
-                          -1 / (2 * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg)), 0)
-    dalpha_dA = np.where(scales.hc / lambdax / (scales.KB * scales.T) > Eg,
-                         np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
+    dalpha_dEg = np.where(
+        scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+        -1 / (2 * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg)),
+        0)
+    dalpha_dA = np.where(
+        scales.hc / lambdax / (scales.KB * scales.T) > Eg,
+        np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
 
     return dalpha_dEg, dalpha_dA
 
@@ -35,8 +39,8 @@ def alpha_deriv(data, lambdax):
 def generation_lambda(data, phi_0, alpha):
 
     dgrid = data["dgrid"]
-    phi = phi_0 * np.exp(-np.cumsum(
-        np.concatenate([np.zeros(1), alpha[:-1] * dgrid])))
+    phi = phi_0 * np.exp(
+        -np.cumsum(np.concatenate([np.zeros(1), alpha[:-1] * dgrid])))
     g = phi * alpha
 
     return g
@@ -57,7 +61,7 @@ def compute_G(data):
 
 
 def deriv_G(data):
-    
+
     # There are issues with this function
     dgrid = data["dgrid"]
     Lambda = data["Lambda"]

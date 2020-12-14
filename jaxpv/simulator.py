@@ -119,23 +119,19 @@ class JAXPV(object):
 def efficiency(data, opt):
 
     Vincr = eta.Vincrement(data)
-        
-    data["G"] = lax.cond(opt == "user",
-                         lambda data: data["G"],
-                         lambda data: optical.compute_G(data),
-                         data)
-    
+
+    data["G"] = lax.cond(opt == "user", lambda data: data["G"],
+                         lambda data: optical.compute_G(data), data)
+
     return eta.comp_eff(data, Vincr)
 
 
 def IV_curve(data, opt):
 
     Vincr = eta.Vincrement(data)
-        
-    data["G"] = lax.cond(opt == "user",
-                         lambda data: data["G"],
-                         lambda data: optical.compute_G(data),
-                         data)
+
+    data["G"] = lax.cond(opt == "user", lambda data: data["G"],
+                         lambda data: optical.compute_G(data), data)
 
     current = scales.J * IV.calc_IV(data, Vincr)
 
@@ -146,13 +142,11 @@ def IV_curve(data, opt):
 
 
 def solve_equilibrium(data):
-    
+
     Vincr = eta.Vincrement(data)
-        
-    data["G"] = lax.cond(opt == "user",
-                         lambda data: data["G"],
-                         lambda data: optical.compute_G(data),
-                         data)
+
+    data["G"] = lax.cond(opt == "user", lambda data: data["G"],
+                         lambda data: optical.compute_G(data), data)
 
     phi_ini = initial_guess.eq_init_phi(data)
     phi_eq = solver.solve_eq(data, phi_ini)
@@ -162,10 +156,8 @@ def solve_equilibrium(data):
     result["phi_n"] = np.zeros(N, dtype=np.float64)
     result["phi_p"] = np.zeros(N, dtype=np.float64)
     result["phi"] = scales.E * phi_eq
-    result["n"] = scales.n * physics.n(self.data, np.zeros(N),
-                                         phi_eq)
-    result["p"] = scales.n * physics.p(self.data, np.zeros(N),
-                                         phi_eq)
+    result["n"] = scales.n * physics.n(self.data, np.zeros(N), phi_eq)
+    result["p"] = scales.n * physics.p(self.data, np.zeros(N), phi_eq)
     result["Jn"] = np.zeros(N - 1, dtype=np.float64)
     result["Jp"] = np.zeros(N - 1, dtype=np.float64)
 
@@ -173,13 +165,11 @@ def solve_equilibrium(data):
 
 
 def solve_bias(data, V):
-    
+
     Vincr = eta.Vincrement(data)
-        
-    data["G"] = lax.cond(opt == "user",
-                         lambda data: data["G"],
-                         lambda data: optical.compute_G(data),
-                         data)
+
+    data["G"] = lax.cond(opt == "user", lambda data: data["G"],
+                         lambda data: optical.compute_G(data), data)
 
     phi_ini = initial_guess.eq_init_phi(data)
     phi_eq = solver.solve_eq(data, phi_ini)
@@ -190,18 +180,15 @@ def solve_bias(data, V):
     num_steps = V_dim // Vincr
 
     phis = np.concatenate((np.zeros(2 * N), phi_eq), axis=0)
-    neq_0 = self.data["Nc"][0] * np.exp(self.data["Chi"][0] +
-                                        phi_eq[0])
-    neq_L = self.data["Nc"][-1] * np.exp(self.data["Chi"][-1] +
-                                         phi_eq[-1])
+    neq_0 = self.data["Nc"][0] * np.exp(self.data["Chi"][0] + phi_eq[0])
+    neq_L = self.data["Nc"][-1] * np.exp(self.data["Chi"][-1] + phi_eq[-1])
     peq_0 = self.data["Nv"][0] * np.exp(-self.data["Chi"][0] -
                                         self.data["Eg"][0] - phi_eq[0])
     peq_L = self.data["Nv"][-1] * np.exp(-self.data["Chi"][-1] -
-                                         self.data["Eg"][-1] -
-                                         phi_eq[-1])
+                                         self.data["Eg"][-1] - phi_eq[-1])
 
     volt = [i * Vincr for i in range(num_steps)]
-    
+
     volt.append(V_dim)
 
     for v in volt:
@@ -211,20 +198,17 @@ def solve_bias(data, V):
     result["phi_n"] = scales.E * phis[0:N]
     result["phi_p"] = scales.E * phis[N:2 * N]
     result["phi"] = scales.E * phis[2 * N:]
-    result["n"] = scales.n * physics.n(self.data, phis[0:N],
-                                         phis[2 * N:])
-    result["p"] = scales.n * physics.p(self.data, phis[N:2 * N],
-                                         phis[2 * N:])
-    result["Jn"] = scales.J * current.Jn(self.data, phis[0:N],
-                                           phis[2 * N:])
+    result["n"] = scales.n * physics.n(self.data, phis[0:N], phis[2 * N:])
+    result["p"] = scales.n * physics.p(self.data, phis[N:2 * N], phis[2 * N:])
+    result["Jn"] = scales.J * current.Jn(self.data, phis[0:N], phis[2 * N:])
     result["Jp"] = scales.J * current.Jp(self.data, phis[N:2 * N],
-                                           phis[2 * N:])
+                                         phis[2 * N:])
 
     return result
 
 
 def plot_IV(voltages, current):
-    
+
     fig = plt.figure()
     plt.plot(voltages, current, color="blue", marker=".")
     plt.xlabel("Voltage (V)")
@@ -237,8 +221,8 @@ def plot_IV(voltages, current):
 def plot_band_diagram(self, result, title=None):
 
     Ec = -scales.E * self.data["Chi"] - result["phi"]
-    Ev = -scales.E * self.data["Chi"] - scales.E * self.data[
-        "Eg"] - result["phi"]
+    Ev = -scales.E * self.data["Chi"] - scales.E * self.data["Eg"] - result[
+        "phi"]
     fig = plt.figure()
     plt.plot(scales.d * self.data["grid"],
              Ec,
@@ -289,18 +273,15 @@ def plot_concentration_profile(self, result, title=None):
 def plot_current_profile(self, result, title=None):
 
     fig = plt.figure()
-    plt.plot(scales.d * 0.5 *
-             (self.data["grid"][1:] + self.data["grid"][:-1]),
+    plt.plot(scales.d * 0.5 * (self.data["grid"][1:] + self.data["grid"][:-1]),
              result["Jn"],
              color="red",
              label="e-")
-    plt.plot(scales.d * 0.5 *
-             (self.data["grid"][1:] + self.data["grid"][:-1]),
+    plt.plot(scales.d * 0.5 * (self.data["grid"][1:] + self.data["grid"][:-1]),
              result["Jp"],
              color="blue",
              label="hole")
-    plt.plot(scales.d * 0.5 *
-             (self.data["grid"][1:] + self.data["grid"][:-1]),
+    plt.plot(scales.d * 0.5 * (self.data["grid"][1:] + self.data["grid"][:-1]),
              result["Jn"] + result["Jp"],
              color="green",
              label="total",

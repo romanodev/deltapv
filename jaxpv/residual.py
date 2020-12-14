@@ -2,11 +2,10 @@ from . import e_drift_diffusion as edd
 from . import h_drift_diffusion as hdd
 from . import boundary_conditions as bc
 from . import poisson
+from . import splinalg
 
 import jax.numpy as np
 from jax import ops
-
-import sys
 
 
 def F(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
@@ -165,24 +164,9 @@ def F_deriv(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
     col = np.concatenate((col, np.arange(4, 3 * (N - 1) + 1, 3)))
     dF = np.concatenate((dF, dpois_dphip__))
 
-    # remove zero elements
-    nonzero_idx = dF != 0
-    row, col, dF = row[nonzero_idx], col[nonzero_idx], dF[nonzero_idx]
+    spF = splinalg.coo2sparse(row, col, dF, 3 * N)  # make sure it is 3N
 
-    # sort col elements
-    sortcol_idx = np.argsort(col)  # NOTE: this has no stability guarantee!
-    row, col, dF = row[sortcol_idx], col[sortcol_idx], dF[sortcol_idx]
-
-    # sort row elements
-    sortrow_idx = np.argsort(row)  # NOTE: this has no stability guarantee!
-    row, col, dF = row[sortrow_idx], col[sortrow_idx], dF[sortrow_idx]
-
-    # create "indptr" for csr format. "data" is "dF", "indices" is "col"
-    indptr = np.nonzero(
-        np.diff(np.concatenate([np.array([-1]), row,
-                                np.array([3 * N])])))[0]
-
-    return dF, col, indptr
+    return spF
 
 
 def F_eq(data, phi_n, phi_p, phi):
@@ -195,7 +179,7 @@ def F_eq_deriv(data, phi_n, phi_p, phi):
 
     N = phi.size
     dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(
-        data, phi_n, phi_p, phi)  # dpois_phi__ is around 1e35 times too large
+        data, phi_n, phi_p, phi)
 
     row = np.array([0])
     col = np.array([0])
@@ -217,21 +201,6 @@ def F_eq_deriv(data, phi_n, phi_p, phi):
     col = np.concatenate((col, np.array([N - 1])))
     dFeq = np.concatenate((dFeq, np.array([1.0])))
 
-    # remove zero elements
-    nonzero_idx = dFeq != 0
-    row, col, dFeq = row[nonzero_idx], col[nonzero_idx], dFeq[nonzero_idx]
+    spFeq = splinalg.coo2sparse(row, col, dFeq, N)
 
-    # sort col elements
-    sortcol_idx = np.argsort(col)  # NOTE: this has no stability guarantee!
-    row, col, dFeq = row[sortcol_idx], col[sortcol_idx], dFeq[sortcol_idx]
-
-    # sort row elements
-    sortrow_idx = np.argsort(row)  # NOTE: this has no stability guarantee!
-    row, col, dFeq = row[sortrow_idx], col[sortrow_idx], dFeq[sortrow_idx]
-
-    # create "indptr" for csr format. "data" is "dFeq", "indices" is "col"
-    indptr = np.nonzero(
-        np.diff(np.concatenate([np.array([-1]), row,
-                                np.array([N])])))[0]
-
-    return dFeq, col, indptr
+    return spFeq
