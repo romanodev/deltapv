@@ -17,7 +17,6 @@ hc = const.c * const.h * 1e9  # J.nm
 _q, _, _ = const.physical_constants['elementary charge']
 _eps_0 = const.epsilon_0 * 1e-2  # C * V-1 * m-1 -> C * V-1 * cm-1
 
-
 n = 1e19
 m = 1
 E = KB * T / _q

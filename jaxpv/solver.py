@@ -24,17 +24,13 @@ def step(data, neq0, neqL, peq0, peqL, phis):
 
     F = residual.F(data, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
                    phis[2 * N:])
-    values, indices, indptr = residual.F_deriv(data, neq0, neqL, peq0, peqL,
-                                               phis[0:N], phis[N:2 * N],
-                                               phis[2 * N:])
+    spgradF = residual.F_deriv(data, neq0, neqL, peq0, peqL, phis[0:N],
+                               phis[N:2 * N], phis[2 * N:])
 
-    # gradF_jvp = lambda x: splinalg.spdot(values, indices, indptr, x)
-    # precond_jvp = splinalg.spilu(values, indices, indptr)
+    gradF_jvp = lambda x: splinalg.spmatvec(spgradF, x)
+    precond_jvp = splinalg.invjvp(spgradF)
 
-    # move, conv_info = gmres(gradF_jvp, -F, tol=1e-10, maxiter=5, M=precond_jvp)
-
-    jacobian = splinalg.dense(values, indices, indptr)
-    move = np.linalg.solve(jacobian, -F)
+    move, conv_info = gmres(gradF_jvp, -F, tol=1e-12, maxiter=5, M=precond_jvp)
 
     error = np.linalg.norm(move)
     damp_move = damp(move)
@@ -69,19 +65,16 @@ def step_eq(data, phi):
     N = dgrid.size + 1
 
     Feq = residual.F_eq(data, np.zeros(phi.size), np.zeros(phi.size), phi)
-    values, indices, indptr = residual.F_eq_deriv(data, np.zeros(phi.size),
-                                                  np.zeros(phi.size), phi)
+    spgradFeq = residual.F_eq_deriv(data, np.zeros(phi.size),
+                                    np.zeros(phi.size), phi)
 
-    # gradFeq_jvp = lambda x: splinalg.spdot(values, indices, indptr, x)
-    # precond_jvp = splinalg.spilu(values, indices, indptr)
-    # move, conv_info = gmres(gradFeq_jvp,
-    #                         -Feq,
-    #                         tol=1e-10,
-    #                         maxiter=5,
-    #                         M=precond_jvp)
-
-    jacobian = splinalg.dense(values, indices, indptr)
-    move = np.linalg.solve(jacobian, -Feq)
+    gradFeq_jvp = lambda x: splinalg.spmatvec(spgradFeq, x)
+    precond_jvp = splinalg.invjvp(spgradFeq)
+    move, conv_info = gmres(gradFeq_jvp,
+                            -Feq,
+                            tol=1e-12,
+                            maxiter=5,
+                            M=precond_jvp)
 
     error = np.linalg.norm(move)
     damp_move = damp(move)

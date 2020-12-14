@@ -1,100 +1,107 @@
 import jax.numpy as np
-from jax import ops
+from jax import ops, vmap, lax, jit
+
+_W = 9  # a nonzero element is at most 3 entries away from the main diagonal; pad with zero on each side
 
 
-def spget(i, j, values, indices, indptr):
-
-    try:
-        loc = indptr[i] + np.argwhere(indices[indptr[i]:indptr[i +
-                                                               1]] == j)[0][0]
-        return loc, values[loc]
-    except:
-        return None, 0
+def _coo2sparse(row, col, data, n):
+    disp = np.clip(col - row + _W // 2, 0, _W - 1)
+    sparse = ops.index_update(np.zeros((n, _W)), ops.index[row, disp], data)
+    return sparse
 
 
-def spdot(values, indices, indptr, x):
-
-    n = indptr.size - 1
-
-    def onerow(i):
-        return np.dot(values[indptr[i]:indptr[i + 1]],
-                      x[(indices[indptr[i]:indptr[i + 1]], )])
-
-    vfunc = np.vectorize(onerow)
-
-    return vfunc(np.arange(n))
+coo2sparse = jit(_coo2sparse, static_argnums=[3])
 
 
-def spilu(values, indices, indptr):
+@jit
+def spmatvec(m, x):
+    def _onerow(m, x, i):
+        return np.dot(m[i], lax.dynamic_slice(x, [i], [_W]))
 
-    n = indptr.size - 1
-    fac = values
-
-    for i in range(1, n):
-        loc_start, loc_end = indptr[i], indptr[i + 1]
-        for idx_in_row, k in enumerate(indices[loc_start:loc_end]):
-            loc_ik = loc_start + idx_in_row
-            if k >= i:
-                break
-            loc_kk, val_kk = spget(k, k, fac, indices, indptr)
-            if loc_kk is not None:
-                fac = ops.index_update(fac, ops.index[loc_ik],
-                                       fac[loc_ik] / val_kk)
-                for idx_in_row, j in enumerate(indices[loc_start:loc_end]):
-                    loc_ij = indptr[i] + idx_in_row
-                    if j <= k:
-                        continue
-                    _, val_kj = spget(k, j, fac, indices, indptr)
-                    fac = ops.index_update(fac, ops.index[loc_ij],
-                                           fac[loc_ij] - fac[loc_ik] * val_kj)
-
-    sub = lambda b: spbsub(fac, indices, indptr, spfsub(
-        fac, indices, indptr, b))
-
-    return sub
+    return vmap(_onerow, (None, None, 0))(m, np.pad(x, pad_width=_W // 2),
+                                          np.arange(x.size))
 
 
-def spfsub(values, indices, indptr, b):
+@jit
+def spget(m, i, j):
+    disp = np.clip(j - i + _W // 2, 0, _W - 1)
+    return m[i, disp]
 
-    n = indptr.size - 1
-    x = np.zeros_like(b)
-    x = ops.index_update(x, ops.index[0], b[0] / values[0])
 
-    for i in range(1, n):
-        end = indptr[i] + np.where(indices[indptr[i]:indptr[i + 1]] == i)[0][0]
-        x = ops.index_update(
-            x, ops.index[i], b[i] -
-            np.dot(values[indptr[i]:end], x[(indices[indptr[i]:end], )]))
+@jit
+def spwrite(m, i, j, value):
+    disp = np.clip(j - i + _W // 2, 0, _W - 1)
+    mnew = ops.index_update(m, ops.index[i, disp], value)
+    return mnew
 
+
+@jit
+def spilu(m):
+    n = m.shape[0]
+
+    def iloop(cmat, i):
+        def kloop(crow, dispk):
+            k = i + dispk - _W // 2
+
+            def kli(k):
+                mik, mkk = crow[dispk], spget(cmat, k, k)
+
+                def processrow(row):
+                    row = ops.index_update(row, ops.index[dispk], mik / mkk)
+
+                    def jone(dispj):
+                        j = i + dispj - _W // 2
+                        mij = row[dispj]
+                        return mij - (j > k) * (mij != 0) * row[dispk] * spget(
+                            cmat, k, j)
+
+                    return vmap(jone)(np.arange(_W))
+
+                return lax.cond(mik * mkk != 0, processrow, lambda r: r, crow)
+
+            return lax.cond(k < i, kli, lambda k: crow, k), None
+
+        rowi, _ = lax.scan(kloop, cmat[i], np.arange(_W))
+        return ops.index_update(cmat, ops.index[i], rowi), None
+
+    result, _ = lax.scan(iloop, m, np.arange(n))
+    return result
+
+
+@jit
+def fsub(m, b):
+    # lower triangular, unit diagonal
+    n = m.shape[0]
+
+    def entry(xc, i):
+        xcpad = np.pad(xc, pad_width=_W // 2)
+        res = np.dot(m[i, :_W // 2], lax.dynamic_slice(xcpad, [i], [_W // 2]))
+        entryi = b[i] - res
+        xc = ops.index_update(xc, ops.index[i], entryi)
+        return xc, None
+
+    x, _ = lax.scan(entry, np.zeros(n), np.arange(n))
     return x
 
 
-def spbsub(values, indices, indptr, b):
+@jit
+def bsub(m, b):
+    # upper triangular
+    n = m.shape[0]
 
-    n = indptr.size - 1
-    x = np.zeros_like(b)
-    x = ops.index_update(x, ops.index[-1], b[-1] / values[-1])
+    def entry(xc, i):
+        xcpad = np.pad(xc, pad_width=_W // 2)
+        res = np.dot(m[i, _W // 2 + 1:],
+                     lax.dynamic_slice(xcpad, [i + _W // 2 + 1], [_W // 2]))
+        entryi = (b[i] - res) / m[i, _W // 2]
+        xc = ops.index_update(xc, ops.index[i], entryi)
+        return xc, None
 
-    for i in range(n - 2, -1, -1):
-        start = indptr[i] + np.where(
-            indices[indptr[i]:indptr[i + 1]] == i)[0][0] + 1
-        x = ops.index_update(
-            x, ops.index[i],
-            (b[i] - np.dot(values[start:indptr[i + 1]], x[
-                (indices[start:indptr[i + 1]], )])) /
-            spget(i, i, values, indices, indptr)[1])
-
+    x, _ = lax.scan(entry, np.zeros(n), np.flip(np.arange(n)))
     return x
 
 
-def dense(values, indices, indptr):
-
-    n = indptr.size - 1
-    matrix = np.zeros((n, n), dtype=np.float64)
-
-    for i in range(n):
-        matrix = ops.index_update(
-            matrix, ops.index[i, indices[indptr[i]:indptr[i + 1]]],
-            values[indptr[i]:indptr[i + 1]])
-
-    return matrix
+def invjvp(sparse):
+    fact = spilu(sparse)
+    jvp = lambda b: bsub(fact, fsub(fact, b))
+    return jvp
