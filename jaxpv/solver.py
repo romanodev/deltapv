@@ -2,11 +2,11 @@ from . import residual
 from . import splinalg
 
 import jax.numpy as np
+from jax import jit
 from jax.scipy.sparse.linalg import gmres
 
-import matplotlib.pyplot as plt
 
-
+@jit
 def damp(dx):
     
     damped = np.where(np.abs(dx) > 1,
@@ -16,6 +16,7 @@ def damp(dx):
     return damped
 
 
+@jit
 def step(data, neq0, neqL, peq0, peqL, phis):
 
     dgrid = data["dgrid"]
@@ -31,8 +32,9 @@ def step(data, neq0, neqL, peq0, peqL, phis):
 
     move, conv_info = gmres(gradF_jvp, -F,
                             M=precond_jvp,
-                            tol=1e-12,
-                            atol=0.)
+                            tol=1e-10,
+                            atol=0.,
+                            maxiter=5)
 
     error = np.max(np.abs(move))
     damp_move = damp(move)
@@ -61,6 +63,7 @@ def solve(data, neq0, neqL, peq0, peqL, phis_ini):
     return phis
 
 
+@jit
 def step_eq(data, phi):
 
     dgrid = data["dgrid"]
@@ -74,8 +77,9 @@ def step_eq(data, phi):
     precond_jvp = splinalg.invjvp(spgradFeq)
     move, conv_info = gmres(gradFeq_jvp, -Feq,
                             M=precond_jvp,
-                            tol=1e-12,
-                            atol=0.)
+                            tol=1e-10,
+                            atol=0.,
+                            maxiter=5)
 
     error = np.max(np.abs(move))
     damp_move = damp(move)

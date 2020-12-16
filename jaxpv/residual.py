@@ -5,9 +5,10 @@ from . import poisson
 from . import splinalg
 
 import jax.numpy as np
-from jax import ops
+from jax import ops, jit
 
 
+@jit
 def F(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
 
     ddn = edd.ddn(data, phi_n, phi_p, phi)
@@ -30,6 +31,7 @@ def F(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
     return result
 
 
+@jit
 def F_deriv(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
 
     dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = edd.ddn_deriv(
@@ -169,12 +171,14 @@ def F_deriv(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
     return spF
 
 
+@jit
 def F_eq(data, phi_n, phi_p, phi):
 
     pois = poisson.pois(data, phi_n, phi_p, phi)
     return np.concatenate((np.array([0.]), pois, np.array([0.])))
 
 
+@jit
 def F_eq_deriv(data, phi_n, phi_p, phi):
 
     N = phi.size

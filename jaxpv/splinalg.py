@@ -1,7 +1,7 @@
 import jax.numpy as np
 from jax import ops, vmap, lax, jit
 
-_W = 9  # a nonzero element is at most 3 entries away from the main diagonal; pad with zero on each side
+_W = 13  # a nonzero element is at most 5 entries away from the main diagonal; pad with zero on each side
 
 
 def _coo2sparse(row, col, data, n):
