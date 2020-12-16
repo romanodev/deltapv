@@ -60,4 +60,4 @@ if __name__ == "__main__":
     plt.title("JAXPV pn-junction example")
     if args.save is not None:
         plt.savefig(args.save)
-    # plt.show()
+    plt.show()
