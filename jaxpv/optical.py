@@ -17,7 +17,7 @@ def alpha(data, lambdax):
     Eg, A = data["Eg"], data["A"]
     alpha = np.where(
         scales.hc / lambdax / (scales.KB * scales.T) > Eg,
-        A * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
+        A * np.sqrt(np.abs(scales.hc / lambdax / (scales.KB * scales.T) - Eg)), 0)
 
     return alpha
 
@@ -27,11 +27,11 @@ def alpha_deriv(data, lambdax):
     Eg, A = data["Eg"], data["A"]
     dalpha_dEg = np.where(
         scales.hc / lambdax / (scales.KB * scales.T) > Eg,
-        -1 / (2 * np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg)),
+        -1 / (2 * np.sqrt(np.abs(scales.hc / lambdax / (scales.KB * scales.T) - Eg))),
         0)
     dalpha_dA = np.where(
         scales.hc / lambdax / (scales.KB * scales.T) > Eg,
-        np.sqrt(scales.hc / lambdax / (scales.KB * scales.T) - Eg), 0)
+        np.sqrt(np.abs(scales.hc / lambdax / (scales.KB * scales.T) - Eg)), 0)
 
     return dalpha_dEg, dalpha_dA
 
