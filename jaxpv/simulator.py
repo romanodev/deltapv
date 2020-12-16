@@ -77,7 +77,7 @@ class JAXPV(object):
     def doping_profile(self, doping, subgrid):
 
         self.data["Ndop"] = ops.index_update(self.data["Ndop"], subgrid,
-                                             doping * self.vparams["Ndop"])
+                                             doping / self.vparams["Ndop"])
 
     def incident_light(self, kind="sun", Lambda=None, P_in=None):
 
