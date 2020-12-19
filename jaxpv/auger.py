@@ -1,26 +1,28 @@
-from . import physics
+from jaxpv import objects, physics, util
+from typing import Tuple
+
+PVCell = objects.PVCell
+LightSource = objects.LightSource
+Array = util.Array
+f64 = util.f64
 
 
-def comp_auger(data, phi_n, phi_p, phi):
+def comp_auger(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
-    Cn = data["Cn"]
-    Cp = data["Cp"]
-    ni = physics.ni(data)
-    n = physics.n(data, phi_n, phi)
-    p = physics.p(data, phi_p, phi)
-    return (Cn * n + Cp * p) * (n * p - ni**2)
+    ni = physics.ni(cell)
+    n = physics.n(cell, phi_n, phi)
+    p = physics.p(cell, phi_p, phi)
+    return (cell.Cn * n + cell.Cp * p) * (n * p - ni**2)
 
 
-def comp_auger_deriv(data, phi_n, phi_p, phi):
+def comp_auger_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array]:
 
-    Cn = data["Cn"]
-    Cp = data["Cp"]
-    ni = physics.ni(data)
-    n = physics.n(data, phi_n, phi)
-    p = physics.p(data, phi_p, phi)
+    ni = physics.ni(cell)
+    n = physics.n(cell, phi_n, phi)
+    p = physics.p(cell, phi_p, phi)
 
-    DR_phin = (Cn * n) * (n * p - ni**2) + (Cn * n + Cp * p) * (n * p)
-    DR_phip = (-Cp * p) * (n * p - ni**2) + (Cn * n + Cp * p) * (-n * p)
-    DR_phi = (Cn * n - Cp * p) * (n * p - ni**2)
+    DR_phin = (cell.Cn * n) * (n * p - ni**2) + (cell.Cn * n + cell.Cp * p) * (n * p)
+    DR_phip = (-cell.Cp * p) * (n * p - ni**2) + (cell.Cn * n + cell.Cp * p) * (-n * p)
+    DR_phi = (cell.Cn * n - cell.Cp * p) * (n * p - ni**2)
 
     return DR_phin, DR_phip, DR_phi

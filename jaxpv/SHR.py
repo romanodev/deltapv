@@ -1,36 +1,35 @@
-from . import physics
+from jaxpv import objects, physics, util
+from jax import numpy as np
+from typing import Tuple
 
-import jax.numpy as np
-
-
-def comp_SHR(data, phi_n, phi_p, phi):
-
-    Et = data["Et"]
-    tp = data["tp"]
-    tn = data["tn"]
-    ni = physics.ni(data)
-    n = physics.n(data, phi_n, phi)
-    p = physics.p(data, phi_p, phi)
-    nR = ni * np.exp(Et) + n
-    pR = ni * np.exp(-Et) + p
-    return (n * p - ni**2) / (tp * nR + tn * pR)
+PVCell = objects.PVCell
+LightSource = objects.LightSource
+Array = util.Array
+f64 = util.f64
 
 
-def comp_SHR_deriv(data, phi_n, phi_p, phi):
+def comp_SHR(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
-    Et = data["Et"]
-    tp = data["tp"]
-    tn = data["tn"]
-    ni = physics.ni(data)
-    n = physics.n(data, phi_n, phi)
-    p = physics.p(data, phi_p, phi)
-    nR = ni * np.exp(Et) + n
-    pR = ni * np.exp(-Et) + p
+    ni = physics.ni(cell)
+    n = physics.n(cell, phi_n, phi)
+    p = physics.p(cell, phi_p, phi)
+    nR = ni * np.exp(cell.Et) + n
+    pR = ni * np.exp(-cell.Et) + p
+    return (n * p - ni**2) / (cell.tp * nR + cell.tn * pR)
+
+
+def comp_SHR_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array]:
+
+    ni = physics.ni(cell)
+    n = physics.n(cell, phi_n, phi)
+    p = physics.p(cell, phi_p, phi)
+    nR = ni * np.exp(cell.Et) + n
+    pR = ni * np.exp(-cell.Et) + p
     num = n * p - ni**2
-    denom = tp * nR + tn * pR
+    denom = cell.tp * nR + cell.tn * pR
 
-    DR_phin = ((n * p) * denom - num * (tp * n)) * denom**(-2)
-    DR_phip = ((-n * p) * denom - num * (-tn * p)) * denom**(-2)
-    DR_phi = (-num * (tp * n - tn * p)) * denom**(-2)
+    DR_phin = ((n * p) * denom - num * (cell.tp * n)) * denom**(-2)
+    DR_phip = ((-n * p) * denom - num * (-cell.tn * p)) * denom**(-2)
+    DR_phi = (-num * (cell.tp * n - cell.tn * p)) * denom**(-2)
 
     return DR_phin, DR_phip, DR_phi

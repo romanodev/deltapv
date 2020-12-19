@@ -1,25 +1,28 @@
-from . import physics
+from jaxpv import objects, physics, util
+from jax import numpy as np
+from typing import Tuple
 
-import jax.numpy as np
-
-
-def comp_rad(data, phi_n, phi_p, phi):
-
-    Br = data["Br"]
-    ni = physics.ni(data)
-    n = physics.n(data, phi_n, phi)
-    p = physics.p(data, phi_p, phi)
-    return Br * (n * p - ni**2)
+PVCell = objects.PVCell
+LightSource = objects.LightSource
+Array = util.Array
+f64 = util.f64
 
 
-def comp_rad_deriv(data, phi_n, phi_p, phi):
+def comp_rad(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
-    Br = data["Br"]
-    n = physics.n(data, phi_n, phi)
-    p = physics.p(data, phi_p, phi)
+    ni = physics.ni(cell)
+    n = physics.n(cell, phi_n, phi)
+    p = physics.p(cell, phi_p, phi)
+    return cell.Br * (n * p - ni**2)
 
-    DR_phin = Br * (n * p)
-    DR_phip = Br * (-n * p)
+
+def comp_rad_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array]:
+
+    n = physics.n(cell, phi_n, phi)
+    p = physics.p(cell, phi_p, phi)
+
+    DR_phin = cell.Br * (n * p)
+    DR_phip = cell.Br * (-n * p)
     DR_phi = np.zeros_like(phi)
 
     return DR_phin, DR_phip, DR_phi
