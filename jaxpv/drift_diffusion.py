@@ -1,4 +1,4 @@
-from jaxpv import objects, SHR, auger, radiative, current, util
+from jaxpv import objects, recombination as rec, current, util
 from jax import numpy as np
 from typing import Tuple
 
@@ -10,7 +10,7 @@ f64 = util.f64
 
 def ddp(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
-    R = SHR.comp_SHR(cell, phi_n, phi_p, phi) + auger.comp_auger(
+    R = rec.comp_SHR(cell, phi_n, phi_p, phi) + rec.comp_auger(
         cell, phi_n, phi_p, phi)
     Jp = current.Jp(cell, phi_p, phi)
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
@@ -19,11 +19,11 @@ def ddp(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
 def ddp_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
 
-    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = SHR.comp_SHR_deriv(
+    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = rec.comp_SHR_deriv(
         cell, phi_n, phi_p, phi)
-    DR_rad_phin, DR_rad_phip, DR_rad_phi = radiative.comp_rad_deriv(
+    DR_rad_phin, DR_rad_phip, DR_rad_phi = rec.comp_rad_deriv(
         cell, phi_n, phi_p, phi)
-    DR_auger_phin, DR_auger_phip, DR_auger_phi = auger.comp_auger_deriv(
+    DR_auger_phin, DR_auger_phip, DR_auger_phi = rec.comp_auger_deriv(
         cell, phi_n, phi_p, phi)
 
     DR_phin = DR_SHR_phin + DR_rad_phin + DR_auger_phin
@@ -52,9 +52,9 @@ def ddp_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Arr
 
 def ddn(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
-    R = SHR.comp_SHR(cell, phi_n, phi_p, phi) \
-        + radiative.comp_rad(cell, phi_n, phi_p, phi) \
-        + auger.comp_auger(cell, phi_n, phi_p, phi)
+    R = rec.comp_SHR(cell, phi_n, phi_p, phi) \
+        + rec.comp_rad(cell, phi_n, phi_p, phi) \
+        + rec.comp_auger(cell, phi_n, phi_p, phi)
 
     Jn = current.Jn(cell, phi_n, phi)
 
@@ -65,11 +65,11 @@ def ddn(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
 def ddn_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
 
-    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = SHR.comp_SHR_deriv(
+    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = rec.comp_SHR_deriv(
         cell, phi_n, phi_p, phi)
-    DR_rad_phin, DR_rad_phip, DR_rad_phi = radiative.comp_rad_deriv(
+    DR_rad_phin, DR_rad_phip, DR_rad_phi = rec.comp_rad_deriv(
         cell, phi_n, phi_p, phi)
-    DR_auger_phin, DR_auger_phip, DR_auger_phi = auger.comp_auger_deriv(
+    DR_auger_phin, DR_auger_phip, DR_auger_phi = rec.comp_auger_deriv(
         cell, phi_n, phi_p, phi)
 
     DR_phin = DR_SHR_phin + DR_rad_phin + DR_auger_phin
