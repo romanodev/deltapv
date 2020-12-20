@@ -7,18 +7,19 @@ Array = util.Array
 f64 = util.f64
 
 
-def Vincrement(cell: PVCell, num_vals: int=50) -> f64:
-    
-    phi_ini_left = util.switch(cell.Ndop[0] > 0,
-                               -cell.Chi[0] + np.log(cell.Ndop[0] / cell.Nc[0]),
-                               -cell.Chi[0] - cell.Eg[0] - np.log(np.abs(cell.Ndop[0]) / cell.Nv[0]))
-    
-    phi_ini_right = util.switch(cell.Ndop[-1] > 0,
-                                -cell.Chi[-1] + np.log(cell.Ndop[-1] / cell.Nc[-1]),
-                                -cell.Chi[-1] - cell.Eg[-1] - np.log(np.abs(cell.Ndop[-1]) / cell.Nv[-1]))
-    
+def Vincrement(cell: PVCell, num_vals: int = 50) -> f64:
+
+    phi_ini_left = util.switch(
+        cell.Ndop[0] > 0, -cell.Chi[0] + np.log(cell.Ndop[0] / cell.Nc[0]),
+        -cell.Chi[0] - cell.Eg[0] - np.log(np.abs(cell.Ndop[0]) / cell.Nv[0]))
+
+    phi_ini_right = util.switch(
+        cell.Ndop[-1] > 0, -cell.Chi[-1] + np.log(cell.Ndop[-1] / cell.Nc[-1]),
+        -cell.Chi[-1] - cell.Eg[-1] -
+        np.log(np.abs(cell.Ndop[-1]) / cell.Nv[-1]))
+
     incr_step = np.abs(phi_ini_right - phi_ini_left) / num_vals
-    incr_sign = (-1) ** (phi_ini_right > phi_ini_left)
+    incr_sign = (-1)**(phi_ini_right > phi_ini_left)
 
     return incr_sign * incr_step
 

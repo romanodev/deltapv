@@ -18,7 +18,8 @@ def pois(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
     return pois
 
 
-def pois_deriv_eq(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array]:
+def pois_deriv_eq(cell: PVCell, phi_n: Array, phi_p: Array,
+                  phi: Array) -> Tuple[Array, Array, Array]:
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
     ave_eps = (cell.eps[1:] + cell.eps[:-1]) / 2.
@@ -35,7 +36,8 @@ def pois_deriv_eq(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple
     return dpois_phi_, dpois_phi__, dpois_phi___
 
 
-def pois_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array, Array, Array]:
+def pois_deriv(cell: PVCell, phi_n: Array, phi_p: Array,
+               phi: Array) -> Tuple[Array, Array, Array, Array, Array]:
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.0
     ave_eps = 0.5 * (cell.eps[1:] + cell.eps[:-1])

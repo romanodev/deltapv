@@ -8,7 +8,8 @@ f64 = util.f64
 
 
 @jit
-def F(cell: PVCell, neq_0: f64, neq_L: f64, peq_0: f64, peq_L: f64, phi_n: Array, phi_p: Array, phi: Array) -> Array:
+def F(cell: PVCell, neq_0: f64, neq_L: f64, peq_0: f64, peq_L: f64,
+      phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
     ddn = dd.ddn(cell, phi_n, phi_p, phi)
     ddp = dd.ddp(cell, phi_n, phi_p, phi)
@@ -31,7 +32,8 @@ def F(cell: PVCell, neq_0: f64, neq_L: f64, peq_0: f64, peq_L: f64, phi_n: Array
 
 
 @jit
-def F_deriv(cell: PVCell, neq_0: f64, neq_L: f64, peq_0: f64, peq_L: f64, phi_n: Array, phi_p: Array, phi: Array) -> Array:
+def F_deriv(cell: PVCell, neq_0: f64, neq_L: f64, peq_0: f64, peq_L: f64,
+            phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
     dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = dd.ddn_deriv(
         cell, phi_n, phi_p, phi)

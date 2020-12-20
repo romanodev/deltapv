@@ -7,7 +7,7 @@ f64 = util.f64
 
 @dataclasses.dataclass
 class PVCell:
-    
+
     grid: Array
     dgrid: Array
     eps: Array
@@ -34,6 +34,6 @@ class PVCell:
 
 @dataclasses.dataclass
 class LightSource:
-    
+
     Lambda: Array = np.zeros(1)
     P_in: Array = np.zeros(1)

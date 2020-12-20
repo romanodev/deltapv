@@ -11,16 +11,17 @@ f64 = util.f64
 
 @jit
 def damp(dx):
-    
-    damped = np.where(np.abs(dx) > 1,
-                      np.log(1 + np.abs(dx) * 1.72) * np.sign(dx),
-                      dx)
-    
+
+    damped = np.where(
+        np.abs(dx) > 1,
+        np.log(1 + np.abs(dx) * 1.72) * np.sign(dx), dx)
+
     return damped
 
 
 @jit
-def step(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64, phis: Array) -> Tuple[Array, f64]:
+def step(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64,
+         phis: Array) -> Tuple[Array, f64]:
 
     N = cell.grid.size
 
@@ -32,7 +33,8 @@ def step(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64, phis: Array) 
     gradF_jvp = lambda x: splinalg.spmatvec(spgradF, x)
     precond_jvp = splinalg.invjvp(spgradF)
 
-    move, conv_info = scipy.sparse.linalg.gmres(gradF_jvp, -F,
+    move, conv_info = scipy.sparse.linalg.gmres(gradF_jvp,
+                                                -F,
                                                 M=precond_jvp,
                                                 tol=1e-10,
                                                 atol=0.,
@@ -47,7 +49,8 @@ def step(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64, phis: Array) 
         axis=0), error
 
 
-def solve(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64, phis_ini: Array) -> Array:
+def solve(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64,
+          phis_ini: Array) -> Array:
 
     N = cell.grid.size
 
@@ -74,7 +77,8 @@ def step_eq(cell: PVCell, phi: Array) -> Tuple[Array, f64]:
 
     gradFeq_jvp = lambda x: splinalg.spmatvec(spgradFeq, x)
     precond_jvp = splinalg.invjvp(spgradFeq)
-    move, conv_info = scipy.sparse.linalg.gmres(gradFeq_jvp, -Feq,
+    move, conv_info = scipy.sparse.linalg.gmres(gradFeq_jvp,
+                                                -Feq,
                                                 M=precond_jvp,
                                                 tol=1e-10,
                                                 atol=0.,

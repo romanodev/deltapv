@@ -8,16 +8,18 @@ f64 = util.f64
 
 
 def photonflux(ls: LightSource) -> Array:
-    
+
     return ls.P_in / (scales.hc / ls.Lambda)
 
 
 def alpha(cell: PVCell, lambdax: f64) -> Array:
-    
+
     alpha = np.where(
         scales.hc / lambdax / (scales.KB * scales.T) > cell.Eg,
-        cell.A * np.sqrt(np.abs(scales.hc / lambdax / (scales.KB * scales.T) - cell.Eg)), 0)
-    
+        cell.A *
+        np.sqrt(np.abs(scales.hc / lambdax /
+                       (scales.KB * scales.T) - cell.Eg)), 0)
+
     return alpha
 
 

@@ -27,7 +27,8 @@ def Jn(cell: PVCell, phi_n: Array, phi: Array) -> Array:
     return cell.mn[:-1] * Dpsin_Dexppsin * fm / cell.dgrid
 
 
-def Jn_deriv(cell: PVCell, phi_n: Array, phi: Array) -> Tuple[Array, Array, Array, Array]:
+def Jn_deriv(cell: PVCell, phi_n: Array,
+             phi: Array) -> Tuple[Array, Array, Array, Array]:
 
     psi_n = cell.Chi + np.log(cell.Nc) + phi
     Dpsin = -np.diff(psi_n)
@@ -93,7 +94,8 @@ def Jp(cell: PVCell, phi_p: Array, phi: Array) -> Array:
     return cell.mp[:-1] * Dpsip_Dexppsip * fm / cell.dgrid
 
 
-def Jp_deriv(cell: PVCell, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array, Array]:
+def Jp_deriv(cell: PVCell, phi_p: Array,
+             phi: Array) -> Tuple[Array, Array, Array, Array]:
 
     psi_p = cell.Chi + cell.Eg - np.log(cell.Nv) + phi
     Dpsip = -np.diff(psi_p)
@@ -142,7 +144,8 @@ def Jp_deriv(cell: PVCell, phi_p: Array, phi: Array) -> Tuple[Array, Array, Arra
     return dJp_phip__, dJp_phip___, dJp_phi__, dJp_phi___
 
 
-def total_current(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, dict]:
+def total_current(cell: PVCell, phi_n: Array, phi_p: Array,
+                  phi: Array) -> Tuple[Array, dict]:
 
     psin0 = cell.Chi[0] + np.log(cell.Nc[0]) + phi[0]
     psin1 = cell.Chi[1] + np.log(cell.Nc[1]) + phi[1]
@@ -211,16 +214,22 @@ def total_current(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple
 
     deriv = {}
 
-    deriv["dChi0"] = cell.mn[0] * fmn / cell.dgrid[0] * Dpsin_Dexppsin_dpsin0 + cell.mp[
-        0] * fmp / cell.dgrid[0] * Dpsip_Dexppsip_dpsip0
-    deriv["dChi1"] = cell.mn[0] * fmn / cell.dgrid[0] * Dpsin_Dexppsin_dpsin1 + cell.mp[
-        0] * fmp / cell.dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv["dChi0"] = cell.mn[0] * fmn / cell.dgrid[
+        0] * Dpsin_Dexppsin_dpsin0 + cell.mp[0] * fmp / cell.dgrid[
+            0] * Dpsip_Dexppsip_dpsip0
+    deriv["dChi1"] = cell.mn[0] * fmn / cell.dgrid[
+        0] * Dpsin_Dexppsin_dpsin1 + cell.mp[0] * fmp / cell.dgrid[
+            0] * Dpsip_Dexppsip_dpsip1
     deriv["dEg0"] = cell.mp[0] * fmp / cell.dgrid[0] * Dpsip_Dexppsip_dpsip0
     deriv["dEg1"] = cell.mp[0] * fmp / cell.dgrid[0] * Dpsip_Dexppsip_dpsip1
-    deriv["dNc0"] = 1 / cell.Nc[0] * cell.mn[0] * fmn / cell.dgrid[0] * Dpsin_Dexppsin_dpsin0
-    deriv["dNc1"] = 1 / cell.Nc[1] * cell.mn[0] * fmn / cell.dgrid[0] * Dpsin_Dexppsin_dpsin1
-    deriv["dNv0"] = -1 / cell.Nv[0] * cell.mp[0] * fmp / cell.dgrid[0] * Dpsip_Dexppsip_dpsip0
-    deriv["dNv1"] = -1 / cell.Nv[1] * cell.mp[0] * fmp / cell.dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv["dNc0"] = 1 / cell.Nc[0] * cell.mn[0] * fmn / cell.dgrid[
+        0] * Dpsin_Dexppsin_dpsin0
+    deriv["dNc1"] = 1 / cell.Nc[1] * cell.mn[0] * fmn / cell.dgrid[
+        0] * Dpsin_Dexppsin_dpsin1
+    deriv["dNv0"] = -1 / cell.Nv[0] * cell.mp[0] * fmp / cell.dgrid[
+        0] * Dpsip_Dexppsip_dpsip0
+    deriv["dNv1"] = -1 / cell.Nv[1] * cell.mp[0] * fmp / cell.dgrid[
+        0] * Dpsip_Dexppsip_dpsip1
     deriv["dmn0"] = Dpsin_Dexppsin * fmn / cell.dgrid[0]
     deriv["dmp0"] = Dpsip_Dexppsip * fmp / cell.dgrid[0]
 
@@ -228,9 +237,11 @@ def total_current(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple
     deriv["dphin1"] = cell.mn[0] * Dpsin_Dexppsin / cell.dgrid[0] * dfmn_dphin1
     deriv["dphip0"] = cell.mp[0] * Dpsip_Dexppsip / cell.dgrid[0] * dfmp_dphip0
     deriv["dphip1"] = cell.mp[0] * Dpsip_Dexppsip / cell.dgrid[0] * dfmp_dphip1
-    deriv["dphi0"] = cell.mn[0] * fmn / cell.dgrid[0] * Dpsin_Dexppsin_dpsin0 + cell.mp[
-        0] * fmp / cell.dgrid[0] * Dpsip_Dexppsip_dpsip0
-    deriv["dphi1"] = cell.mn[0] * fmn / cell.dgrid[0] * Dpsin_Dexppsin_dpsin1 + cell.mp[
-        0] * fmp / cell.dgrid[0] * Dpsip_Dexppsip_dpsip1
+    deriv["dphi0"] = cell.mn[0] * fmn / cell.dgrid[
+        0] * Dpsin_Dexppsin_dpsin0 + cell.mp[0] * fmp / cell.dgrid[
+            0] * Dpsip_Dexppsip_dpsip0
+    deriv["dphi1"] = cell.mn[0] * fmn / cell.dgrid[
+        0] * Dpsin_Dexppsin_dpsin1 + cell.mp[0] * fmp / cell.dgrid[
+            0] * Dpsip_Dexppsip_dpsip1
 
     return Fcurrent, deriv

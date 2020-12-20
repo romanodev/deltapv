@@ -16,14 +16,17 @@ def comp_auger(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
     return (cell.Cn * n + cell.Cp * p) * (n * p - ni**2)
 
 
-def comp_auger_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array]:
+def comp_auger_deriv(cell: PVCell, phi_n: Array, phi_p: Array,
+                     phi: Array) -> Tuple[Array, Array, Array]:
 
     ni = physics.ni(cell)
     n = physics.n(cell, phi_n, phi)
     p = physics.p(cell, phi_p, phi)
 
-    DR_phin = (cell.Cn * n) * (n * p - ni**2) + (cell.Cn * n + cell.Cp * p) * (n * p)
-    DR_phip = (-cell.Cp * p) * (n * p - ni**2) + (cell.Cn * n + cell.Cp * p) * (-n * p)
+    DR_phin = (cell.Cn * n) * (n * p - ni**2) + (cell.Cn * n +
+                                                 cell.Cp * p) * (n * p)
+    DR_phip = (-cell.Cp * p) * (n * p - ni**2) + (cell.Cn * n +
+                                                  cell.Cp * p) * (-n * p)
     DR_phi = (cell.Cn * n - cell.Cp * p) * (n * p - ni**2)
 
     return DR_phin, DR_phip, DR_phi
@@ -39,7 +42,8 @@ def comp_SHR(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
     return (n * p - ni**2) / (cell.tp * nR + cell.tn * pR)
 
 
-def comp_SHR_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array]:
+def comp_SHR_deriv(cell: PVCell, phi_n: Array, phi_p: Array,
+                   phi: Array) -> Tuple[Array, Array, Array]:
 
     ni = physics.ni(cell)
     n = physics.n(cell, phi_n, phi)
@@ -64,7 +68,8 @@ def comp_rad(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
     return cell.Br * (n * p - ni**2)
 
 
-def comp_rad_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array]:
+def comp_rad_deriv(cell: PVCell, phi_n: Array, phi_p: Array,
+                   phi: Array) -> Tuple[Array, Array, Array]:
 
     n = physics.n(cell, phi_n, phi)
     p = physics.p(cell, phi_p, phi)

@@ -17,7 +17,9 @@ def ddp(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
     return np.diff(Jp) / ave_dgrid + R[1:-1] - cell.G[1:-1]
 
 
-def ddp_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
+def ddp_deriv(
+        cell: PVCell, phi_n: Array, phi_p: Array,
+        phi: Array) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
 
     DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = rec.comp_SHR_deriv(
         cell, phi_n, phi_p, phi)
@@ -63,7 +65,9 @@ def ddn(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
     return np.diff(Jn) / ave_dgrid - R[1:-1] + cell.G[1:-1]
 
 
-def ddn_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
+def ddn_deriv(
+        cell: PVCell, phi_n: Array, phi_p: Array,
+        phi: Array) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
 
     DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = rec.comp_SHR_deriv(
         cell, phi_n, phi_p, phi)

@@ -31,7 +31,7 @@ def calc_IV(cell: PVCell, Vincrement: f64) -> Array:
         scaled_V = v * scales.E
         print(f"Solving for V = {scaled_V}")
         sol = solver.solve(cell, neq_0, neq_L, peq_0, peq_L, phis)
-        
+
         total_j, _ = current.total_current(cell, sol[0:N], sol[N:2 * N],
                                            sol[2 * N:])
 
