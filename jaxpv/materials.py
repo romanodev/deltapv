@@ -32,14 +32,18 @@ class Material:
         return self.__dict__.items().__iter__()
 
 
-def create_material(**kwargs):
+def create_material(**kwargs) -> Material:
     return Material(**{key: f64(value) for key, value in kwargs.items() if value is not None})
 
 
-def load_material(name):
+def load_material(name: str) -> Material:
     try:
         with open(os.path.join(os.path.dirname(__file__), f"resources/{name}.yaml"), "r") as f:
             matdict = yaml.full_load(f)
         return create_material(**matdict["properties"])
     except:
         raise FileNotFoundError(f"{name} is not an available material!")
+
+        
+def update(mat: Material, **kwargs) -> Material:
+    return Material(**{key: f64(kwargs[key]) if key in kwargs else value for key, value in mat.__dict__.items()})

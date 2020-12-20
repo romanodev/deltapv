@@ -17,7 +17,7 @@ def create_cell(dim_grid: Array) -> PVCell:
     init_params = {key: np.zeros(n) for key in PVCell.__dataclass_fields__}
     init_params.update({"grid": grid, "dgrid": dgrid})
     init_params.update({key: f64(0) for key in {"Snl", "Snr", "Spl", "Spr"}})
-    init_params.update(G=np.array([-1.]))
+    init_params.update(G=-np.ones(n))
     
     return PVCell(**init_params)
 
