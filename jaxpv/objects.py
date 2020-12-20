@@ -37,4 +37,3 @@ class LightSource:
     
     Lambda: Array = np.zeros(1)
     P_in: Array = np.zeros(1)
-    G: Array = -np.ones(1)
