@@ -26,8 +26,8 @@ def linsol(spmat: Array, vec: Array) -> Array:
     precond = splinalg.invjvp(spmat)
     
     sol, _ = scipy.sparse.linalg.gmres(mvp, vec, M=precond,
-                                       tol=1e-12, atol=0.,
-                                       maxiter=100)
+                                       tol=1e-10, atol=0.,
+                                       maxiter=5)
     
     return sol
 
