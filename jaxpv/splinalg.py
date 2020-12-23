@@ -1,7 +1,6 @@
-import jax.numpy as np
-from jax import ops, vmap, lax, jit
+from jax import numpy as np, ops, vmap, lax, jit
 
-_W = 13  # a nonzero element is at most 5 entries away from the main diagonal; pad with zero on each side
+_W = 13
 
 
 def _coo2sparse(row, col, data, n):
@@ -70,7 +69,7 @@ def spilu(m):
 
 @jit
 def fsub(m, b):
-    # lower triangular, unit diagonal
+
     n = m.shape[0]
 
     def entry(xc, i):
@@ -86,7 +85,7 @@ def fsub(m, b):
 
 @jit
 def bsub(m, b):
-    # upper triangular
+
     n = m.shape[0]
 
     def entry(xc, i):

@@ -1,22 +1,22 @@
-from . import e_drift_diffusion as edd
-from . import h_drift_diffusion as hdd
-from . import boundary_conditions as bc
-from . import poisson
-from . import splinalg
+from jaxpv import objects, drift_diffusion as dd, boundary_conditions as bc, poisson, splinalg, util
+from jax import numpy as np, ops, jit
 
-import jax.numpy as np
-from jax import ops, jit
+PVCell = objects.PVCell
+LightSource = objects.LightSource
+Array = util.Array
+f64 = util.f64
 
 
 @jit
-def F(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
+def F(cell: PVCell, neq_0: f64, neq_L: f64, peq_0: f64, peq_L: f64,
+      phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
-    ddn = edd.ddn(data, phi_n, phi_p, phi)
-    ddp = hdd.ddp(data, phi_n, phi_p, phi)
-    pois = poisson.pois(data, phi_n, phi_p, phi)
+    ddn = dd.ddn(cell, phi_n, phi_p, phi)
+    ddp = dd.ddp(cell, phi_n, phi_p, phi)
+    pois = poisson.pois(cell, phi_n, phi_p, phi)
 
-    ctct_0_phin, ctct_L_phin = bc.contact_phin(data, neq_0, neq_L, phi_n, phi)
-    ctct_0_phip, ctct_L_phip = bc.contact_phip(data, peq_0, peq_L, phi_p, phi)
+    ctct_0_phin, ctct_L_phin = bc.contact_phin(cell, neq_0, neq_L, phi_n, phi)
+    ctct_0_phip, ctct_L_phip = bc.contact_phip(cell, peq_0, peq_L, phi_p, phi)
 
     lenF = 3 + 3 * len(pois) + 3
     result = np.zeros(lenF, dtype=np.float64)
@@ -32,16 +32,17 @@ def F(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
 
 
 @jit
-def F_deriv(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
+def F_deriv(cell: PVCell, neq_0: f64, neq_L: f64, peq_0: f64, peq_L: f64,
+            phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
-    dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = edd.ddn_deriv(
-        data, phi_n, phi_p, phi)
-    ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___, ddp_phi_, ddp_phi__, ddp_phi___ = hdd.ddp_deriv(
-        data, phi_n, phi_p, phi)
+    dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = dd.ddn_deriv(
+        cell, phi_n, phi_p, phi)
+    ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___, ddp_phi_, ddp_phi__, ddp_phi___ = dd.ddp_deriv(
+        cell, phi_n, phi_p, phi)
     dpois_phi_, dpois_phi__, dpois_phi___, dpois_dphin__, dpois_dphip__ = poisson.pois_deriv(
-        data, phi_n, phi_p, phi)
-    dctct_phin = bc.contact_phin_deriv(data, phi_n, phi)
-    dctct_phip = bc.contact_phip_deriv(data, phi_p, phi)
+        cell, phi_n, phi_p, phi)
+    dctct_phin = bc.contact_phin_deriv(cell, phi_n, phi)
+    dctct_phip = bc.contact_phip_deriv(cell, phi_p, phi)
 
     N = phi.size
 
@@ -166,24 +167,24 @@ def F_deriv(data, neq_0, neq_L, peq_0, peq_L, phi_n, phi_p, phi):
     col = np.concatenate((col, np.arange(4, 3 * (N - 1) + 1, 3)))
     dF = np.concatenate((dF, dpois_dphip__))
 
-    spF = splinalg.coo2sparse(row, col, dF, 3 * N)  # make sure it is 3N
+    spF = splinalg.coo2sparse(row, col, dF, 3 * N)
 
     return spF
 
 
 @jit
-def F_eq(data, phi_n, phi_p, phi):
+def F_eq(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
-    pois = poisson.pois(data, phi_n, phi_p, phi)
+    pois = poisson.pois(cell, phi_n, phi_p, phi)
     return np.concatenate((np.array([0.]), pois, np.array([0.])))
 
 
 @jit
-def F_eq_deriv(data, phi_n, phi_p, phi):
+def F_eq_deriv(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
     N = phi.size
     dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(
-        data, phi_n, phi_p, phi)
+        cell, phi_n, phi_p, phi)
 
     row = np.array([0])
     col = np.array([0])
