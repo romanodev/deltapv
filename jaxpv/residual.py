@@ -167,7 +167,7 @@ def F_deriv(cell: PVCell, neq_0: f64, neq_L: f64, peq_0: f64, peq_L: f64,
     col = np.concatenate((col, np.arange(4, 3 * (N - 1) + 1, 3)))
     dF = np.concatenate((dF, dpois_dphip__))
 
-    spF = splinalg.coo2sparse(row, col, dF, 3 * N)  # make sure it is 3N
+    spF = splinalg.coo2sparse(row, col, dF, 3 * N)
 
     return spF
 

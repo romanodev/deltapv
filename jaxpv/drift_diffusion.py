@@ -14,7 +14,7 @@ def ddp(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
         cell, phi_n, phi_p, phi)
     Jp = current.Jp(cell, phi_p, phi)
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
-    return np.diff(Jp) / ave_dgrid + R[1:-1] - cell.G[1:-1]
+    return R[1:-1] - cell.G[1:-1] + np.diff(Jp) / ave_dgrid
 
 
 def ddp_deriv(
@@ -62,7 +62,7 @@ def ddn(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
 
-    return np.diff(Jn) / ave_dgrid - R[1:-1] + cell.G[1:-1]
+    return -R[1:-1] + cell.G[1:-1] + np.diff(Jn) / ave_dgrid
 
 
 def ddn_deriv(

@@ -12,10 +12,8 @@ def Jn(cell: PVCell, phi_n: Array, phi: Array) -> Array:
 
     psi_n = cell.Chi + np.log(cell.Nc) + phi
     Dpsin = -np.diff(psi_n)
-    thr = 1e-5
-    around_zero = 0.5 * (np.tanh(1e50 *
-                                 (Dpsin + thr)) - np.tanh(1e50 *
-                                                          (Dpsin - thr)))
+
+    around_zero = np.abs(Dpsin) < 1e-5
 
     fm = np.diff(np.exp(phi_n))
 
@@ -32,10 +30,8 @@ def Jn_deriv(cell: PVCell, phi_n: Array,
 
     psi_n = cell.Chi + np.log(cell.Nc) + phi
     Dpsin = -np.diff(psi_n)
-    thr = 1e-5
-    around_zero = 0.5 * (np.tanh(1e50 *
-                                 (Dpsin + thr)) - np.tanh(1e50 *
-                                                          (Dpsin - thr)))
+    
+    around_zero = np.abs(Dpsin) < 1e-5
 
     fm = np.diff(np.exp(phi_n))
 
@@ -79,10 +75,8 @@ def Jp(cell: PVCell, phi_p: Array, phi: Array) -> Array:
 
     psi_p = cell.Chi + cell.Eg - np.log(cell.Nv) + phi
     Dpsip = -np.diff(psi_p)
-    thr = 1e-5
-    around_zero = 0.5 * (np.tanh(1e50 *
-                                 (Dpsip + thr)) - np.tanh(1e50 *
-                                                          (Dpsip - thr)))
+    
+    around_zero = np.abs(Dpsip) < 1e-5
 
     fm = np.diff(np.exp(-phi_p))
 
@@ -99,10 +93,8 @@ def Jp_deriv(cell: PVCell, phi_p: Array,
 
     psi_p = cell.Chi + cell.Eg - np.log(cell.Nv) + phi
     Dpsip = -np.diff(psi_p)
-    thr = 1e-5
-    around_zero = 0.5 * (np.tanh(1e50 *
-                                 (Dpsip + thr)) - np.tanh(1e50 *
-                                                          (Dpsip - thr)))
+    
+    around_zero = np.abs(Dpsip) < 1e-5
 
     fm = np.diff(np.exp(-phi_p))
 
@@ -153,13 +145,9 @@ def total_current(cell: PVCell, phi_n: Array, phi_p: Array,
     psip1 = cell.Chi[1] + cell.Eg[1] - np.log(cell.Nv[1]) + phi[1]
     Dpsin = psin0 - psin1
     Dpsip = psip0 - psip1
-    thr = 1e-5
-    around_zero_n = 0.5 * (np.tanh(1e50 *
-                                   (Dpsin + thr)) - np.tanh(1e50 *
-                                                            (Dpsin - thr)))
-    around_zero_p = 0.5 * (np.tanh(1e50 *
-                                   (Dpsip + thr)) - np.tanh(1e50 *
-                                                            (Dpsip - thr)))
+
+    around_zero_n = np.abs(Dpsin) < 1e-5
+    around_zero_p = np.abs(Dpsip) < 1e-5
 
     fmn = np.exp(phi_n[1]) - np.exp(phi_n[0])
     numerator = (1 - around_zero_n) * Dpsin + around_zero_n * 1
