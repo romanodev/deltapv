@@ -1,4 +1,4 @@
-from jaxpv import objects, scales, eta, optical, sun, initial_guess, IV, materials, util
+from jaxpv import objects, scales, optical, sun, IV, materials, util
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
@@ -80,18 +80,18 @@ def incident_light(kind: str = "sun",
         return LightSource(Lambda=sun.wavelength, P_in=sun.power)
 
     if kind == "white":
-        return LightSource(Lambda=np.linspace(400., 800., 5),
-                           P_in=200. * np.ones(5, dtype=np.float64))
+        return LightSource(Lambda=np.linspace(4e2, 8e2, 5),
+                           P_in=2e2 * np.ones(5, dtype=np.float64))
 
     if kind == "monochromatic":
         if Lambda is None:
-            Lambda = np.array([400.])
-        return LightSource(Lambda=Lambda, P_in=np.array([1000.]))
+            Lambda = np.array([4e2])
+        return LightSource(Lambda=Lambda, P_in=np.array([1e3]))
 
     if kind == "user":
         assert Lambda is not None
         assert P_in is not None
-        P_in = 1000. * P_in / np.sum(P_in)
+        P_in = 1e3 * P_in / np.sum(P_in)
         return LightSource(Lambda=Lambda, P_in=P_in)
 
 
@@ -109,22 +109,34 @@ def get_generation(cell: PVCell, ls: LightSource):
     return update(cell, G=G)
 
 
-def efficiency(cell: PVCell, ls: LightSource = LightSource()) -> f64:
-
-    cell = get_generation(cell, ls)
-    Vincr = eta.Vincrement(cell)
-    eff = eta.comp_eff(cell, Vincr)
-
-    return eff
-
-
 def IV_curve(
     cell: PVCell, ls: LightSource = LightSource()) -> Tuple[Array, Array]:
 
     cell = get_generation(cell, ls)
-    Vincr = eta.Vincrement(cell)
-    currents = scales.J * IV.calc_IV(cell, Vincr)
-    voltages = scales.E * np.linspace(0, (currents.size - 1) * Vincr,
-                                      currents.size)
+    Vincr = IV.Vincrement(cell)
+    currents, voltages = IV.calc_IV(cell, Vincr)
+    dim_currents = scales.J * currents
+    dim_voltages = scales.E * voltages
+    
+    return dim_voltages, dim_currents
 
-    return voltages, currents
+
+def efficiency(cell: PVCell, ls: LightSource = LightSource()) -> f64:
+
+    cell = get_generation(cell, ls)
+    Vincr = IV.Vincrement(cell)
+    currents, voltages = IV.calc_IV(cell, Vincrement)
+    Pmax = np.max(scales.E * voltages * scales.J * currents) * 1e4  # W/m2
+    eff = Pmax / 1e3
+
+    return eff
+
+
+def solve_equilibrium(cell: PVCell, ls: LightSource = LightSource()) -> Array:
+    
+    cell = get_generation(cell, ls)
+    Vincr = IV.Vincrement(cell)
+    phi_ini = IV.eq_init_phi(cell)
+    phi_eq = solver.solve_eq(cell, phi_ini)
+    
+    return phi_eq

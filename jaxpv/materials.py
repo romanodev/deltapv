@@ -2,9 +2,9 @@ from jaxpv import dataclasses, objects
 from jax import numpy as np
 import yaml, glob, os
 
+Material = objects.Material
 Array = np.ndarray
 f64 = np.float64
-Material = objects.Material
 
 
 def create_material(**kwargs) -> Material:
