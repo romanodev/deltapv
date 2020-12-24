@@ -53,6 +53,21 @@ def step(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64,
         axis=0), error
 
 
+@jit
+def step_eq(cell: PVCell, phi: Array) -> Tuple[Array, f64]:
+
+    N = cell.grid.size
+
+    Feq = residual.F_eq(cell, np.zeros(N), np.zeros(N), phi)
+    spgradFeq = residual.F_eq_deriv(cell, np.zeros(N), np.zeros(N), phi)
+    
+    move = linsol(spgradFeq, -Feq)
+    error = np.max(np.abs(move))
+    damp_move = damp(move)
+
+    return phi + damp_move, error
+
+
 def solve(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64,
           phis_ini: Array) -> Array:
 
@@ -69,21 +84,6 @@ def solve(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64,
         print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
     return phis
-
-
-@jit
-def step_eq(cell: PVCell, phi: Array) -> Tuple[Array, f64]:
-
-    N = cell.grid.size
-
-    Feq = residual.F_eq(cell, np.zeros(N), np.zeros(N), phi)
-    spgradFeq = residual.F_eq_deriv(cell, np.zeros(N), np.zeros(N), phi)
-    
-    move = linsol(spgradFeq, -Feq)
-    error = np.max(np.abs(move))
-    damp_move = damp(move)
-
-    return phi + damp_move, error
 
 
 def solve_eq(cell: PVCell, phi_ini: Array) -> Array:
