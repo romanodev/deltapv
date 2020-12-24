@@ -3,24 +3,25 @@ from jax import numpy as np
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
+Potentials = objects.Potentials
 Array = util.Array
 f64 = util.f64
 
 
-def n(cell: PVCell, phi_n: Array, phi: Array) -> Array:
+def n(cell: PVCell, pot: Potentials) -> Array:
 
-    return cell.Nc * np.exp(cell.Chi + phi_n + phi)
-
-
-def p(cell: PVCell, phi_p: Array, phi: Array) -> Array:
-
-    return cell.Nv * np.exp(-cell.Chi - cell.Eg - phi_p - phi)
+    return cell.Nc * np.exp(cell.Chi + pot.phi_n + pot.phi)
 
 
-def charge(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
+def p(cell: PVCell, pot: Potentials) -> Array:
 
-    _n = n(cell, phi_n, phi)
-    _p = p(cell, phi_p, phi)
+    return cell.Nv * np.exp(-cell.Chi - cell.Eg - pot.phi_p - pot.phi)
+
+
+def charge(cell: PVCell, pot: Potentials) -> Array:
+
+    _n = n(cell, pot)
+    _p = p(cell, pot)
     return -_n + _p + cell.Ndop
 
 

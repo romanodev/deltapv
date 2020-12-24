@@ -58,3 +58,18 @@ class Material:
 
     def __iter__(self):
         return self.__dict__.items().__iter__()
+
+
+@dataclasses.dataclass
+class Potentials:
+    phi: Array
+    phi_n: Array
+    phi_p: Array
+
+
+@dataclasses.dataclass
+class Boundary:
+    neq0: f64
+    neqL: f64
+    peq0: f64
+    peqL: f64

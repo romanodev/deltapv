@@ -3,28 +3,27 @@ from jax import numpy as np
 from typing import Tuple
 
 PVCell = objects.PVCell
-LightSource = objects.LightSource
+Potentials = objects.Potentials
 Array = util.Array
 f64 = util.f64
 
 
-def pois(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
+def pois(cell: PVCell, pot: Potentials) -> Array:
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
     ave_eps = (cell.eps[1:] + cell.eps[:-1]) / 2.
-    pois = (ave_eps[:-1] * np.diff(phi)[:-1] / cell.dgrid[:-1] - ave_eps[1:] *
-            np.diff(phi)[1:] / cell.dgrid[1:]) / ave_dgrid - physics.charge(
-                cell, phi_n, phi_p, phi)[1:-1]
+    pois = (ave_eps[:-1] * np.diff(pot.phi)[:-1] / cell.dgrid[:-1] -
+            ave_eps[1:] * np.diff(pot.phi)[1:] /
+            cell.dgrid[1:]) / ave_dgrid - physics.charge(cell, pot)[1:-1]
     return pois
 
 
-def pois_deriv_eq(cell: PVCell, phi_n: Array, phi_p: Array,
-                  phi: Array) -> Tuple[Array, Array, Array]:
+def pois_deriv_eq(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array]:
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
     ave_eps = (cell.eps[1:] + cell.eps[:-1]) / 2.
-    n = physics.n(cell, phi_n, phi)
-    p = physics.p(cell, phi_p, phi)
+    n = physics.n(cell, pot)
+    p = physics.p(cell, pot)
 
     dchg_phi = -n - p
 
@@ -36,13 +35,13 @@ def pois_deriv_eq(cell: PVCell, phi_n: Array, phi_p: Array,
     return dpois_phi_, dpois_phi__, dpois_phi___
 
 
-def pois_deriv(cell: PVCell, phi_n: Array, phi_p: Array,
-               phi: Array) -> Tuple[Array, Array, Array, Array, Array]:
+def pois_deriv(cell: PVCell,
+               pot: Potentials) -> Tuple[Array, Array, Array, Array, Array]:
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.0
     ave_eps = 0.5 * (cell.eps[1:] + cell.eps[:-1])
-    n = physics.n(cell, phi_n, phi)
-    p = physics.p(cell, phi_p, phi)
+    n = physics.n(cell, pot)
+    p = physics.p(cell, pot)
 
     dchg_phi_n = -n
     dchg_phi_p = -p

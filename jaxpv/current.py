@@ -3,12 +3,16 @@ from jax import numpy as np
 from typing import Tuple
 
 PVCell = objects.PVCell
-LightSource = objects.LightSource
+Potentials = objects.Potentials
 Array = util.Array
 f64 = util.f64
 
 
-def Jn(cell: PVCell, phi_n: Array, phi: Array) -> Array:
+def Jn(cell: PVCell, pot: Potentials) -> Array:
+
+    phi = pot.phi
+    phi_n = pot.phi_n
+    phi_p = pot.phi_p
 
     psi_n = cell.Chi + np.log(cell.Nc) + phi
     Dpsin = -np.diff(psi_n)
@@ -25,12 +29,16 @@ def Jn(cell: PVCell, phi_n: Array, phi: Array) -> Array:
     return cell.mn[:-1] * Dpsin_Dexppsin * fm / cell.dgrid
 
 
-def Jn_deriv(cell: PVCell, phi_n: Array,
-             phi: Array) -> Tuple[Array, Array, Array, Array]:
+def Jn_deriv(cell: PVCell,
+             pot: Potentials) -> Tuple[Array, Array, Array, Array]:
+
+    phi = pot.phi
+    phi_n = pot.phi_n
+    phi_p = pot.phi_p
 
     psi_n = cell.Chi + np.log(cell.Nc) + phi
     Dpsin = -np.diff(psi_n)
-    
+
     around_zero = np.abs(Dpsin) < 1e-5
 
     fm = np.diff(np.exp(phi_n))
@@ -71,11 +79,15 @@ def Jn_deriv(cell: PVCell, phi_n: Array,
     return dJn_phin__, dJn_phin___, dJn_phi__, dJn_phi___
 
 
-def Jp(cell: PVCell, phi_p: Array, phi: Array) -> Array:
+def Jp(cell: PVCell, pot: Potentials) -> Array:
+
+    phi = pot.phi
+    phi_n = pot.phi_n
+    phi_p = pot.phi_p
 
     psi_p = cell.Chi + cell.Eg - np.log(cell.Nv) + phi
     Dpsip = -np.diff(psi_p)
-    
+
     around_zero = np.abs(Dpsip) < 1e-5
 
     fm = np.diff(np.exp(-phi_p))
@@ -88,12 +100,16 @@ def Jp(cell: PVCell, phi_p: Array, phi: Array) -> Array:
     return cell.mp[:-1] * Dpsip_Dexppsip * fm / cell.dgrid
 
 
-def Jp_deriv(cell: PVCell, phi_p: Array,
-             phi: Array) -> Tuple[Array, Array, Array, Array]:
+def Jp_deriv(cell: PVCell,
+             pot: Potentials) -> Tuple[Array, Array, Array, Array]:
+
+    phi = pot.phi
+    phi_n = pot.phi_n
+    phi_p = pot.phi_p
 
     psi_p = cell.Chi + cell.Eg - np.log(cell.Nv) + phi
     Dpsip = -np.diff(psi_p)
-    
+
     around_zero = np.abs(Dpsip) < 1e-5
 
     fm = np.diff(np.exp(-phi_p))
@@ -136,8 +152,11 @@ def Jp_deriv(cell: PVCell, phi_p: Array,
     return dJp_phip__, dJp_phip___, dJp_phi__, dJp_phi___
 
 
-def total_current(cell: PVCell, phi_n: Array, phi_p: Array,
-                  phi: Array) -> Tuple[Array, dict]:
+def total_current(cell: PVCell, pot: Potentials) -> Tuple[Array, dict]:
+
+    phi = pot.phi
+    phi_n = pot.phi_n
+    phi_p = pot.phi_p
 
     psin0 = cell.Chi[0] + np.log(cell.Nc[0]) + phi[0]
     psin1 = cell.Chi[1] + np.log(cell.Nc[1]) + phi[1]

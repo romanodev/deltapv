@@ -5,100 +5,103 @@ from typing import Tuple
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
+Potentials = objects.Potentials
+Boundary = objects.Boundary
 Array = util.Array
 f64 = util.f64
 
 
 @jit
-def damp(dx):
+def damp(move: Array) -> Array:
 
     damped = np.where(
-        np.abs(dx) > 1,
-        np.log(1 + np.abs(dx) * 1.72) * np.sign(dx), dx)
+        np.abs(move) > 1,
+        np.log(1 + np.abs(move) * 1.72) * np.sign(move), move)
 
     return damped
 
 
 @jit
 def linsol(spmat: Array, vec: Array) -> Array:
-    
+
     mvp = lambda x: splinalg.spmatvec(spmat, x)
     precond = splinalg.invjvp(spmat)
-    
-    sol, _ = scipy.sparse.linalg.gmres(mvp, vec, M=precond,
-                                       tol=1e-10, atol=0.,
+
+    sol, _ = scipy.sparse.linalg.gmres(mvp,
+                                       vec,
+                                       M=precond,
+                                       tol=1e-10,
+                                       atol=0.,
                                        maxiter=5)
-    
+
     return sol
 
 
 @jit
-def step(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64,
-         phis: Array) -> Tuple[Array, f64]:
+def step(cell: PVCell, bound: Boundary,
+         pot: Potentials) -> Tuple[Potentials, f64]:
 
     N = cell.grid.size
 
-    F = residual.F(cell, neq0, neqL, peq0, peqL, phis[0:N], phis[N:2 * N],
-                   phis[2 * N:])
-    spgradF = residual.F_deriv(cell, neq0, neqL, peq0, peqL, phis[0:N],
-                               phis[N:2 * N], phis[2 * N:])
-    
+    F = residual.F(cell, bound, pot)
+    spgradF = residual.F_deriv(cell, bound, pot)
+
     move = linsol(spgradF, -F)
     error = np.max(np.abs(move))
     damp_move = damp(move)
-    
-    return np.concatenate(
-        (phis[0:N] + damp_move[0:3 * N:3], phis[N:2 * N] +
-         damp_move[1:3 * N:3], phis[2 * N:] + damp_move[2:3 * N:3]),
-        axis=0), error
+    phi_new = pot.phi + damp_move[2:3 * N:3]
+    phi_n_new = pot.phi_n + damp_move[:3 * N:3]
+    phi_p_new = pot.phi_p + damp_move[1:3 * N:3]
+
+    pot_new = Potentials(phi_new, phi_n_new, phi_p_new)
+
+    return pot_new, error
 
 
 @jit
-def step_eq(cell: PVCell, phi: Array) -> Tuple[Array, f64]:
+def step_eq(cell: PVCell, pot: Potentials) -> Tuple[Potentials, f64]:
 
     N = cell.grid.size
 
-    Feq = residual.F_eq(cell, np.zeros(N), np.zeros(N), phi)
-    spgradFeq = residual.F_eq_deriv(cell, np.zeros(N), np.zeros(N), phi)
-    
+    Feq = residual.F_eq(cell, pot)
+    spgradFeq = residual.F_eq_deriv(cell, pot)
+
     move = linsol(spgradFeq, -Feq)
     error = np.max(np.abs(move))
     damp_move = damp(move)
 
-    return phi + damp_move, error
+    pot_new = Potentials(pot.phi + damp_move, pot.phi_n, pot.phi_p)
+
+    return pot_new, error
 
 
-def solve(cell: PVCell, neq0: f64, neqL: f64, peq0: f64, peqL: f64,
-          phis_ini: Array) -> Array:
+def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
-    N = cell.grid.size
-
-    phis = phis_ini
+    pot = pot_ini
     error = 1
     niter = 0
 
     while error > 1e-6 and niter < 100:
 
-        phis, error = step(cell, neq0, neqL, peq0, peqL, phis)
+        pot, error = step(cell, bound, pot)
         niter += 1
         print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
-    return phis
+    return pot
 
 
-def solve_eq(cell: PVCell, phi_ini: Array) -> Array:
+def solve_eq(cell: PVCell, pot_ini: Potentials) -> Potentials:
 
     print("Solving equilibrium...")
-    N = cell.grid.size
 
     error = 1
     niter = 0
-    phi = phi_ini
+    pot = pot_ini
 
     while error > 1e-6 and niter < 100:
 
-        phi, error = step_eq(cell, phi)
+        pot, error = step_eq(cell, pot)
         niter += 1
         print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
-    return phi
+    return pot

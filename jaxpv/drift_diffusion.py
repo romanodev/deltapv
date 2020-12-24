@@ -4,36 +4,27 @@ from typing import Tuple
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
+Potentials = objects.Potentials
 Array = util.Array
 f64 = util.f64
 
 
-def ddp(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
+def ddp(cell: PVCell, pot: Potentials) -> Array:
 
-    R = rec.comp_SHR(cell, phi_n, phi_p, phi) + rec.comp_auger(
-        cell, phi_n, phi_p, phi)
-    Jp = current.Jp(cell, phi_p, phi)
+    R = rec.all_recomb(cell, pot)
+    Jp = current.Jp(cell, pot)
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
     return R[1:-1] - cell.G[1:-1] + np.diff(Jp) / ave_dgrid
 
 
 def ddp_deriv(
-        cell: PVCell, phi_n: Array, phi_p: Array,
-        phi: Array) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
+        cell: PVCell, pot: Potentials
+) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
 
-    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = rec.comp_SHR_deriv(
-        cell, phi_n, phi_p, phi)
-    DR_rad_phin, DR_rad_phip, DR_rad_phi = rec.comp_rad_deriv(
-        cell, phi_n, phi_p, phi)
-    DR_auger_phin, DR_auger_phip, DR_auger_phi = rec.comp_auger_deriv(
-        cell, phi_n, phi_p, phi)
-
-    DR_phin = DR_SHR_phin + DR_rad_phin + DR_auger_phin
-    DR_phip = DR_SHR_phip + DR_rad_phip + DR_auger_phip
-    DR_phi = DR_SHR_phi + DR_rad_phi + DR_auger_phi
+    DR_phin, DR_phip, DR_phi = rec.all_recomb_deriv(cell, pot)
 
     dJp_phip_maindiag, dJp_phip_upperdiag, dJp_phi_maindiag, dJp_phi_upperdiag = current.Jp_deriv(
-        cell, phi_p, phi)
+        cell, pot)
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
 
@@ -52,13 +43,11 @@ def ddp_deriv(
     return ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___, ddp_phi_, ddp_phi__, ddp_phi___
 
 
-def ddn(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
+def ddn(cell: PVCell, pot: Potentials) -> Array:
 
-    R = rec.comp_SHR(cell, phi_n, phi_p, phi) \
-        + rec.comp_rad(cell, phi_n, phi_p, phi) \
-        + rec.comp_auger(cell, phi_n, phi_p, phi)
+    R = rec.all_recomb(cell, pot)
 
-    Jn = current.Jn(cell, phi_n, phi)
+    Jn = current.Jn(cell, pot)
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
 
@@ -66,22 +55,13 @@ def ddn(cell: PVCell, phi_n: Array, phi_p: Array, phi: Array) -> Array:
 
 
 def ddn_deriv(
-        cell: PVCell, phi_n: Array, phi_p: Array,
-        phi: Array) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
+        cell: PVCell, pot: Potentials
+) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
 
-    DR_SHR_phin, DR_SHR_phip, DR_SHR_phi = rec.comp_SHR_deriv(
-        cell, phi_n, phi_p, phi)
-    DR_rad_phin, DR_rad_phip, DR_rad_phi = rec.comp_rad_deriv(
-        cell, phi_n, phi_p, phi)
-    DR_auger_phin, DR_auger_phip, DR_auger_phi = rec.comp_auger_deriv(
-        cell, phi_n, phi_p, phi)
-
-    DR_phin = DR_SHR_phin + DR_rad_phin + DR_auger_phin
-    DR_phip = DR_SHR_phip + DR_rad_phip + DR_auger_phip
-    DR_phi = DR_SHR_phi + DR_rad_phi + DR_auger_phi
+    DR_phin, DR_phip, DR_phi = rec.all_recomb_deriv(cell, pot)
 
     dJn_phin_maindiag, dJn_phin_upperdiag, dJn_phi_maindiag, dJn_phi_upperdiag = current.Jn_deriv(
-        cell, phi_n, phi)
+        cell, pot)
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
 

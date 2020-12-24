@@ -3,6 +3,8 @@ from jax import numpy as np, ops
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
+Potentials = objects.Potentials
+Boundary = objects.Boundary
 Array = util.Array
 f64 = util.f64
 
@@ -42,38 +44,41 @@ def calc_IV(cell: PVCell, Vincrement: f64) -> Array:
     N = cell.grid.size
 
     phi_ini = eq_init_phi(cell)
-    phi_eq = solver.solve_eq(cell, phi_ini)
+    pot_ini = Potentials(phi_ini, np.zeros(N), np.zeros(N))
+    pot_eq = solver.solve_eq(cell, pot_ini)
 
-    neq_0 = cell.Nc[0] * np.exp(cell.Chi[0] + phi_eq[0])
-    neq_L = cell.Nc[-1] * np.exp(cell.Chi[-1] + phi_eq[-1])
-    peq_0 = cell.Nv[0] * np.exp(-cell.Chi[0] - cell.Eg[0] - phi_eq[0])
-    peq_L = cell.Nv[-1] * np.exp(-cell.Chi[-1] - cell.Eg[-1] - phi_eq[-1])
-    phis = np.concatenate([np.zeros(2 * N), phi_eq], axis=0)
+    neq0 = cell.Nc[0] * np.exp(cell.Chi[0] + pot_eq.phi[0])
+    neqL = cell.Nc[-1] * np.exp(cell.Chi[-1] + pot_eq.phi[-1])
+    peq0 = cell.Nv[0] * np.exp(-cell.Chi[0] - cell.Eg[0] - pot_eq.phi[0])
+    peqL = cell.Nv[-1] * np.exp(-cell.Chi[-1] - cell.Eg[-1] - pot_eq.phi[-1])
+    bound = Boundary(neq0, neqL, peq0, peqL)
 
+    pot = pot_eq
     jcurve = np.array([], dtype=f64)
     voltages = np.array([], dtype=f64)
+    v = 0
     max_iter = 100
     niter = 0
-    v = 0
     terminate = False
 
     while not terminate and niter < max_iter:
 
         scaled_V = v * scales.E
         print(f"Solving for V = {scaled_V}")
-        
-        sol = solver.solve(cell, neq_0, neq_L, peq_0, peq_L, phis)
-        total_j, _ = current.total_current(cell, sol[0:N], sol[N:2 * N],
-                                           sol[2 * N:])
 
-        jcurve = np.concatenate([jcurve, np.array([total_j])])
-        voltages = np.concatenate([voltages, np.array([v])])
+        pot_sol = solver.solve(cell, bound, pot)
+        total_j, _ = current.total_current(cell, pot_sol)
+
+        jcurve = np.append(jcurve, total_j)
+        voltages = np.append(voltages, v)
 
         niter += 1
         v += Vincrement
-        phis = ops.index_update(sol, -1, phi_eq[-1] + v)
+        pot = Potentials(
+            ops.index_update(pot_sol.phi, ops.index[-1], pot_eq.phi[-1] + v),
+            pot_sol.phi_n, pot_sol.phi_p)
 
         if jcurve.size > 2:
-            terminate = (jcurve[-2] * jcurve[-1] <= 0)
+            terminate = (jcurve[-2] * jcurve[-1]) <= 0
 
     return jcurve, voltages

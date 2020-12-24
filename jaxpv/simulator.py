@@ -117,7 +117,7 @@ def IV_curve(
     currents, voltages = IV.calc_IV(cell, Vincr)
     dim_currents = scales.J * currents
     dim_voltages = scales.E * voltages
-    
+
     return dim_voltages, dim_currents
 
 
@@ -133,10 +133,10 @@ def efficiency(cell: PVCell, ls: LightSource = LightSource()) -> f64:
 
 
 def solve_equilibrium(cell: PVCell, ls: LightSource = LightSource()) -> Array:
-    
+
     cell = get_generation(cell, ls)
     Vincr = IV.Vincrement(cell)
     phi_ini = IV.eq_init_phi(cell)
     phi_eq = solver.solve_eq(cell, phi_ini)
-    
+
     return phi_eq
