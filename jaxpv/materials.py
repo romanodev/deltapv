@@ -1,35 +1,10 @@
-from . import dataclasses
+from jaxpv import dataclasses, objects
 from jax import numpy as np
-import yaml
-import glob
-import os
+import yaml, glob, os
 
 Array = np.ndarray
 f64 = np.float64
-
-MATERIAL_FILES = glob.glob(
-    os.path.join(os.path.dirname(__file__), "resources/*.yaml"))
-
-
-@dataclasses.dataclass
-class Material:
-    eps: f64 = f64(1)
-    Chi: f64 = f64(1)
-    Eg: f64 = f64(1)
-    Nc: f64 = f64(1e17)
-    Nv: f64 = f64(1e17)
-    mn: f64 = f64(1e2)
-    mp: f64 = f64(1e2)
-    tn: f64 = f64(1e-8)
-    tp: f64 = f64(1e-8)
-    Et: f64 = f64(0)
-    Br: f64 = f64(0)
-    Cn: f64 = f64(0)
-    Cp: f64 = f64(0)
-    A: f64 = f64(0)
-
-    def __iter__(self):
-        return self.__dict__.items().__iter__()
+Material = objects.Material
 
 
 def create_material(**kwargs) -> Material:

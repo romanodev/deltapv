@@ -37,3 +37,24 @@ class LightSource:
 
     Lambda: Array = np.zeros(1)
     P_in: Array = np.zeros(1)
+
+
+@dataclasses.dataclass
+class Material:
+    eps: f64 = f64(1)
+    Chi: f64 = f64(1)
+    Eg: f64 = f64(1)
+    Nc: f64 = f64(1e17)
+    Nv: f64 = f64(1e17)
+    mn: f64 = f64(1e2)
+    mp: f64 = f64(1e2)
+    tn: f64 = f64(1e-8)
+    tp: f64 = f64(1e-8)
+    Et: f64 = f64(0)
+    Br: f64 = f64(0)
+    Cn: f64 = f64(0)
+    Cp: f64 = f64(0)
+    A: f64 = f64(0)
+
+    def __iter__(self):
+        return self.__dict__.items().__iter__()
