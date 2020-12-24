@@ -1,4 +1,4 @@
-from jaxpv import objects, scales, optical, sun, IV, materials, util
+from jaxpv import objects, scales, optical, sun, IV, materials, solver, util
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
