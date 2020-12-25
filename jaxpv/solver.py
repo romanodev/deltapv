@@ -43,7 +43,8 @@ def step(cell: PVCell, bound: Boundary,
 
 
 @jit
-def step_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Tuple[Potentials, f64]:
+def step_eq(cell: PVCell, bound: Boundary,
+            pot: Potentials) -> Tuple[Potentials, f64]:
 
     N = cell.grid.size
 
@@ -59,13 +60,14 @@ def step_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Tuple[Potentials,
     return pot_new, error
 
 
-def _solve(f: Callable[[Tuple[PVCell, Boundary, Potentials]], Tuple[Potentials, f64]],
-           cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
-    
+def _solve(f: Callable[[Tuple[PVCell, Boundary, Potentials]],
+                       Tuple[Potentials, f64]], cell: PVCell, bound: Boundary,
+           pot_ini: Potentials) -> Potentials:
+
     pot = pot_ini
     error = 1
     niter = 0
-    
+
     while error > 1e-6 and niter < 100:
 
         pot, error = f(cell, bound, pot)

@@ -10,9 +10,9 @@ i32 = util.i32
 _W = 13
 
 
-@partial(jit, static_argnums=(3,))
+@partial(jit, static_argnums=(3, ))
 def coo2sparse(row: Array, col: Array, data: Array, n: i32) -> Array:
-    
+
     disp = np.clip(col - row + _W // 2, 0, _W - 1)
     sparse = ops.index_update(np.zeros((n, _W)), ops.index[row, disp], data)
     return sparse
@@ -20,7 +20,6 @@ def coo2sparse(row: Array, col: Array, data: Array, n: i32) -> Array:
 
 @jit
 def spmatvec(m: Array, x: Array) -> Array:
-    
     def _onerow(m, x, i):
         return np.dot(m[i], lax.dynamic_slice(x, [i], [_W]))
 
@@ -30,14 +29,14 @@ def spmatvec(m: Array, x: Array) -> Array:
 
 @jit
 def spget(m: Array, i: i32, j: i32) -> f64:
-    
+
     disp = np.clip(j - i + _W // 2, 0, _W - 1)
     return m[i, disp]
 
 
 @jit
 def spwrite(m: Array, i: i32, j: i32, value: f64) -> Array:
-    
+
     disp = np.clip(j - i + _W // 2, 0, _W - 1)
     mnew = ops.index_update(m, ops.index[i, disp], value)
     return mnew
@@ -45,7 +44,7 @@ def spwrite(m: Array, i: i32, j: i32, value: f64) -> Array:
 
 @jit
 def spilu(m: Array) -> Array:
-    
+
     n = m.shape[0]
 
     def iloop(cmat, i):
@@ -111,7 +110,7 @@ def bsub(m: Array, b: Array) -> Array:
 
 
 def invmvp(sparse: Array) -> Callable[[Array], Array]:
-    
+
     fact = spilu(sparse)
     jvp = lambda b: bsub(fact, fsub(fact, b))
     return jvp
@@ -123,11 +122,6 @@ def linsol(spmat: Array, vec: Array) -> Array:
     mvp = partial(spmatvec, spmat)
     precond = invmvp(spmat)
 
-    sol, _ = gmres(mvp,
-                   vec,
-                   M=precond,
-                   tol=1e-10,
-                   atol=0.,
-                   maxiter=5)
+    sol, _ = gmres(mvp, vec, M=precond, tol=1e-10, atol=0., maxiter=5)
 
     return sol

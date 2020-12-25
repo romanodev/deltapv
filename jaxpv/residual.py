@@ -126,10 +126,10 @@ def comp_F_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     pois = poisson.pois(cell, pot)
     ctct_0_phi, ctct_L_phi = bcond.contact_phi(cell, bound, pot)
-    resid = np.concatenate([np.array([ctct_0_phi]),
-                            pois,
-                            np.array([ctct_L_phi])])
-    
+    resid = np.concatenate(
+        [np.array([ctct_0_phi]), pois,
+         np.array([ctct_L_phi])])
+
     return resid
 
 

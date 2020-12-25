@@ -22,12 +22,12 @@ def vincr(cell: PVCell, num_vals: i32 = 50) -> f64:
 def calc_iv(cell: PVCell, vincr: f64) -> Array:
 
     N = cell.grid.size
-    
+
     print("Solving equilibrium...")
     bound_eq = bcond.boundary_eq(cell)
-    pot_ini = Potentials(np.linspace(bound_eq.phi0, bound_eq.phiL, cell.grid.size),
-                         np.zeros(N),
-                         np.zeros(N))
+    pot_ini = Potentials(
+        np.linspace(bound_eq.phi0, bound_eq.phiL, cell.grid.size), np.zeros(N),
+        np.zeros(N))
     pot = solver.solve_eq(cell, bound_eq, pot_ini)
 
     jcurve = np.array([], dtype=f64)
@@ -41,12 +41,12 @@ def calc_iv(cell: PVCell, vincr: f64) -> Array:
         print(f"Solving for v = {scaled_v}...")
         bound = bcond.boundary(cell, v)
         pot = solver.solve(cell, bound, pot)
-        
+
         total_j, _ = current.total_current(cell, pot)
         jcurve = np.append(jcurve, total_j)
         voltages = np.append(voltages, vincr * vstep)
         vstep += 1
-        
+
         if jcurve.size > 2:
             if (jcurve[-2] * jcurve[-1]) <= 0:
                 break
