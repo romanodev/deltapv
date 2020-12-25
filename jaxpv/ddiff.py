@@ -1,4 +1,4 @@
-from jaxpv import objects, recombination as rec, current, util
+from jaxpv import objects, recomb, current, util
 from jax import numpy as np
 from typing import Tuple
 
@@ -11,7 +11,7 @@ f64 = util.f64
 
 def ddp(cell: PVCell, pot: Potentials) -> Array:
 
-    R = rec.all_recomb(cell, pot)
+    R = recomb.all_recomb(cell, pot)
     Jp = current.Jp(cell, pot)
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
     return R[1:-1] - cell.G[1:-1] + np.diff(Jp) / ave_dgrid
@@ -21,7 +21,7 @@ def ddp_deriv(
         cell: PVCell, pot: Potentials
 ) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
 
-    DR_phin, DR_phip, DR_phi = rec.all_recomb_deriv(cell, pot)
+    DR_phin, DR_phip, DR_phi = recomb.all_recomb_deriv(cell, pot)
 
     dJp_phip_maindiag, dJp_phip_upperdiag, dJp_phi_maindiag, dJp_phi_upperdiag = current.Jp_deriv(
         cell, pot)
@@ -45,7 +45,7 @@ def ddp_deriv(
 
 def ddn(cell: PVCell, pot: Potentials) -> Array:
 
-    R = rec.all_recomb(cell, pot)
+    R = recomb.all_recomb(cell, pot)
 
     Jn = current.Jn(cell, pot)
 
@@ -58,7 +58,7 @@ def ddn_deriv(
         cell: PVCell, pot: Potentials
 ) -> Tuple[Array, Array, Array, Array, Array, Array, Array]:
 
-    DR_phin, DR_phip, DR_phi = rec.all_recomb_deriv(cell, pot)
+    DR_phin, DR_phip, DR_phi = recomb.all_recomb_deriv(cell, pot)
 
     dJn_phin_maindiag, dJn_phin_upperdiag, dJn_phi_maindiag, dJn_phi_upperdiag = current.Jn_deriv(
         cell, pot)

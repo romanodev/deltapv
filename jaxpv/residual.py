@@ -1,4 +1,4 @@
-from jaxpv import objects, drift_diffusion as dd, boundary_conditions as bc, poisson, splinalg, util
+from jaxpv import objects, ddiff, bcond, poisson, splinalg, util
 from jax import numpy as np, ops, jit
 
 PVCell = objects.PVCell
@@ -11,22 +11,23 @@ f64 = util.f64
 @jit
 def F(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
-    ddn = dd.ddn(cell, pot)
-    ddp = dd.ddp(cell, pot)
+    ddn = ddiff.ddn(cell, pot)
+    ddp = ddiff.ddp(cell, pot)
     pois = poisson.pois(cell, pot)
 
-    ctct_0_phin, ctct_L_phin = bc.contact_phin(cell, bound, pot)
-    ctct_0_phip, ctct_L_phip = bc.contact_phip(cell, bound, pot)
+    ctct_0_phin, ctct_L_phin = bcond.contact_phin(cell, bound, pot)
+    ctct_0_phip, ctct_L_phip = bcond.contact_phip(cell, bound, pot)
+    ctct_0_phi, ctct_L_phi = bcond.contact_phi(cell, bound, pot)
 
     lenF = 3 + 3 * len(pois) + 3
     result = np.zeros(lenF, dtype=np.float64)
     result = ops.index_update(result, ops.index[:3],
-                              np.array([ctct_0_phin, ctct_0_phip, 0]))
+                              np.array([ctct_0_phin, ctct_0_phip, ctct_0_phi]))
     result = ops.index_update(result, ops.index[3:lenF - 5:3], ddn)
     result = ops.index_update(result, ops.index[4:lenF - 4:3], ddp)
     result = ops.index_update(result, ops.index[5:lenF - 3:3], pois)
     result = ops.index_update(result, ops.index[-3:],
-                              np.array([ctct_L_phin, ctct_L_phip, 0]))
+                              np.array([ctct_L_phin, ctct_L_phip, ctct_L_phi]))
 
     return result
 
@@ -34,14 +35,14 @@ def F(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 @jit
 def F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
-    dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = dd.ddn_deriv(
+    dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = ddiff.ddn_deriv(
         cell, pot)
-    ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___, ddp_phi_, ddp_phi__, ddp_phi___ = dd.ddp_deriv(
+    ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___, ddp_phi_, ddp_phi__, ddp_phi___ = ddiff.ddp_deriv(
         cell, pot)
     dpois_phi_, dpois_phi__, dpois_phi___, dpois_dphin__, dpois_dphip__ = poisson.pois_deriv(
         cell, pot)
-    dctct_phin = bc.contact_phin_deriv(cell, pot)
-    dctct_phip = bc.contact_phip_deriv(cell, pot)
+    dctct_phin = bcond.contact_phin_deriv(cell, pot)
+    dctct_phip = bcond.contact_phip_deriv(cell, pot)
 
     N = cell.grid.size
 
@@ -121,14 +122,19 @@ def F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
 
 @jit
-def F_eq(cell: PVCell, pot: Potentials) -> Array:
+def F_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     pois = poisson.pois(cell, pot)
-    return np.pad(pois, pad_width=1)
+    ctct_0_phi, ctct_L_phi = bcond.contact_phi(cell, bound, pot)
+    resid = np.concatenate([np.array([ctct_0_phi]),
+                            pois,
+                            np.array([ctct_L_phi])])
+    
+    return resid
 
 
 @jit
-def F_eq_deriv(cell: PVCell, pot: Potentials) -> Array:
+def F_eq_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     N = cell.grid.size
     dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(cell, pot)

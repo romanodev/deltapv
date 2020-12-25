@@ -1,7 +1,8 @@
 from jaxpv import objects, residual, splinalg, util
 from jax import numpy as np, scipy, jit
 from jax.scipy.sparse.linalg import gmres
-from typing import Tuple
+from typing import Tuple, Callable
+from functools import partial
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
@@ -59,12 +60,12 @@ def step(cell: PVCell, bound: Boundary,
 
 
 @jit
-def step_eq(cell: PVCell, pot: Potentials) -> Tuple[Potentials, f64]:
+def step_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Tuple[Potentials, f64]:
 
     N = cell.grid.size
 
-    Feq = residual.F_eq(cell, pot)
-    spgradFeq = residual.F_eq_deriv(cell, pot)
+    Feq = residual.F_eq(cell, bound, pot)
+    spgradFeq = residual.F_eq_deriv(cell, bound, pot)
 
     move = linsol(spgradFeq, -Feq)
     error = np.max(np.abs(move))
@@ -75,33 +76,21 @@ def step_eq(cell: PVCell, pot: Potentials) -> Tuple[Potentials, f64]:
     return pot_new, error
 
 
-def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
-
+def _solve(f: Callable[[Tuple[PVCell, Boundary, Potentials]], Tuple[Potentials, f64]],
+           cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
+    
     pot = pot_ini
     error = 1
     niter = 0
-
+    
     while error > 1e-6 and niter < 100:
 
-        pot, error = step(cell, bound, pot)
+        pot, error = f(cell, bound, pot)
         niter += 1
         print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
     return pot
 
 
-def solve_eq(cell: PVCell, pot_ini: Potentials) -> Potentials:
-
-    print("Solving equilibrium...")
-
-    error = 1
-    niter = 0
-    pot = pot_ini
-
-    while error > 1e-6 and niter < 100:
-
-        pot, error = step_eq(cell, pot)
-        niter += 1
-        print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
-
-    return pot
+solve = partial(_solve, step)
+solve_eq = partial(_solve, step_eq)

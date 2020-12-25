@@ -11,7 +11,7 @@ from jax import numpy as np
 ## Snl , Snr , Spl , Spr : cm / s
 ## G : cm^(-3) / s
 
-T = 300.
+T = 3e2
 KB = const.k
 hc = const.c * const.h * 1e9  # J.nm
 _q, _, _ = const.physical_constants["elementary charge"]

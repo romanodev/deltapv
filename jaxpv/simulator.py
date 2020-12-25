@@ -1,10 +1,11 @@
-from jaxpv import objects, scales, optical, sun, IV, materials, solver, util
+from jaxpv import objects, scales, optical, sun, iv, materials, solver, util
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
+Potentials = objects.Potentials
 Array = util.Array
 f64 = util.f64
 
@@ -113,8 +114,8 @@ def IV_curve(
     cell: PVCell, ls: LightSource = LightSource()) -> Tuple[Array, Array]:
 
     cell = get_generation(cell, ls)
-    Vincr = IV.Vincrement(cell)
-    currents, voltages = IV.calc_IV(cell, Vincr)
+    Vincr = iv.Vincrement(cell)
+    currents, voltages = iv.calc_IV(cell, Vincr)
     dim_currents = scales.J * currents
     dim_voltages = scales.E * voltages
 
@@ -124,8 +125,8 @@ def IV_curve(
 def efficiency(cell: PVCell, ls: LightSource = LightSource()) -> f64:
 
     cell = get_generation(cell, ls)
-    Vincr = IV.Vincrement(cell)
-    currents, voltages = IV.calc_IV(cell, Vincrement)
+    Vincr = iv.Vincrement(cell)
+    currents, voltages = iv.calc_IV(cell, Vincrement)
     Pmax = np.max(scales.E * voltages * scales.J * currents) * 1e4  # W/m2
     eff = Pmax / 1e3
 
@@ -134,9 +135,11 @@ def efficiency(cell: PVCell, ls: LightSource = LightSource()) -> f64:
 
 def solve_equilibrium(cell: PVCell, ls: LightSource = LightSource()) -> Array:
 
+    N = cell.grid.size
     cell = get_generation(cell, ls)
-    Vincr = IV.Vincrement(cell)
-    phi_ini = IV.eq_init_phi(cell)
-    phi_eq = solver.solve_eq(cell, phi_ini)
+    Vincr = iv.Vincrement(cell)
+    phi_ini = iv.eq_init_phi(cell)
+    pot_ini = Potentials(phi_ini, np.zeros(N), np.zeros(N))
+    phi_eq = solver.solve_eq(cell, pot_ini)
 
     return phi_eq

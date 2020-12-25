@@ -35,7 +35,7 @@ class PVCell:
 @dataclasses.dataclass
 class LightSource:
 
-    Lambda: Array = np.zeros(1)
+    Lambda: Array = np.ones(1)
     P_in: Array = np.zeros(1)
 
 
@@ -69,6 +69,8 @@ class Potentials:
 
 @dataclasses.dataclass
 class Boundary:
+    phi0: f64
+    phiL: f64
     neq0: f64
     neqL: f64
     peq0: f64
