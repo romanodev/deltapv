@@ -7,9 +7,10 @@ Potentials = objects.Potentials
 Boundary = objects.Boundary
 Array = util.Array
 f64 = util.f64
+i32 = util.i32
 
 
-def Vincrement(cell: PVCell, num_vals: int = 50) -> f64:
+def vincr(cell: PVCell, num_vals: i32 = 50) -> f64:
 
     phi_ini_left = util.switch(
         cell.Ndop[0] > 0, -cell.Chi[0] + np.log(np.abs(cell.Ndop[0] / cell.Nc[0])),
@@ -26,7 +27,7 @@ def Vincrement(cell: PVCell, num_vals: int = 50) -> f64:
     return incr_sign * incr_step
 
 
-def calc_IV(cell: PVCell, Vincrement: f64) -> Array:
+def calc_iv(cell: PVCell, vincr: f64) -> Array:
 
     N = cell.grid.size
     
@@ -43,26 +44,21 @@ def calc_IV(cell: PVCell, Vincrement: f64) -> Array:
 
     while vstep < 100:
 
-        V = Vincrement * vstep
-        scaled_V = V * scales.E
-        print(f"Solving for V = {scaled_V}...")
+        v = vincr * vstep
+        scaled_v = v * scales.E
+        print(f"Solving for v = {scaled_v}...")
         
-        bound = bcond.boundary(cell, bound_eq, V)
+        bound = bcond.boundary(cell, bound_eq, v)
 
-        sol = solver.solve(cell, bound, pot)
-        total_j, _ = current.total_current(cell, sol)
+        pot = solver.solve(cell, bound, pot)
+        total_j, _ = current.total_current(cell, pot)
 
         jcurve = np.append(jcurve, total_j)
-        voltages = np.append(voltages, Vincrement * vstep)
+        voltages = np.append(voltages, vincr * vstep)
+        vstep += 1
         
         if jcurve.size > 2:
             if (jcurve[-2] * jcurve[-1]) <= 0:
                 break
-        
-        vstep += 1
-        V = Vincrement * vstep
-        pot = Potentials(
-            ops.index_update(sol.phi, ops.index[-1], bound_eq.phiL + V),
-            sol.phi_n, sol.phi_p)
 
     return jcurve, voltages

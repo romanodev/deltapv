@@ -1,4 +1,4 @@
-from jaxpv import objects, ddiff, bcond, poisson, splinalg, util
+from jaxpv import objects, ddiff, bcond, poisson, linalg, util
 from jax import numpy as np, ops, jit
 
 PVCell = objects.PVCell
@@ -9,7 +9,7 @@ f64 = util.f64
 
 
 @jit
-def F(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
+def comp_F(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     ddn = ddiff.ddn(cell, pot)
     ddp = ddiff.ddp(cell, pot)
@@ -33,7 +33,7 @@ def F(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
 
 @jit
-def F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
+def comp_F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = ddiff.ddn_deriv(
         cell, pot)
@@ -116,13 +116,13 @@ def F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
         dpois_dphip__,
     ])
 
-    spF = splinalg.coo2sparse(row, col, dF, 3 * N)
+    spF = linalg.coo2sparse(row, col, dF, 3 * N)
 
     return spF
 
 
 @jit
-def F_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
+def comp_F_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     pois = poisson.pois(cell, pot)
     ctct_0_phi, ctct_L_phi = bcond.contact_phi(cell, bound, pot)
@@ -134,7 +134,7 @@ def F_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
 
 @jit
-def F_eq_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
+def comp_F_eq_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     N = cell.grid.size
     dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(cell, pot)
@@ -159,6 +159,6 @@ def F_eq_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
         [np.array([1]), dpois_phi_, dpois_phi__, dpois_phi___,
          np.array([1])])
 
-    spFeq = splinalg.coo2sparse(row, col, dFeq, N)
+    spFeq = linalg.coo2sparse(row, col, dFeq, N)
 
     return spFeq

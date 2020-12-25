@@ -53,7 +53,7 @@ if __name__ == "__main__":
     parser.add_argument("--save")
     args = parser.parse_args()
 
-    voltages, j = jaxpv.simulator.IV_curve(cell)
+    voltages, j = jaxpv.simulator.iv_curve(cell)
 
     plt.plot(voltages, j, "-o")
     plt.xlabel("Voltage [V]")

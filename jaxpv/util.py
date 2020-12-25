@@ -3,6 +3,7 @@ from typing import Union
 
 Array = np.ndarray
 f64 = np.float64
+i32 = np.int32
 
 
 def switch(condition: bool, val_true: Union[f64, Array],

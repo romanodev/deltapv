@@ -110,12 +110,12 @@ def get_generation(cell: PVCell, ls: LightSource):
     return update(cell, G=G)
 
 
-def IV_curve(
+def iv_curve(
     cell: PVCell, ls: LightSource = LightSource()) -> Tuple[Array, Array]:
 
     cell = get_generation(cell, ls)
-    Vincr = iv.Vincrement(cell)
-    currents, voltages = iv.calc_IV(cell, Vincr)
+    dv = iv.vincr(cell)
+    currents, voltages = iv.calc_iv(cell, dv)
     dim_currents = scales.J * currents
     dim_voltages = scales.E * voltages
 
@@ -125,10 +125,10 @@ def IV_curve(
 def efficiency(cell: PVCell, ls: LightSource = LightSource()) -> f64:
 
     cell = get_generation(cell, ls)
-    Vincr = iv.Vincrement(cell)
-    currents, voltages = iv.calc_IV(cell, Vincrement)
-    Pmax = np.max(scales.E * voltages * scales.J * currents) * 1e4  # W/m2
-    eff = Pmax / 1e3
+    dv = iv.vincr(cell)
+    currents, voltages = iv.calc_iv(cell, dv)
+    pmax = np.max(scales.E * voltages * scales.J * currents) * 1e4  # W/m2
+    eff = pmax / 1e3
 
     return eff
 
@@ -137,7 +137,7 @@ def solve_equilibrium(cell: PVCell, ls: LightSource = LightSource()) -> Array:
 
     N = cell.grid.size
     cell = get_generation(cell, ls)
-    Vincr = iv.Vincrement(cell)
+    dv = iv.vincr(cell)
     phi_ini = iv.eq_init_phi(cell)
     pot_ini = Potentials(phi_ini, np.zeros(N), np.zeros(N))
     phi_eq = solver.solve_eq(cell, pot_ini)

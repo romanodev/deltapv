@@ -1,19 +1,26 @@
+from jaxpv import util
 from jax import numpy as np, ops, vmap, lax, jit
+from jax.scipy.sparse.linalg import gmres
+from functools import partial
+from typing import Callable
 
+Array = util.Array
+f64 = util.f64
+i32 = util.i32
 _W = 13
 
 
-def _coo2sparse(row, col, data, n):
+@partial(jit, static_argnums=(3,))
+def coo2sparse(row: Array, col: Array, data: Array, n: i32) -> Array:
+    
     disp = np.clip(col - row + _W // 2, 0, _W - 1)
     sparse = ops.index_update(np.zeros((n, _W)), ops.index[row, disp], data)
     return sparse
 
 
-coo2sparse = jit(_coo2sparse, static_argnums=[3])
-
-
 @jit
-def spmatvec(m, x):
+def spmatvec(m: Array, x: Array) -> Array:
+    
     def _onerow(m, x, i):
         return np.dot(m[i], lax.dynamic_slice(x, [i], [_W]))
 
@@ -22,20 +29,23 @@ def spmatvec(m, x):
 
 
 @jit
-def spget(m, i, j):
+def spget(m: Array, i: i32, j: i32) -> f64:
+    
     disp = np.clip(j - i + _W // 2, 0, _W - 1)
     return m[i, disp]
 
 
 @jit
-def spwrite(m, i, j, value):
+def spwrite(m: Array, i: i32, j: i32, value: f64) -> Array:
+    
     disp = np.clip(j - i + _W // 2, 0, _W - 1)
     mnew = ops.index_update(m, ops.index[i, disp], value)
     return mnew
 
 
 @jit
-def spilu(m):
+def spilu(m: Array) -> Array:
+    
     n = m.shape[0]
 
     def iloop(cmat, i):
@@ -68,7 +78,7 @@ def spilu(m):
 
 
 @jit
-def fsub(m, b):
+def fsub(m: Array, b: Array) -> Array:
 
     n = m.shape[0]
 
@@ -84,7 +94,7 @@ def fsub(m, b):
 
 
 @jit
-def bsub(m, b):
+def bsub(m: Array, b: Array) -> Array:
 
     n = m.shape[0]
 
@@ -100,7 +110,24 @@ def bsub(m, b):
     return x
 
 
-def invjvp(sparse):
+def invmvp(sparse: Array) -> Callable[[Array], Array]:
+    
     fact = spilu(sparse)
     jvp = lambda b: bsub(fact, fsub(fact, b))
     return jvp
+
+
+@jit
+def linsol(spmat: Array, vec: Array) -> Array:
+
+    mvp = partial(spmatvec, spmat)
+    precond = invmvp(spmat)
+
+    sol, _ = gmres(mvp,
+                   vec,
+                   M=precond,
+                   tol=1e-10,
+                   atol=0.,
+                   maxiter=5)
+
+    return sol

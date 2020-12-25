@@ -1,6 +1,5 @@
-from jaxpv import objects, residual, splinalg, util
-from jax import numpy as np, scipy, jit
-from jax.scipy.sparse.linalg import gmres
+from jaxpv import objects, residual, linalg, util
+from jax import numpy as np, jit
 from typing import Tuple, Callable
 from functools import partial
 
@@ -23,31 +22,15 @@ def damp(move: Array) -> Array:
 
 
 @jit
-def linsol(spmat: Array, vec: Array) -> Array:
-
-    mvp = lambda x: splinalg.spmatvec(spmat, x)
-    precond = splinalg.invjvp(spmat)
-
-    sol, _ = scipy.sparse.linalg.gmres(mvp,
-                                       vec,
-                                       M=precond,
-                                       tol=1e-10,
-                                       atol=0.,
-                                       maxiter=5)
-
-    return sol
-
-
-@jit
 def step(cell: PVCell, bound: Boundary,
          pot: Potentials) -> Tuple[Potentials, f64]:
 
     N = cell.grid.size
 
-    F = residual.F(cell, bound, pot)
-    spgradF = residual.F_deriv(cell, bound, pot)
+    F = residual.comp_F(cell, bound, pot)
+    spgradF = residual.comp_F_deriv(cell, bound, pot)
 
-    move = linsol(spgradF, -F)
+    move = linalg.linsol(spgradF, -F)
     error = np.max(np.abs(move))
     damp_move = damp(move)
     phi_new = pot.phi + damp_move[2:3 * N:3]
@@ -64,10 +47,10 @@ def step_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Tuple[Potentials,
 
     N = cell.grid.size
 
-    Feq = residual.F_eq(cell, bound, pot)
-    spgradFeq = residual.F_eq_deriv(cell, bound, pot)
+    Feq = residual.comp_F_eq(cell, bound, pot)
+    spgradFeq = residual.comp_F_eq_deriv(cell, bound, pot)
 
-    move = linsol(spgradFeq, -Feq)
+    move = linalg.linsol(spgradFeq, -Feq)
     error = np.max(np.abs(move))
     damp_move = damp(move)
 

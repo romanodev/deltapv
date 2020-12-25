@@ -11,19 +11,19 @@ f64 = util.f64
 
 def all_recomb(cell: PVCell, pot: Potentials) -> Array:
 
-    return comp_auger(cell, pot) + comp_SHR(cell, pot) + comp_rad(cell, pot)
+    return comp_auger(cell, pot) + comp_shr(cell, pot) + comp_rad(cell, pot)
 
 
 def all_recomb_deriv(cell: PVCell,
                      pot: Potentials) -> Tuple[Array, Array, Array]:
 
     auger_phi_n, auger_phi_p, auger_phi = comp_auger_deriv(cell, pot)
-    SHR_phi_n, SHR_phi_p, SHR_phi = comp_SHR_deriv(cell, pot)
+    shr_phi_n, shr_phi_p, shr_phi = comp_shr_deriv(cell, pot)
     rad_phi_n, rad_phi_p, rad_phi = comp_rad_deriv(cell, pot)
 
-    DR_phin = auger_phi_n + SHR_phi_n + rad_phi_n
-    DR_phip = auger_phi_p + SHR_phi_p + rad_phi_p
-    DR_phi = auger_phi + SHR_phi + rad_phi
+    DR_phin = auger_phi_n + shr_phi_n + rad_phi_n
+    DR_phip = auger_phi_p + shr_phi_p + rad_phi_p
+    DR_phi = auger_phi + shr_phi + rad_phi
 
     return DR_phin, DR_phip, DR_phi
 
@@ -52,7 +52,7 @@ def comp_auger_deriv(cell: PVCell,
     return DR_phin, DR_phip, DR_phi
 
 
-def comp_SHR(cell: PVCell, pot: Potentials) -> Array:
+def comp_shr(cell: PVCell, pot: Potentials) -> Array:
 
     ni = physics.ni(cell)
     n = physics.n(cell, pot)
@@ -62,7 +62,7 @@ def comp_SHR(cell: PVCell, pot: Potentials) -> Array:
     return (n * p - ni**2) / (cell.tp * nR + cell.tn * pR)
 
 
-def comp_SHR_deriv(cell: PVCell,
+def comp_shr_deriv(cell: PVCell,
                    pot: Potentials) -> Tuple[Array, Array, Array]:
 
     ni = physics.ni(cell)
