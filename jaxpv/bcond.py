@@ -9,7 +9,7 @@ Array = util.Array
 f64 = util.f64
 
 
-def boundary_eq(cell: PVCell) -> Boundary:
+def boundary_phi(cell: PVCell) -> Tuple[f64, f64]:
     
     phi0 = util.switch(
         cell.Ndop[0] > 0, -cell.Chi[0] + np.log(np.abs(cell.Ndop[0] / cell.Nc[0])),
@@ -18,18 +18,26 @@ def boundary_eq(cell: PVCell) -> Boundary:
     phiL = util.switch(
         cell.Ndop[-1] > 0, -cell.Chi[-1] + np.log(np.abs(cell.Ndop[-1] / cell.Nc[-1])),
         -cell.Chi[-1] - cell.Eg[-1] - np.log(np.abs(-cell.Ndop[-1] / cell.Nv[-1])))
+    
+    return phi0, phiL
+
+
+def boundary_eq(cell: PVCell) -> Boundary:
+    
+    phi0, phiL = boundary_phi(cell)
 
     return Boundary(phi0, phiL, f64(0), f64(0), f64(0), f64(0))
 
 
-def boundary(cell: PVCell, bound_eq: Boundary, V: f64) -> Boundary:
-
-    neq0 = cell.Nc[0] * np.exp(cell.Chi[0] + bound_eq.phi0)
-    neqL = cell.Nc[-1] * np.exp(cell.Chi[-1] + bound_eq.phiL)
-    peq0 = cell.Nv[0] * np.exp(-cell.Chi[0] - cell.Eg[0] - bound_eq.phi0)
-    peqL = cell.Nv[-1] * np.exp(-cell.Chi[-1] - cell.Eg[-1] - bound_eq.phiL)
+def boundary(cell: PVCell, V: f64) -> Boundary:
     
-    return Boundary(bound_eq.phi0, bound_eq.phiL + V, neq0, neqL, peq0, peqL)
+    phi0, phiLeq = boundary_phi(cell)
+    neq0 = cell.Nc[0] * np.exp(cell.Chi[0] + phi0)
+    neqL = cell.Nc[-1] * np.exp(cell.Chi[-1] + phiLeq)
+    peq0 = cell.Nv[0] * np.exp(-cell.Chi[0] - cell.Eg[0] - phi0)
+    peqL = cell.Nv[-1] * np.exp(-cell.Chi[-1] - cell.Eg[-1] - phiLeq)
+    
+    return Boundary(phi0, phiLeq + V, neq0, neqL, peq0, peqL)
 
 
 def contact_phin(cell: PVCell, bound: Boundary, pot: Potentials) -> Tuple[f64, f64]:
