@@ -1,4 +1,4 @@
-from jaxpv import objects, scales, optical, sun, iv, materials, solver, util
+from jaxpv import objects, scales, optical, sun, iv, materials, solver, bcond, util
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
@@ -138,8 +138,10 @@ def solve_equilibrium(cell: PVCell, ls: LightSource = LightSource()) -> Array:
     N = cell.grid.size
     cell = get_generation(cell, ls)
     dv = iv.vincr(cell)
-    phi_ini = iv.eq_init_phi(cell)
-    pot_ini = Potentials(phi_ini, np.zeros(N), np.zeros(N))
-    phi_eq = solver.solve_eq(cell, pot_ini)
+    bound_eq = bcond.boundary_eq(cell)
+    pot_ini = Potentials(
+        np.linspace(bound_eq.phi0, bound_eq.phiL, cell.grid.size), np.zeros(N),
+        np.zeros(N))
+    pot = solver.solve_eq(cell, bound_eq, pot_ini)
 
-    return phi_eq
+    return pot

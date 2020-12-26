@@ -42,7 +42,7 @@ def calc_iv(cell: PVCell, vincr: f64) -> Array:
         bound = bcond.boundary(cell, v)
         pot = solver.solve(cell, bound, pot)
 
-        total_j, _ = current.total_current(cell, pot)
+        total_j = current.total_current(cell, pot)
         jcurve = np.append(jcurve, total_j)
         voltages = np.append(voltages, vincr * vstep)
         vstep += 1
