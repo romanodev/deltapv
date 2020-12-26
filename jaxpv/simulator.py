@@ -105,7 +105,13 @@ def custom_generation(cell: PVCell, dim_G: Array) -> PVCell:
 
 def get_generation(cell: PVCell, ls: LightSource):
 
-    G = util.switch(np.any(cell.G < 0), optical.compute_G(cell, ls), cell.G)
+    if np.any(cell.G < 0):
+        G = optical.compute_G(cell, ls)
+    else:
+        G = cell.G
+    
+    if np.all(G == 0):
+        logging.warning("Generation density is zero everywhere!")
 
     return update(cell, G=G)
 

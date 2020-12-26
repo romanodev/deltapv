@@ -2,6 +2,7 @@ import unittest
 import jaxpv
 from jax import numpy as np
 
+
 L = 3e-4
 grid = np.linspace(0, L, 500)
 cell = jaxpv.simulator.create_cell(grid)

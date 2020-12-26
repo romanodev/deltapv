@@ -2,6 +2,7 @@ from jaxpv import objects, residual, linalg, util
 from jax import numpy as np, jit
 from typing import Tuple, Callable
 from functools import partial
+import logging
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
@@ -72,7 +73,7 @@ def _solve(f: Callable[[Tuple[PVCell, Boundary, Potentials]],
 
         pot, error = f(cell, bound, pot)
         niter += 1
-        print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
+        logging.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
     return pot
 

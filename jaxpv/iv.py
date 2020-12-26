@@ -1,5 +1,6 @@
 from jaxpv import objects, solver, scales, current, physics, bcond, util
 from jax import numpy as np, ops
+import logging
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
@@ -23,7 +24,7 @@ def calc_iv(cell: PVCell, vincr: f64) -> Array:
 
     N = cell.grid.size
 
-    print("Solving equilibrium...")
+    logging.info("Solving equilibrium...")
     bound_eq = bcond.boundary_eq(cell)
     pot_ini = Potentials(
         np.linspace(bound_eq.phi0, bound_eq.phiL, cell.grid.size), np.zeros(N),
@@ -38,7 +39,7 @@ def calc_iv(cell: PVCell, vincr: f64) -> Array:
 
         v = vincr * vstep
         scaled_v = v * scales.E
-        print(f"Solving for v = {scaled_v}...")
+        logging.info(f"Solving for v = {scaled_v}...")
         bound = bcond.boundary(cell, v)
         pot = solver.solve(cell, bound, pot)
 
