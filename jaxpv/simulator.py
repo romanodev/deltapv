@@ -137,17 +137,3 @@ def efficiency(cell: PVCell, ls: LightSource = LightSource()) -> f64:
     eff = pmax / 1e3
 
     return eff
-
-
-def solve_equilibrium(cell: PVCell, ls: LightSource = LightSource()) -> Array:
-
-    N = cell.grid.size
-    cell = get_generation(cell, ls)
-    dv = iv.vincr(cell)
-    bound_eq = bcond.boundary_eq(cell)
-    pot_ini = Potentials(
-        np.linspace(bound_eq.phi0, bound_eq.phiL, cell.grid.size), np.zeros(N),
-        np.zeros(N))
-    pot = solver.solve_eq(cell, bound_eq, pot_ini)
-
-    return pot

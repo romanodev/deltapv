@@ -1,5 +1,5 @@
 from jaxpv import objects, residual, linalg, util
-from jax import numpy as np, jit
+from jax import numpy as np, jit, ops
 from typing import Tuple, Callable
 from functools import partial
 import logging
@@ -80,3 +80,15 @@ def _solve(f: Callable[[Tuple[PVCell, Boundary, Potentials]],
 
 solve = partial(_solve, step)
 solve_eq = partial(_solve, step_eq)
+
+
+@jit
+def pot2vec(pot: Potentials) -> Array:
+    
+    n = pot.phi.size
+    vec = np.zeros(3 * n)
+    vec = ops.index_update(vec, ops.index[0::3], pot.phi_n)
+    vec = ops.index_update(vec, ops.index[1::3], pot.phi_p)
+    vec = ops.index_update(vec, ops.index[2::3], pot.phi)
+    
+    return vec

@@ -34,12 +34,12 @@ def calc_iv(cell: PVCell, vincr: f64) -> Array:
     jcurve = np.array([], dtype=f64)
     voltages = np.array([], dtype=f64)
     vstep = 0
-
+    
     while vstep < 100:
 
         v = vincr * vstep
         scaled_v = v * scales.E
-        logging.info(f"Solving for v = {scaled_v}...")
+        logging.info(f"Solving for {scaled_v} V...")
         bound = bcond.boundary(cell, v)
         pot = solver.solve(cell, bound, pot)
 

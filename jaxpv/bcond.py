@@ -32,7 +32,7 @@ def boundary_eq(cell: PVCell) -> Boundary:
     return Boundary(phi0, phiL, f64(0), f64(0), f64(0), f64(0))
 
 
-def boundary(cell: PVCell, V: f64) -> Boundary:
+def boundary(cell: PVCell, v: f64) -> Boundary:
 
     phi0, phiLeq = boundary_phi(cell)
     neq0 = cell.Nc[0] * np.exp(cell.Chi[0] + phi0)
@@ -40,7 +40,7 @@ def boundary(cell: PVCell, V: f64) -> Boundary:
     peq0 = cell.Nv[0] * np.exp(-cell.Chi[0] - cell.Eg[0] - phi0)
     peqL = cell.Nv[-1] * np.exp(-cell.Chi[-1] - cell.Eg[-1] - phiLeq)
 
-    return Boundary(phi0, phiLeq + V, neq0, neqL, peq0, peqL)
+    return Boundary(phi0, phiLeq + v, neq0, neqL, peq0, peqL)
 
 
 def contact_phin(cell: PVCell, bound: Boundary,
