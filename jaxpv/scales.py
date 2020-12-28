@@ -28,7 +28,6 @@ U = n * E * m / (d**2)
 
 units = {
     "grid": d,
-    "dgrid": d,
     "eps": 1.,
     "Chi": E,
     "Eg": E,

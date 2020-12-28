@@ -20,24 +20,25 @@ def vincr(cell: PVCell, num_vals: i32 = 50) -> f64:
     return incr_sign * incr_step
 
 
-def calc_iv(cell: PVCell, vincr: f64) -> Array:
+def calc_iv(cell: PVCell) -> Array:
 
-    N = cell.grid.size
-
+    N = cell.Eg.size
+    
     logging.info("Solving equilibrium...")
     bound_eq = bcond.boundary_eq(cell)
     pot_ini = Potentials(
-        np.linspace(bound_eq.phi0, bound_eq.phiL, cell.grid.size), np.zeros(N),
+        np.linspace(bound_eq.phi0, bound_eq.phiL, cell.Eg.size), np.zeros(N),
         np.zeros(N))
     pot = solver.solve_eq(cell, bound_eq, pot_ini)
 
     jcurve = np.array([], dtype=f64)
     voltages = np.array([], dtype=f64)
+    dv = vincr(cell)
     vstep = 0
     
     while vstep < 100:
 
-        v = vincr * vstep
+        v = dv * vstep
         scaled_v = v * scales.E
         logging.info(f"Solving for {scaled_v} V...")
         bound = bcond.boundary(cell, v)
@@ -45,7 +46,7 @@ def calc_iv(cell: PVCell, vincr: f64) -> Array:
 
         total_j = current.total_current(cell, pot)
         jcurve = np.append(jcurve, total_j)
-        voltages = np.append(voltages, vincr * vstep)
+        voltages = np.append(voltages, dv * vstep)
         vstep += 1
 
         if jcurve.size > 2:

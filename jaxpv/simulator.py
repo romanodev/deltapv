@@ -4,41 +4,31 @@ from typing import Callable, Tuple
 import matplotlib.pyplot as plt
 
 PVCell = objects.PVCell
+PVDesign = objects.PVDesign
 LightSource = objects.LightSource
 Potentials = objects.Potentials
 Array = util.Array
 f64 = util.f64
 
 
-def create_cell(dim_grid: Array) -> PVCell:
+def create_design(dim_grid: Array) -> PVDesign:
 
     n = dim_grid.size
     grid = dim_grid / scales.units["grid"]
-    dgrid = np.diff(grid)
-    init_params = {key: np.zeros(n) for key in PVCell.__dataclass_fields__}
-    init_params.update({"grid": grid, "dgrid": dgrid})
+    init_params = {key: np.zeros(n) for key in PVDesign.__dataclass_fields__}
+    init_params.update({"grid": grid})
     init_params.update({key: f64(0) for key in {"Snl", "Snr", "Spl", "Spr"}})
-    init_params.update(G=-np.ones(n))
 
-    return PVCell(**init_params)
-
-
-def update(cell: PVCell, **kwargs) -> PVCell:
-
-    return PVCell(
-        **{
-            key: kwargs[key] if key in kwargs else value
-            for key, value in cell.__dict__.items()
-        })
+    return PVDesign(**init_params)
 
 
-def add_material(cell: PVCell, mat: materials.Material,
-                 f: Callable[[f64], bool]) -> PVCell:
+def add_material(cell: PVDesign, mat: materials.Material,
+                 f: Callable[[f64], bool]) -> PVDesign:
 
     vf = vmap(f)
     idx = vf(cell.grid * scales.units["grid"])
 
-    return update(
+    return objects.update(
         cell, **{
             param: np.where(idx, value / scales.units[param],
                             getattr(cell, param))
@@ -46,31 +36,31 @@ def add_material(cell: PVCell, mat: materials.Material,
         })
 
 
-def contacts(cell: PVCell, Snl: f64, Snr: f64, Spl: f64, Spr: f64) -> PVCell:
+def contacts(cell: PVDesign, Snl: f64, Snr: f64, Spl: f64, Spr: f64) -> PVDesign:
 
-    return update(cell,
+    return objects.update(cell,
                   Snl=f64(Snl / scales.units["Snl"]),
                   Snr=f64(Snr / scales.units["Snr"]),
                   Spl=f64(Spl / scales.units["Spl"]),
                   Spr=f64(Spr / scales.units["Spr"]))
 
 
-def single_pn_junction(cell: PVCell, Nleft: f64, Nright: f64,
-                       x: f64) -> PVCell:
+def single_pn_junction(cell: PVDesign, Nleft: f64, Nright: f64,
+                       x: f64) -> PVDesign:
 
     idx = cell.grid * scales.units["grid"] <= x
     doping = np.where(idx, Nleft, Nright) / scales.units["Ndop"]
 
-    return update(cell, Ndop=doping)
+    return objects.update(cell, Ndop=doping)
 
 
-def doping(cell: PVCell, N: f64, f: Callable[[f64], bool]) -> PVCell:
+def doping(cell: PVDesign, N: f64, f: Callable[[f64], bool]) -> PVDesign:
 
     vf = vmap(f)
     idx = vf(cell.grid * scales.units["grid"])
     doping = np.where(idx, N / scales.units["Ndop"], cell.Ndop)
 
-    return update(cell, Ndop=doping)
+    return objects.update(cell, Ndop=doping)
 
 
 def incident_light(kind: str = "sun",
@@ -96,43 +86,32 @@ def incident_light(kind: str = "sun",
         return LightSource(Lambda=Lambda, P_in=P_in)
 
 
-def custom_generation(cell: PVCell, dim_G: Array) -> PVCell:
-
-    G = dim_G / scales.units["G"]
-
-    return update(cell, G=G)
-
-
-def get_generation(cell: PVCell, ls: LightSource):
-
-    if np.any(cell.G < 0):
-        G = optical.compute_G(cell, ls)
-    else:
-        G = cell.G
+def init_cell(design: PVDesign, ls: LightSource) -> PVCell:
     
-    if np.all(G == 0):
-        logging.warning("Generation density is zero everywhere!")
+    G = optical.compute_G(design, ls)
+    dgrid = np.diff(design.grid)
+    params = design.__dict__.copy()
+    params["dgrid"] = dgrid
+    params.pop("grid")
+    params["G"] = G
+    
+    return PVCell(**params)
 
-    return update(cell, G=G)
 
+def iv_curve(design: PVDesign, ls: LightSource) -> Tuple[Array, Array]:
 
-def iv_curve(
-    cell: PVCell, ls: LightSource = LightSource()) -> Tuple[Array, Array]:
-
-    cell = get_generation(cell, ls)
-    dv = iv.vincr(cell)
-    currents, voltages = iv.calc_iv(cell, dv)
+    cell = init_cell(design, ls)
+    currents, voltages = iv.calc_iv(cell)
     dim_currents = scales.J * currents
     dim_voltages = scales.E * voltages
 
     return dim_voltages, dim_currents
 
 
-def efficiency(cell: PVCell, ls: LightSource = LightSource()) -> f64:
+def efficiency(design: PVDesign, ls: LightSource) -> f64:
 
-    cell = get_generation(cell, ls)
-    dv = iv.vincr(cell)
-    currents, voltages = iv.calc_iv(cell, dv)
+    cell = init_cell(design, ls)
+    currents, voltages = iv.calc_iv(cell)
     pmax = np.max(scales.E * voltages * scales.J * currents) * 1e4  # W/m2
     eff = pmax / 1e3
 
