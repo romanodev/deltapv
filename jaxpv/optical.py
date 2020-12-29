@@ -25,8 +25,8 @@ def alpha(cell: PVCell, lambdax: f64) -> Array:
 
 def generation_lambda(cell: PVCell, phi_0: f64, alpha: Array) -> Array:
 
-    phi = phi_0 * np.exp(
-        -np.cumsum(np.concatenate([np.zeros(1), alpha[:-1] * np.diff(cell.grid)])))
+    phi = phi_0 * np.exp(-np.cumsum(
+        np.concatenate([np.zeros(1), alpha[:-1] * np.diff(cell.grid)])))
     g = phi * alpha
 
     return g

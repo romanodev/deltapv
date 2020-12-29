@@ -36,13 +36,14 @@ def add_material(cell: PVDesign, mat: materials.Material,
         })
 
 
-def contacts(cell: PVDesign, Snl: f64, Snr: f64, Spl: f64, Spr: f64) -> PVDesign:
+def contacts(cell: PVDesign, Snl: f64, Snr: f64, Spl: f64,
+             Spr: f64) -> PVDesign:
 
     return objects.update(cell,
-                  Snl=f64(Snl / scales.units["Snl"]),
-                  Snr=f64(Snr / scales.units["Snr"]),
-                  Spl=f64(Spl / scales.units["Spl"]),
-                  Spr=f64(Spr / scales.units["Spr"]))
+                          Snl=f64(Snl / scales.units["Snl"]),
+                          Snr=f64(Snr / scales.units["Snr"]),
+                          Spl=f64(Spl / scales.units["Spl"]),
+                          Spr=f64(Spr / scales.units["Spr"]))
 
 
 def single_pn_junction(cell: PVDesign, Nleft: f64, Nright: f64,
@@ -87,14 +88,14 @@ def incident_light(kind: str = "sun",
 
 
 def init_cell(design: PVDesign, ls: LightSource) -> PVCell:
-    
+
     G = optical.compute_G(design, ls)
     dgrid = np.diff(design.grid)
     params = design.__dict__.copy()
     params["dgrid"] = dgrid
     params.pop("grid")
     params["G"] = G
-    
+
     return PVCell(**params)
 
 

@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--save")
     args = parser.parse_args()
-    
+
     voltages, j = jaxpv.simulator.iv_curve(cell)
 
     plt.plot(voltages, j, "-o")

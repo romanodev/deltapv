@@ -23,7 +23,7 @@ def vincr(cell: PVCell, num_vals: i64 = 50) -> f64:
 def calc_iv(cell: PVCell) -> Array:
 
     N = cell.Eg.size
-    
+
     logging.info("Solving equilibrium...")
     bound_eq = bcond.boundary_eq(cell)
     pot_ini = Potentials(
@@ -35,7 +35,7 @@ def calc_iv(cell: PVCell) -> Array:
     voltages = np.array([], dtype=f64)
     dv = vincr(cell)
     vstep = 0
-    
+
     while vstep < 100:
 
         v = dv * vstep

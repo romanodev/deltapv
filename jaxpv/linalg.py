@@ -131,7 +131,7 @@ def linsol(spmat: Array, vec: Array) -> Array:
     precond = lambda b: bsub(fact, fsub(fact, b))
 
     sol, _ = gmres(mvp, vec, M=precond, tol=1e-10, atol=0., maxiter=5)
-    
+
     return sol
 
 
@@ -149,6 +149,6 @@ def transpose(m: Array) -> Array:
 
 @jit
 def transol(spmat: Array, vec: Array) -> Array:
-    
+
     tspmat = transpose(spmat)
     return linsol(tspmat, vec)
