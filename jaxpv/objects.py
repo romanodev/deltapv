@@ -1,14 +1,39 @@
 from jaxpv import dataclasses, util
 from jax import numpy as np
+from typing import Union
 
 Array = util.Array
 f64 = util.f64
 
 
 @dataclasses.dataclass
-class PVCell:
+class PVDesign:
 
     grid: Array
+    eps: Array
+    Chi: Array
+    Eg: Array
+    Nc: Array
+    Nv: Array
+    mn: Array
+    mp: Array
+    tn: Array
+    tp: Array
+    Et: Array
+    Br: Array
+    Cn: Array
+    Cp: Array
+    A: Array
+    Ndop: Array
+    Snl: f64
+    Snr: f64
+    Spl: f64
+    Spr: f64
+
+
+@dataclasses.dataclass
+class PVCell:
+
     dgrid: Array
     eps: Array
     Chi: Array
@@ -24,8 +49,8 @@ class PVCell:
     Cn: Array
     Cp: Array
     A: Array
-    G: Array
     Ndop: Array
+    G: Array
     Snl: f64
     Snr: f64
     Spl: f64
@@ -75,3 +100,12 @@ class Boundary:
     neqL: f64
     peq0: f64
     peqL: f64
+
+
+def update(obj: Union[PVDesign, PVCell], **kwargs) -> Union[PVDesign, PVCell]:
+
+    return obj.__class__(
+        **{
+            key: kwargs[key] if key in kwargs else value
+            for key, value in obj.__dict__.items()
+        })

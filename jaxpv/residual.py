@@ -44,7 +44,7 @@ def comp_F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
     dctct_phin = bcond.contact_phin_deriv(cell, pot)
     dctct_phip = bcond.contact_phip_deriv(cell, pot)
 
-    N = cell.grid.size
+    N = cell.Eg.size
 
     row = np.concatenate([
         np.zeros(4),
@@ -136,7 +136,7 @@ def comp_F_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 @jit
 def comp_F_eq_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
-    N = cell.grid.size
+    N = cell.Eg.size
     dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(cell, pot)
 
     row = np.concatenate([

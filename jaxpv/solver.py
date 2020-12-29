@@ -1,7 +1,8 @@
 from jaxpv import objects, residual, linalg, util
-from jax import numpy as np, jit
+from jax import numpy as np, jit, ops, custom_jvp, jvp
 from typing import Tuple, Callable
 from functools import partial
+import logging
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
@@ -22,10 +23,22 @@ def damp(move: Array) -> Array:
 
 
 @jit
+def pot2vec(pot: Potentials) -> Array:
+
+    n = pot.phi.size
+    vec = np.zeros(3 * n)
+    vec = ops.index_update(vec, ops.index[0::3], pot.phi_n)
+    vec = ops.index_update(vec, ops.index[1::3], pot.phi_p)
+    vec = ops.index_update(vec, ops.index[2::3], pot.phi)
+
+    return vec
+
+
+@jit
 def step(cell: PVCell, bound: Boundary,
          pot: Potentials) -> Tuple[Potentials, f64]:
 
-    N = cell.grid.size
+    N = cell.Eg.size
 
     F = residual.comp_F(cell, bound, pot)
     spgradF = residual.comp_F_deriv(cell, bound, pot)
@@ -46,7 +59,7 @@ def step(cell: PVCell, bound: Boundary,
 def step_eq(cell: PVCell, bound: Boundary,
             pot: Potentials) -> Tuple[Potentials, f64]:
 
-    N = cell.grid.size
+    N = cell.Eg.size
 
     Feq = residual.comp_F_eq(cell, bound, pot)
     spgradFeq = residual.comp_F_eq_deriv(cell, bound, pot)
@@ -60,9 +73,8 @@ def step_eq(cell: PVCell, bound: Boundary,
     return pot_new, error
 
 
-def _solve(f: Callable[[Tuple[PVCell, Boundary, Potentials]],
-                       Tuple[Potentials, f64]], cell: PVCell, bound: Boundary,
-           pot_ini: Potentials) -> Potentials:
+@custom_jvp
+def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
     pot = pot_ini
     error = 1
@@ -70,12 +82,71 @@ def _solve(f: Callable[[Tuple[PVCell, Boundary, Potentials]],
 
     while error > 1e-6 and niter < 100:
 
-        pot, error = f(cell, bound, pot)
+        pot, error = step(cell, bound, pot)
         niter += 1
-        print(f"\t iteration: {str(niter).ljust(10)} error: {error}")
+        logging.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
     return pot
 
 
-solve = partial(_solve, step)
-solve_eq = partial(_solve, step_eq)
+@custom_jvp
+def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
+
+    pot = pot_ini
+    error = 1
+    niter = 0
+
+    while error > 1e-6 and niter < 100:
+
+        pot, error = step_eq(cell, bound, pot)
+        niter += 1
+        logging.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
+
+    return pot
+
+
+@solve.defjvp
+def solve_jvp(primals, tangents):
+
+    cell, bound, pot_ini = primals
+    dcell, dbound, _ = tangents
+    sol = solve(cell, bound, pot_ini)
+
+    zerodpot = Potentials(np.zeros_like(sol.phi), np.zeros_like(sol.phi_n),
+                          np.zeros_like(sol.phi_p))
+
+    _, rhs = jvp(residual.comp_F, (cell, bound, sol),
+                 (dcell, dbound, zerodpot))
+
+    spF_pot = residual.comp_F_deriv(cell, bound, sol)
+    F_pot = linalg.sparse2dense(spF_pot)
+    dF = np.linalg.solve(F_pot, -rhs)
+
+    primal_out = sol
+    tangent_out = Potentials(dF[2::3], dF[0::3], dF[1::3])
+
+    return primal_out, tangent_out
+
+
+@solve_eq.defjvp
+def solve_eq_jvp(primals, tangents):
+
+    cell, bound, pot_ini = primals
+    dcell, dbound, _ = tangents
+    sol = solve_eq(cell, bound, pot_ini)
+
+    zerodpot = Potentials(np.zeros_like(sol.phi), np.zeros_like(sol.phi_n),
+                          np.zeros_like(sol.phi_p))
+
+    _, rhs = jvp(residual.comp_F_eq, (cell, bound, sol),
+                 (dcell, dbound, zerodpot))
+
+    spF_eq_pot = residual.comp_F_eq_deriv(cell, bound, sol)
+    F_eq_pot = linalg.sparse2dense(spF_eq_pot)
+    dF_eq = np.linalg.solve(F_eq_pot, -rhs)
+
+    primal_out = sol
+    tangent_out = Potentials(dF_eq, np.zeros_like(sol.phi_n),
+                             np.zeros_like(sol.phi_p))
+
+    return primal_out, tangent_out

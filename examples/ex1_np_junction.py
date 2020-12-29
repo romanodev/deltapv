@@ -15,7 +15,8 @@ material = jaxpv.materials.create_material(Chi=3.9,
                                            mp=100,
                                            Et=0,
                                            tn=1e-8,
-                                           tp=1e-8)
+                                           tp=1e-8,
+                                           A=1e4)
 cell = jaxpv.simulator.add_material(cell, material, lambda x: True)
 cell = jaxpv.simulator.contacts(cell, 1e7, 0, 0, 1e7)
 cell = jaxpv.simulator.single_pn_junction(cell, 1e17, -1e15, 50e-7)
