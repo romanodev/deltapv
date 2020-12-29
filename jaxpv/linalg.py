@@ -6,12 +6,12 @@ from typing import Callable
 
 Array = util.Array
 f64 = util.f64
-i32 = util.i32
+i64 = util.i64
 _W = 13
 
 
 @partial(jit, static_argnums=(3, ))
-def coo2sparse(row: Array, col: Array, data: Array, n: i32) -> Array:
+def coo2sparse(row: Array, col: Array, data: Array, n: i64) -> Array:
 
     disp = np.clip(col - row + _W // 2, 0, _W - 1)
     sparse = ops.index_update(np.zeros((n, _W)), ops.index[row, disp], data)
@@ -42,14 +42,14 @@ def spmatvec(m: Array, x: Array) -> Array:
 
 
 @jit
-def spget(m: Array, i: i32, j: i32) -> f64:
+def spget(m: Array, i: i64, j: i64) -> f64:
 
     disp = np.clip(j - i + _W // 2, 0, _W - 1)
     return m[i, disp]
 
 
 @jit
-def spwrite(m: Array, i: i32, j: i32, value: f64) -> Array:
+def spwrite(m: Array, i: i64, j: i64, value: f64) -> Array:
 
     disp = np.clip(j - i + _W // 2, 0, _W - 1)
     mnew = ops.index_update(m, ops.index[i, disp], value)
@@ -131,6 +131,7 @@ def linsol(spmat: Array, vec: Array) -> Array:
     precond = lambda b: bsub(fact, fsub(fact, b))
 
     sol, _ = gmres(mvp, vec, M=precond, tol=1e-10, atol=0., maxiter=5)
+    
     return sol
 
 

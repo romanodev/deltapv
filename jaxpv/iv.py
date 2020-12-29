@@ -8,10 +8,10 @@ Potentials = objects.Potentials
 Boundary = objects.Boundary
 Array = util.Array
 f64 = util.f64
-i32 = util.i32
+i64 = util.i64
 
 
-def vincr(cell: PVCell, num_vals: i32 = 50) -> f64:
+def vincr(cell: PVCell, num_vals: i64 = 50) -> f64:
 
     phi_ini_left, phi_ini_right = bcond.boundary_phi(cell)
     incr_step = np.abs(phi_ini_right - phi_ini_left) / num_vals
