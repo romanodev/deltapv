@@ -1,7 +1,6 @@
 from jaxpv import objects, residual, linalg, util
 from jax import numpy as np, jit, ops, custom_jvp, jvp
 from typing import Tuple, Callable
-from functools import partial
 import logging
 
 PVCell = objects.PVCell

@@ -11,12 +11,12 @@ f64 = util.f64
 
 def boundary_phi(cell: PVCell) -> Tuple[f64, f64]:
 
-    phi0 = util.switch(
+    phi0 = np.where(
         cell.Ndop[0] > 0,
         -cell.Chi[0] + np.log(np.abs(cell.Ndop[0] / cell.Nc[0])),
         -cell.Chi[0] - cell.Eg[0] - np.log(np.abs(-cell.Ndop[0] / cell.Nv[0])))
 
-    phiL = util.switch(
+    phiL = np.where(
         cell.Ndop[-1] > 0,
         -cell.Chi[-1] + np.log(np.abs(cell.Ndop[-1] / cell.Nc[-1])),
         -cell.Chi[-1] - cell.Eg[-1] -
