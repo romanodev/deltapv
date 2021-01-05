@@ -39,7 +39,7 @@ def calc_iv(cell: PVCell) -> Array:
     while vstep < 100:
 
         v = dv * vstep
-        scaled_v = v * scales.E
+        scaled_v = v * scales.energy
         logging.info(f"Solving for {scaled_v} V...")
         bound = bcond.boundary(cell, v)
         pot = solver.solve(cell, bound, pot)

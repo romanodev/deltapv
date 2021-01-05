@@ -103,8 +103,8 @@ def iv_curve(design: PVDesign, ls: LightSource) -> Tuple[Array, Array]:
 
     cell = init_cell(design, ls)
     currents, voltages = iv.calc_iv(cell)
-    dim_currents = scales.J * currents
-    dim_voltages = scales.E * voltages
+    dim_currents = scales.current * currents
+    dim_voltages = scales.energy * voltages
 
     return dim_voltages, dim_currents
 
@@ -113,7 +113,7 @@ def efficiency(design: PVDesign, ls: LightSource) -> f64:
 
     cell = init_cell(design, ls)
     currents, voltages = iv.calc_iv(cell)
-    pmax = np.max(scales.E * voltages * scales.J * currents) * 1e4  # W/m2
+    pmax = np.max(scales.energy * voltages * scales.current * currents) * 1e4  # W/m2
     eff = pmax / 1e3
 
     return eff
