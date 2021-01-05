@@ -15,10 +15,10 @@ def photonflux(ls: LightSource) -> Array:
 def alpha(cell: PVCell, lambdax: f64) -> Array:
 
     alpha = np.where(
-        scales.hc / lambdax / (scales.KB * scales.T) > cell.Eg,
+        scales.hc / lambdax / (scales.kB * scales.temperature) > cell.Eg,
         cell.A *
         np.sqrt(np.abs(scales.hc / lambdax /
-                       (scales.KB * scales.T) - cell.Eg)), 0)
+                       (scales.kB * scales.temperature) - cell.Eg)), 0)
 
     return alpha
 
@@ -41,4 +41,4 @@ def compute_G(cell: PVCell, ls: LightSource) -> Array:
     all_generations = vgenlambda(cell, phis, alphas)
     tot_generation = np.sum(all_generations, axis=0)
 
-    return tot_generation / scales.U
+    return tot_generation / scales.gratedens
