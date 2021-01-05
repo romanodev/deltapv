@@ -51,6 +51,6 @@ units = {
     "Snr": velocity,
     "Spl": velocity,
     "Spr": velocity,
-    "Lambda": 1.,
-    "P_in": 1.
+    "Lambda": 1.,  # perform optical computations with original units
+    "P_in": 1.  # perform optical computations with original units
 }
