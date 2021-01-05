@@ -13,7 +13,7 @@ from jax import numpy as np
 
 # Physical constants:
 kB = const.k  # J / K
-hc = const.c * const.h * 1e9  # J nm
+hc = const.c * const.h * 1e9  # J m -> J nm
 q = const.e  # C
 eps0 = const.epsilon_0 * 1e-2  # C / (V m) -> C / (V cm)
 
