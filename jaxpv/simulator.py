@@ -69,10 +69,10 @@ def incident_light(kind: str = "sun",
                    P_in: Array = None) -> LightSource:
 
     if kind == "sun":
-        return LightSource(Lambda=sun.wavelength, P_in=sun.power)
+        return LightSource(Lambda=sun.Lambda_eff, P_in=sun.P_in_eff)
 
     if kind == "white":
-        return LightSource(Lambda=np.linspace(4e2, 8e2, 5),
+        return LightSource(Lambda=np.linspace(4e2, 8e2, 100),
                            P_in=2e2 * np.ones(5, dtype=np.float64))
 
     if kind == "monochromatic":
@@ -114,6 +114,6 @@ def efficiency(design: PVDesign, ls: LightSource) -> f64:
     cell = init_cell(design, ls)
     currents, voltages = iv.calc_iv(cell)
     pmax = np.max(scales.energy * voltages * scales.current * currents) * 1e4  # W/m2
-    eff = pmax / 1e3
+    eff = pmax / np.sum(ls.P_in)
 
     return eff
