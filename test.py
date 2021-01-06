@@ -53,8 +53,6 @@ class TestJAXPV(unittest.TestCase):
             2.2768733371612674e-06, -2.3007534046630316e-06
         ]
 
-        print(jaxpv.simulator.efficiency(design, ls))
-
         self.assertTrue(np.allclose(v, v_correct), "Voltages do not match!")
         self.assertTrue(np.allclose(j, j_correct), "Currents do not match!")
 
