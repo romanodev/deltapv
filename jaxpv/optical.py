@@ -14,11 +14,8 @@ def photonflux(ls: LightSource) -> Array:
 
 def alpha(cell: PVCell, lambdax: f64) -> Array:
 
-    alpha = np.where(
-        scales.hc / lambdax / (scales.kB * scales.temperature) > cell.Eg,
-        cell.A *
-        np.sqrt(np.abs(scales.hc / lambdax /
-                       (scales.kB * scales.temperature) - cell.Eg)), 0)
+    alpha = cell.A * np.sqrt(np.clip(scales.hc / lambdax /
+        (scales.kB * scales.temperature) - cell.Eg, 0))
 
     return alpha
 
