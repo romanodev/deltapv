@@ -1,6 +1,6 @@
 name: GaP
 properties:
-  A: null
+  A: 2.0e+4
   Br: 1.0e-13
   Chi: 3.8
   Cn: 1.0e-30

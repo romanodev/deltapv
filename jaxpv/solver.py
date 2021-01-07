@@ -43,6 +43,7 @@ def step(cell: PVCell, bound: Boundary,
     spgradF = residual.comp_F_deriv(cell, bound, pot)
 
     move = linalg.linsol(spgradF, -F)
+    
     error = np.max(np.abs(move))
     damp_move = damp(move)
     phi_new = pot.phi + damp_move[2:3 * N:3]
@@ -58,12 +59,11 @@ def step(cell: PVCell, bound: Boundary,
 def step_eq(cell: PVCell, bound: Boundary,
             pot: Potentials) -> Tuple[Potentials, f64]:
 
-    N = cell.Eg.size
-
     Feq = residual.comp_F_eq(cell, bound, pot)
     spgradFeq = residual.comp_F_eq_deriv(cell, bound, pot)
 
     move = linalg.linsol(spgradFeq, -Feq)
+    
     error = np.max(np.abs(move))
     damp_move = damp(move)
 

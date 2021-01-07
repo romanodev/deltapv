@@ -1,6 +1,6 @@
 name: InN
 properties:
-  A: null
+  A: 2.0e+4
   Br: 2.0e-10
   Chi: null
   Cn: null

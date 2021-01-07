@@ -1,6 +1,6 @@
 name: Si
 properties:
-  A: null
+  A: 2.0e+4
   Br: 1.1e-14
   Chi: 4.05
   Cn: 1.1e-30

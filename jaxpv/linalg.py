@@ -130,7 +130,7 @@ def linsol(spmat: Array, vec: Array) -> Array:
     fact = spilu(spmat)
     precond = lambda b: bsub(fact, fsub(fact, b))
 
-    sol, _ = gmres(mvp, vec, M=precond, tol=1e-10, atol=0., maxiter=5)
+    sol, _ = gmres(mvp, vec, M=precond, tol=1e-12, atol=0., maxiter=10)
 
     return sol
 
