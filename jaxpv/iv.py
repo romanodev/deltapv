@@ -1,4 +1,4 @@
-from jaxpv import objects, solver, scales, current, physics, bcond, util
+from jaxpv import objects, solver, scales, current, physics, bcond, plotting, util
 from jax import numpy as np, ops
 import logging
 

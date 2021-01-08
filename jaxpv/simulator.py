@@ -2,6 +2,7 @@ from jaxpv import objects, scales, optical, sun, iv, materials, solver, bcond, u
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
+import logging
 
 PVCell = objects.PVCell
 PVDesign = objects.PVDesign
@@ -113,7 +114,23 @@ def efficiency(design: PVDesign, ls: LightSource) -> f64:
 
     cell = init_cell(design, ls)
     currents, voltages = iv.calc_iv(cell)
-    pmax = np.max(scales.energy * voltages * scales.current * currents) * 1e4  # W/m2
+    pmax = np.max(
+        scales.energy * voltages * scales.current * currents) * 1e4  # W/m2
     eff = pmax / np.sum(ls.P_in)
 
     return eff
+
+
+def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
+
+    N = design.grid.size
+    cell = init_cell(design, ls)
+
+    logging.info("Solving equilibrium...")
+    bound_eq = bcond.boundary_eq(cell)
+    pot_ini = Potentials(
+        np.linspace(bound_eq.phi0, bound_eq.phiL, cell.Eg.size), np.zeros(N),
+        np.zeros(N))
+    pot = solver.solve_eq(cell, bound_eq, pot_ini)
+
+    return pot
