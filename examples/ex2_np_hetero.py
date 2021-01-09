@@ -14,7 +14,7 @@ grid = np.concatenate(
      np.linspace(t1 + dd, (t1 + t2) - dd, 100,
                  endpoint=False), np.linspace((t1 + t2) - dd, (t1 + t2), 10)))
 
-cell = jaxpv.simulator.create_design(grid)
+des = jaxpv.simulator.create_design(grid)
 
 CdS = jaxpv.materials.create_material(Nc=2.2e18,
                                       Nv=1.8e19,
@@ -40,10 +40,10 @@ CdTe = jaxpv.materials.create_material(Nc=8e17,
                                        Chi=3.9,
                                        A=1e4)
 
-cell = jaxpv.simulator.add_material(cell, CdS, lambda x: x < t1)
-cell = jaxpv.simulator.add_material(cell, CdTe, lambda x: x >= t1)
-cell = jaxpv.simulator.single_pn_junction(cell, 1e17, -1e15, t1)
-cell = jaxpv.simulator.contacts(cell, 1.16e7, 1.16e7, 1.16e7, 1.16e7)
+des = jaxpv.simulator.add_material(des, CdS, lambda x: x < t1)
+des = jaxpv.simulator.add_material(des, CdTe, lambda x: x >= t1)
+des = jaxpv.simulator.single_pn_junction(des, 1e17, -1e15, t1)
+des = jaxpv.simulator.contacts(des, 1.16e7, 1.16e7, 1.16e7, 1.16e7)
 
 ls = jaxpv.simulator.incident_light()
 
@@ -52,12 +52,10 @@ if __name__ == "__main__":
     parser.add_argument("--save")
     args = parser.parse_args()
 
-    voltages, j = jaxpv.simulator.iv_curve(cell, ls)
+    results = jaxpv.simulator.simulate(des, ls)
+    v, j = results["iv"]
 
-    plt.plot(voltages, j, "-o")
-    plt.xlabel("Voltage [V]")
-    plt.ylabel("Current [A/cm^2]")
-    plt.title("pn-heterojunction example")
-    if args.save is not None:
-        plt.savefig(args.save)
-    plt.show()
+    jaxpv.plotting.plot_iv_curve(v, j)
+    jaxpv.plotting.plot_bars(des)
+    jaxpv.plotting.plot_band_diagram(des, results["eq"], eq=True)
+    jaxpv.plotting.plot_band_diagram(des, results["Voc"])
