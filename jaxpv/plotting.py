@@ -58,8 +58,10 @@ def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False):
     plt.plot(x, Ev, color="blue", label="valence band", linestyle="dashed")
 
     if not eq:
-        plt.plot(x, scales.energy * pot.phi_n, color="red", label="e- quasiFermi energy")
-        plt.plot(x, scales.energy * pot.phi_p, color="blue", label="hole quasiFermi energy")
+        plt.plot(x, scales.energy * pot.phi_n, color="red", label="e- quasi-Fermi energy")
+        plt.plot(x, scales.energy * pot.phi_p, color="blue", label="hole quasi-Fermi energy")
+    else:
+        plt.plot(x, scales.energy * pot.phi_p, color="grey", label="Fermi level")
 
     plt.xlabel("position / cm")
     plt.ylabel("energy / eV")

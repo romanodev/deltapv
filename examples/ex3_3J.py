@@ -13,7 +13,7 @@ Ge_BASE = 1e-4  # was 1e-2
 nodes = np.cumsum(
     np.array([0, GaP_EMIT, GaP_BASE, InP_EMIT, InP_BASE, Ge_EMIT, Ge_BASE]))
 
-dd = 5e-6
+dd = 2e-6
 grid = np.concatenate([
     np.linspace(0, nodes[1] - dd, 100, endpoint=False),
     np.linspace(nodes[1] - dd, nodes[1] + dd, 100, endpoint=False),
@@ -58,14 +58,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--save")
     args = parser.parse_args()
-
-    jaxpv.plotting.plot_bars(des)
-
-    pot_eq = jaxpv.simulator.equilibrium(des, ls)
-    jaxpv.plotting.plot_band_diagram(des, pot_eq, eq=True)
-
-    import sys
-    sys.exit()
 
     voltages, j = jaxpv.simulator.iv_curve(des, ls)
 
