@@ -1,4 +1,4 @@
-from jaxpv import scales, objects
+from jaxpv import scales, objects, util
 from jax import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -6,9 +6,10 @@ from matplotlib.collections import PatchCollection
 
 PVDesign = objects.PVDesign
 Potentials = objects.Potentials
+Array = util.Array
 
 
-def plot_bars(design: PVDesign):
+def plot_bars(design: PVDesign) -> None:
 
     Ec = -scales.energy * design.Chi
     Ev = -scales.energy * (design.Chi + design.Eg)
@@ -48,7 +49,7 @@ def plot_bars(design: PVDesign):
     plt.show()
 
 
-def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False):
+def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False) -> None:
 
     Ec = -scales.energy * (design.Chi + pot.phi)
     Ev = -scales.energy * (design.Chi + design.Eg + pot.phi)
@@ -66,4 +67,13 @@ def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False):
     plt.xlabel("position / cm")
     plt.ylabel("energy / eV")
     plt.legend()
+    plt.show()
+
+
+def plot_iv_curve(voltages: Array, currents: Array) -> None:
+
+    plt.plot(voltages, currents)
+    plt.xlabel("bias / V")
+    plt.ylabel("current density / A/cm^2")
+    plt.ylim(bottom=0)
     plt.show()

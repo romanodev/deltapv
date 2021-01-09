@@ -1,4 +1,4 @@
-from jaxpv import objects, scales, optical, sun, iv, materials, solver, bcond, util
+from jaxpv import objects, scales, optical, sun, materials, solver, bcond, current, util
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
@@ -10,6 +10,7 @@ LightSource = objects.LightSource
 Potentials = objects.Potentials
 Array = util.Array
 f64 = util.f64
+i64 = util.i64
 
 
 def create_design(dim_grid: Array) -> PVDesign:
@@ -100,25 +101,13 @@ def init_cell(design: PVDesign, ls: LightSource) -> PVCell:
     return PVCell(**params)
 
 
-def iv_curve(design: PVDesign, ls: LightSource) -> Tuple[Array, Array]:
+def vincr(cell: PVCell, num_vals: i64 = 50) -> f64:
 
-    cell = init_cell(design, ls)
-    currents, voltages = iv.calc_iv(cell)
-    dim_currents = scales.current * currents
-    dim_voltages = scales.energy * voltages
+    phi_ini_left, phi_ini_right = bcond.boundary_phi(cell)
+    incr_step = np.abs(phi_ini_right - phi_ini_left) / num_vals
+    incr_sign = (-1)**(phi_ini_right > phi_ini_left)
 
-    return dim_voltages, dim_currents
-
-
-def efficiency(design: PVDesign, ls: LightSource) -> f64:
-
-    cell = init_cell(design, ls)
-    currents, voltages = iv.calc_iv(cell)
-    pmax = np.max(
-        scales.energy * voltages * scales.current * currents) * 1e4  # W/m2
-    eff = pmax / np.sum(ls.P_in)
-
-    return eff
+    return incr_sign * incr_step
 
 
 def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
@@ -134,3 +123,49 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     pot = solver.solve_eq(cell, bound_eq, pot_ini)
 
     return pot
+
+
+def simulate(design: PVDesign, ls: LightSource) -> Array:
+
+    pot_eq = equilibrium(design, ls)
+
+    cell = init_cell(design, ls)
+    pot = pot_eq
+    currents = np.array([], dtype=f64)
+    voltages = np.array([], dtype=f64)
+    dv = vincr(cell)
+    vstep = 0
+
+    while vstep < 100:
+
+        v = dv * vstep
+        scaled_v = v * scales.energy
+        logging.info(f"Solving for {scaled_v} V...")
+        bound = bcond.boundary(cell, v)
+        pot = solver.solve(cell, bound, pot)
+
+        total_j = current.total_current(cell, pot)
+        currents = np.append(currents, total_j)
+        voltages = np.append(voltages, dv * vstep)
+        vstep += 1
+
+        if currents.size > 2:
+            if (currents[-2] * currents[-1]) <= 0:
+                break
+
+    dim_currents = scales.current * currents
+    dim_voltages = scales.energy * voltages
+
+    pmax = np.max(dim_currents * dim_voltages) * 1e4  # W/cm^2 -> W/m2
+    eff = pmax / np.sum(ls.P_in)
+
+    results = {
+        "cell": cell,
+        "eq": pot_eq,
+        "Voc": pot,
+        "mpp": pmax,
+        "eff": eff,
+        "iv": (dim_voltages, dim_currents)
+    }
+
+    return results

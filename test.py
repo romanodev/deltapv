@@ -25,7 +25,8 @@ ls = jaxpv.simulator.incident_light()
 class TestJAXPV(unittest.TestCase):
     def test_iv(self):
 
-        v, j = jaxpv.simulator.iv_curve(design, ls)
+        results = jaxpv.simulator.simulate(design, ls)
+        v, j = results["iv"]
 
         v_correct = [
             0.0, 0.02385882199287483, 0.04771764398574966, 0.07157646597862448,

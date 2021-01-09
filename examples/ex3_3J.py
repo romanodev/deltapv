@@ -59,12 +59,10 @@ if __name__ == "__main__":
     parser.add_argument("--save")
     args = parser.parse_args()
 
-    voltages, j = jaxpv.simulator.iv_curve(des, ls)
+    results = jaxpv.simulator.simulate(des, ls)
+    v, j = results["iv"]
 
-    plt.plot(voltages, j, "-o")
-    plt.xlabel("Voltage [V]")
-    plt.ylabel("Current [A/cm^2]")
-    plt.title("pn-junction")
-    if args.save is not None:
-        plt.savefig(args.save)
-    plt.show()
+    jaxpv.plotting.plot_iv_curve(v, j)
+    jaxpv.plotting.plot_bars(des)
+    jaxpv.plotting.plot_band_diagram(des, results["eq"], eq=True)
+    jaxpv.plotting.plot_band_diagram(des, results["Voc"])
