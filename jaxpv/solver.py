@@ -1,7 +1,8 @@
 from jaxpv import objects, residual, linalg, util
-from jax import numpy as np, jit, ops, custom_jvp, jvp
+from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd
 from typing import Tuple, Callable
 import logging
+import time
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
@@ -41,7 +42,6 @@ def step(cell: PVCell, bound: Boundary,
 
     F = residual.comp_F(cell, bound, pot)
     spgradF = residual.comp_F_deriv(cell, bound, pot)
-
     move = linalg.linsol(spgradF, -F)
     
     error = np.max(np.abs(move))
@@ -61,7 +61,6 @@ def step_eq(cell: PVCell, bound: Boundary,
 
     Feq = residual.comp_F_eq(cell, bound, pot)
     spgradFeq = residual.comp_F_eq_deriv(cell, bound, pot)
-
     move = linalg.linsol(spgradFeq, -Feq)
     
     error = np.max(np.abs(move))
