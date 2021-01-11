@@ -17,9 +17,15 @@ def create_design(dim_grid: Array) -> PVDesign:
 
     n = dim_grid.size
     grid = dim_grid / scales.units["grid"]
-    init_params = {key: np.zeros(n) for key in PVDesign.__dataclass_fields__}
-    init_params.update({"grid": grid})
+    init_params = {
+        key: np.zeros(n)
+        for key in {
+            "eps", "Chi", "Eg", "Nc", "Nv", "mn", "mp", "tn", "tp", "Et", "Br",
+            "Cn", "Cp", "A", "Ndop"
+        }
+    }
     init_params.update({key: f64(0) for key in {"Snl", "Snr", "Spl", "Spr"}})
+    init_params.update({"grid": grid, "alpha": np.zeros((100, n))})
 
     return PVDesign(**init_params)
 
@@ -30,12 +36,18 @@ def add_material(cell: PVDesign, mat: materials.Material,
     vf = vmap(f)
     idx = vf(cell.grid * scales.units["grid"])
 
-    return objects.update(
-        cell, **{
-            param: np.where(idx, value / scales.units[param],
-                            getattr(cell, param))
-            for param, value in mat
-        })
+    updatedict = {}
+    for param, value in mat:
+        if param == "alpha":
+            updatedict[param] = np.where(
+                idx,
+                value.reshape(-1, 1) / scales.units[param],
+                getattr(cell, param))
+        else:
+            updatedict[param] = np.where(idx, value / scales.units[param],
+                                         getattr(cell, param))
+
+    return objects.update(cell, **updatedict)
 
 
 def contacts(cell: PVDesign, Snl: f64, Snr: f64, Spl: f64,
@@ -89,13 +101,15 @@ def incident_light(kind: str = "sun",
         return LightSource(Lambda=Lambda, P_in=P_in)
 
 
-def init_cell(design: PVDesign, ls: LightSource) -> PVCell:
+def init_cell(design: PVDesign, ls: LightSource, optics: bool = True) -> PVCell:
 
-    G = optical.compute_G(design, ls)
+    G = optical.compute_G(design, ls, optics=optics)
     dgrid = np.diff(design.grid)
     params = design.__dict__.copy()
     params["dgrid"] = dgrid
     params.pop("grid")
+    params.pop("A")
+    params.pop("alpha")
     params["G"] = G
 
     return PVCell(**params)
@@ -125,11 +139,11 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     return pot
 
 
-def simulate(design: PVDesign, ls: LightSource) -> Array:
+def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
 
     pot_eq = equilibrium(design, ls)
 
-    cell = init_cell(design, ls)
+    cell = init_cell(design, ls, optics=optics)
     pot = pot_eq
     currents = np.array([], dtype=f64)
     voltages = np.array([], dtype=f64)

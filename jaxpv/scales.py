@@ -46,6 +46,7 @@ units = {
     "Cn": 1 / (time * density**2),
     "Cp": 1 / (time * density**2),
     "A": 1 / length,
+    "alpha": 1 / length,
     "G": gratedens,
     "Snl": velocity,
     "Snr": velocity,
