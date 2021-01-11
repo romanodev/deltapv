@@ -5,6 +5,7 @@ from typing import Union
 Array = util.Array
 f64 = util.f64
 
+{"eps", "Chi", "Eg", "Nc", "Nv", "mn", "mp", "tn", "tp", "Et", "Br", "Cn", "Cp", "A", "Ndop"}
 
 @dataclasses.dataclass
 class PVDesign:
@@ -24,6 +25,7 @@ class PVDesign:
     Cn: Array
     Cp: Array
     A: Array
+    alpha: Array
     Ndop: Array
     Snl: f64
     Snr: f64
@@ -48,7 +50,6 @@ class PVCell:
     Br: Array
     Cn: Array
     Cp: Array
-    A: Array
     Ndop: Array
     G: Array
     Snl: f64
@@ -80,6 +81,7 @@ class Material:
     Cn: f64 = f64(0)
     Cp: f64 = f64(0)
     A: f64 = f64(0)
+    alpha: Array = np.zeros(100)
 
     def __iter__(self):
         return self.__dict__.items().__iter__()
