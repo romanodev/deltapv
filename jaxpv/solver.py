@@ -1,5 +1,5 @@
-from jaxpv import objects, residual, linalg, util
-from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd
+from jaxpv import objects, residual, linalg, util, linesearch
+from jax import numpy as np, jit, ops, custom_jvp, jvp, jacobian
 from typing import Tuple, Callable
 import logging
 import time
@@ -34,7 +34,7 @@ def pot2vec(pot: Potentials) -> Array:
     return vec
 
 
-@jit
+# @jit
 def step(cell: PVCell, bound: Boundary,
          pot: Potentials) -> Tuple[Potentials, f64]:
 
@@ -42,31 +42,46 @@ def step(cell: PVCell, bound: Boundary,
 
     F = residual.comp_F(cell, bound, pot)
     spgradF = residual.comp_F_deriv(cell, bound, pot)
-    move = linalg.linsol(spgradF, -F)
+    p = linalg.linsol(spgradF, -F)
+
+    def f(y):
+        _pot = Potentials(y[2:3 * N:3], y[:3 * N:3], y[1:3 * N:3])
+        _F = residual.comp_F(cell, bound, _pot)
+        return np.dot(_F, _F) / 2
     
-    error = np.max(np.abs(move))
-    damp_move = damp(move)
-    phi_new = pot.phi + damp_move[2:3 * N:3]
-    phi_n_new = pot.phi_n + damp_move[:3 * N:3]
-    phi_p_new = pot.phi_p + damp_move[1:3 * N:3]
+    x = pot2vec(pot)
+    df = jacobian(f)(x)
+    dx = linesearch.lnsrch(f, df, x, p)
+
+    error = np.max(np.abs(p))
+    phi_new = pot.phi + dx[2:3 * N:3]
+    phi_n_new = pot.phi_n + dx[:3 * N:3]
+    phi_p_new = pot.phi_p + dx[1:3 * N:3]
 
     pot_new = Potentials(phi_new, phi_n_new, phi_p_new)
 
     return pot_new, error
 
 
-@jit
+# @jit
 def step_eq(cell: PVCell, bound: Boundary,
             pot: Potentials) -> Tuple[Potentials, f64]:
 
     Feq = residual.comp_F_eq(cell, bound, pot)
     spgradFeq = residual.comp_F_eq_deriv(cell, bound, pot)
-    move = linalg.linsol(spgradFeq, -Feq)
+    p = linalg.linsol(spgradFeq, -Feq)
     
-    error = np.max(np.abs(move))
-    damp_move = damp(move)
+    def f(y):
+        _pot = Potentials(y, np.zeros_like(y), np.zeros_like(y))
+        _Feq = residual.comp_F_eq(cell, bound, _pot)
+        return np.dot(_Feq, _Feq) / 2
 
-    pot_new = Potentials(pot.phi + damp_move, pot.phi_n, pot.phi_p)
+    x = pot.phi
+    df = jacobian(f)(x)
+    dx = linesearch.lnsrch(f, df, x, p)
+
+    error = np.max(np.abs(p))
+    pot_new = Potentials(pot.phi + dx, pot.phi_n, pot.phi_p)
 
     return pot_new, error
 
