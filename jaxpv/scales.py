@@ -9,6 +9,7 @@ from jax import numpy as np
 # mn , mp : cm^2 / (V s)
 # tn , tp : s
 # Snl , Snr , Spl , Spr : cm / s
+# A : cm^(-1) eV^(-1/2)
 # G : cm^(-3) / s
 
 # Physical constants:
@@ -16,11 +17,11 @@ kB = const.k  # J / K
 hc = const.c * const.h * 1e9  # J m -> J nm
 q = const.e  # C
 eps0 = const.epsilon_0 * 1e-2  # C / (V m) -> C / (V cm)
+temperature = 300.  # K
 
 # Constants for scaling physical quantities to be dimensionless:
 density = 1e19  # 1 / cm^3
 mobility = 1.  # cm^2 / (V s)
-temperature = 300.  # K
 energy = kB * temperature / q  # J -> eV through dividing by numerical value of q
 time = eps0 / q / density / mobility  # s
 length = np.sqrt(eps0 * kB * temperature / (q**2 * density))  # cm
@@ -31,7 +32,7 @@ gratedens = density * mobility * kB * temperature / (q * length**2)  # 1 / (cm^3
 # Scaling dictionary for input quantities:
 units = {
     "grid": length,
-    "eps": 1., # relative permittivity dimensionless
+    "eps": 1., # relative permittivity
     "Chi": energy,
     "Eg": energy,
     "Nc": density,
@@ -45,7 +46,7 @@ units = {
     "Br": 1 / (time * density),
     "Cn": 1 / (time * density**2),
     "Cp": 1 / (time * density**2),
-    "A": 1 / length,
+    "A": 1 / (length * np.sqrt(energy)),
     "alpha": 1 / length,
     "G": gratedens,
     "Snl": velocity,

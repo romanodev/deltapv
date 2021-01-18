@@ -20,7 +20,7 @@ def plot_bars(design: PVDesign) -> None:
 
     Ec = -scales.energy * design.Chi
     Ev = -scales.energy * (design.Chi + design.Eg)
-    dim_grid = scales.length * design.grid
+    dim_grid = scales.length * design.grid * 1e4
 
     idx = np.concatenate(
         [np.array([0]),
@@ -28,10 +28,10 @@ def plot_bars(design: PVDesign) -> None:
 
     uc = Ec[idx]
     uv = Ev[idx]
-    startx = scales.length * design.grid[idx]
+    startx = dim_grid[idx]
     starty = uv
     height = uc - uv
-    width = np.diff(np.append(startx, scales.length * design.grid[-1]))
+    width = np.diff(np.append(startx, dim_grid[-1]))
 
     for i in range(startx.size):
         x, y, w, h = startx[i], starty[i], width[i], height[i]
@@ -48,9 +48,9 @@ def plot_bars(design: PVDesign) -> None:
                  va="bottom")
         ax1.text(x + w / 2, y - .1, round(y, 2), ha="center", va="top")
 
-    ax1.set_xlim(0, scales.length * design.grid[-1])
+    ax1.set_xlim(0, dim_grid[-1])
     ax1.set_ylim(np.min(uv) * 1.2, 0)
-    ax1.set_xlabel("position / cm")
+    ax1.set_xlabel("position / um")
     ax1.set_ylabel("energy / eV")
 
     ax2.set_yscale("log")
@@ -84,7 +84,7 @@ def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False) -> None:
 
     Ec = -scales.energy * (design.Chi + pot.phi)
     Ev = -scales.energy * (design.Chi + design.Eg + pot.phi)
-    x = scales.length * design.grid
+    x = scales.length * design.grid * 1e4
 
     plt.plot(x,
              Ec,
@@ -112,7 +112,7 @@ def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False) -> None:
                  color="lightgray",
                  label="Fermi level")
 
-    plt.xlabel("position / cm")
+    plt.xlabel("position / um")
     plt.ylabel("energy / eV")
     plt.legend()
     plt.show()

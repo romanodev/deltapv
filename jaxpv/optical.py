@@ -8,7 +8,7 @@ f64 = util.f64
 
 
 def photonflux(ls: LightSource) -> Array:
-
+    
     return ls.P_in / (scales.hc / ls.Lambda)
 
 
