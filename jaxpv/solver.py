@@ -27,9 +27,9 @@ def pot2vec(pot: Potentials) -> Array:
 
     n = pot.phi.size
     vec = np.zeros(3 * n)
-    vec = ops.index_update(vec, ops.index[0::3], pot.phi_n)
-    vec = ops.index_update(vec, ops.index[1::3], pot.phi_p)
-    vec = ops.index_update(vec, ops.index[2::3], pot.phi)
+    vec = vec.at[0::3].set(pot.phi_n)
+    vec = vec.at[1::3].set(pot.phi_p)
+    vec = vec.at[2::3].set(pot.phi)
 
     return vec
 

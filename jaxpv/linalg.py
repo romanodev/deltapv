@@ -14,7 +14,7 @@ _W = 13
 def coo2sparse(row: Array, col: Array, data: Array, n: i64) -> Array:
 
     disp = np.clip(col - row + _W // 2, 0, _W - 1)
-    sparse = ops.index_update(np.zeros((n, _W)), ops.index[row, disp], data)
+    sparse = np.zeros((n, _W)).at[row, disp].set(data)
     return sparse
 
 
@@ -52,7 +52,7 @@ def spget(m: Array, i: i64, j: i64) -> f64:
 def spwrite(m: Array, i: i64, j: i64, value: f64) -> Array:
 
     disp = np.clip(j - i + _W // 2, 0, _W - 1)
-    mnew = ops.index_update(m, ops.index[i, disp], value)
+    mnew = m.at[i, disp].set(value)
     return mnew
 
 
@@ -69,7 +69,7 @@ def spilu(m: Array) -> Array:
                 mik, mkk = crow[dispk], spget(cmat, k, k)
 
                 def processrow(row):
-                    row = ops.index_update(row, ops.index[dispk], mik / mkk)
+                    row = row.at[dispk].set(mik / mkk)
 
                     def jone(dispj):
                         j = i + dispj - _W // 2
@@ -84,7 +84,7 @@ def spilu(m: Array) -> Array:
             return lax.cond(k < i, kli, lambda k: crow, k), None
 
         rowi, _ = lax.scan(kloop, cmat[i], np.arange(_W))
-        return ops.index_update(cmat, ops.index[i], rowi), None
+        return cmat.at[i].set(rowi), None
 
     result, _ = lax.scan(iloop, m, np.arange(n))
     return result
@@ -99,7 +99,7 @@ def fsub(m: Array, b: Array) -> Array:
         xcpad = np.pad(xc, pad_width=_W // 2)
         res = np.dot(m[i, :_W // 2], lax.dynamic_slice(xcpad, [i], [_W // 2]))
         entryi = b[i] - res
-        xc = ops.index_update(xc, ops.index[i], entryi)
+        xc = xc.at[i].set(entryi)
         return xc, None
 
     x, _ = lax.scan(entry, np.zeros(n), np.arange(n))
@@ -116,7 +116,7 @@ def bsub(m: Array, b: Array) -> Array:
         res = np.dot(m[i, _W // 2 + 1:],
                      lax.dynamic_slice(xcpad, [i + _W // 2 + 1], [_W // 2]))
         entryi = (b[i] - res) / m[i, _W // 2]
-        xc = ops.index_update(xc, ops.index[i], entryi)
+        xc = xc.at[i].set(entryi)
         return xc, None
 
     x, _ = lax.scan(entry, np.zeros(n), np.flip(np.arange(n)))

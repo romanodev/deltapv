@@ -21,13 +21,11 @@ def comp_F(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     lenF = 3 + 3 * len(pois) + 3
     result = np.zeros(lenF, dtype=np.float64)
-    result = ops.index_update(result, ops.index[:3],
-                              np.array([ctct_0_phin, ctct_0_phip, ctct_0_phi]))
-    result = ops.index_update(result, ops.index[3:lenF - 5:3], ddn)
-    result = ops.index_update(result, ops.index[4:lenF - 4:3], ddp)
-    result = ops.index_update(result, ops.index[5:lenF - 3:3], pois)
-    result = ops.index_update(result, ops.index[-3:],
-                              np.array([ctct_L_phin, ctct_L_phip, ctct_L_phi]))
+    result = result.at[:3].set(np.array([ctct_0_phin, ctct_0_phip, ctct_0_phi]))
+    result = result.at[3:lenF - 5:3].set(ddn)
+    result = result.at[4:lenF - 4:3].set(ddp)
+    result = result.at[5:lenF - 3:3].set(pois)
+    result = result.at[-3:].set(np.array([ctct_L_phin, ctct_L_phip, ctct_L_phi]))
 
     return result
 
