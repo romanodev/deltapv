@@ -89,7 +89,7 @@ def psceff(params):
 
 if __name__ == "__main__":
 
-    params = np.array([
+    x = np.array([
         4,
         4.1,
         8.4,
@@ -109,4 +109,8 @@ if __name__ == "__main__":
     ])
 
     pscvg = value_and_grad(psceff)
-    eff, grad = pscvg(params)
+    eff, grad = pscvg(x)
+
+    print(x)
+    print(eff)
+    print(grad)
