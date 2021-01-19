@@ -18,6 +18,8 @@ Perov = jaxpv.materials.create_material(Eg=1.5,
                                         Nv=2.7e18,
                                         mn=2,
                                         mp=2,
+                                        tn=1e-6,
+                                        tp=1e-6,
                                         Br=2.3e-9,
                                         A=A)
 ETM = jaxpv.materials.create_material(Eg=4,
@@ -27,6 +29,8 @@ ETM = jaxpv.materials.create_material(Eg=4,
                                       Nv=1.1e18,
                                       mn=191.4,
                                       mp=5.4,
+                                      tn=1e-6,
+                                      tp=1e-6,
                                       A=A)
 HTM = jaxpv.materials.create_material(Eg=3.3,
                                       Chi=2.1,
@@ -35,6 +39,8 @@ HTM = jaxpv.materials.create_material(Eg=3.3,
                                       Nv=1e18,
                                       mn=4.5,
                                       mp=361,
+                                      tn=1e-6,
+                                      tp=1e-6,
                                       A=A)
 
 grid = np.linspace(0, L_ETM + L_Perov + L_HTM, 500)
@@ -57,6 +63,5 @@ if __name__ == "__main__":
     jaxpv.plotting.plot_band_diagram(des, results["eq"], eq=True)
     jaxpv.plotting.plot_band_diagram(des, results["Voc"])
     jaxpv.plotting.plot_iv_curve(*results["iv"])
-    plt.plot(des.grid, results["cell"].G * jaxpv.scales.gratedens)
-    plt.show()
-    print(results["eff"] * 100)
+    eff = results["eff"] * 100
+    print(f"efficiency: {eff}%")

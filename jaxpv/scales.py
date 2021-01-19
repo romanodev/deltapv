@@ -12,9 +12,14 @@ from jax import numpy as np
 # A : cm^(-1) eV^(-1/2)
 # G : cm^(-3) / s
 
+# Units
+nm = 1e-9  # m
+cm = 1e-2  # m
+
 # Physical constants:
 kB = const.k  # J / K
-hc = const.c * const.h * 1e9  # J m -> J nm
+hc = const.c * const.h  # J m
+eV = const.eV  # J
 q = const.e  # C
 eps0 = const.epsilon_0 * 1e-2  # C / (V m) -> C / (V cm)
 temperature = 300.  # K
@@ -46,8 +51,8 @@ units = {
     "Br": 1 / (time * density),
     "Cn": 1 / (time * density**2),
     "Cp": 1 / (time * density**2),
-    "A": 1 / (length * np.sqrt(energy)),
-    "alpha": 1 / length,
+    "A": 1.,  # optical calculations not scaled
+    "alpha": 1,  # optical calculations not scaled
     "G": gratedens,
     "Snl": velocity,
     "Snr": velocity,
