@@ -21,7 +21,10 @@ def alpha(design: PVDesign, lambdax: f64) -> Array:
     A_si = design.A / scales.cm / np.sqrt(scales.eV)  # 1 / (m J^(1/2))
     Eg_si = design.Eg * scales.energy * scales.eV  # J
     lamb_si = lambdax * scales.nm  # m
-    alpha = A_si * np.sqrt(np.clip(scales.hc / lamb_si - Eg_si, 0))  # 1 / m
+
+    alpha = np.where(scales.hc / lamb_si - Eg_si > 0,
+                     A_si * np.sqrt(np.abs(scales.hc / lamb_si - Eg_si)),
+                     0)  # 1 / m
 
     return alpha
 
@@ -51,7 +54,7 @@ def compute_G(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
         alphas = vmap(np.interp, (None, None, 1),
                       1)(ls.Lambda, np.linspace(200, 1000, 100), design.alpha)
         alphas = alphas / scales.cm  # 1 / m
-    
+
     vgenlambda = vmap(generation_lambda, (None, 0, 0))
     all_generations = vgenlambda(design, phis, alphas)
     tot_generation = np.sum(all_generations, axis=0)  # 1 / (m^3 s)
