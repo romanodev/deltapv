@@ -1,7 +1,6 @@
-import os
-os.environ["LOGLEVEL"] = "INFO"
 import jaxpv
-from jax import numpy as np, value_and_grad
+import jax
+from jax import numpy as np, value_and_grad, jacobian
 import matplotlib.pyplot as plt
 
 L_ETM = 5e-5
@@ -11,17 +10,25 @@ N = 500
 A = 2e4
 tau = 1e-6
 S = 1e7
+Eg_P = 1.5
+Chi_P = 3.9
+eps_P = 10
+Nc_P = 3.9e18
+Nv_P = 2.7e18
+mn_P = 2
+mp_P = 2
+Br_P = 2.3e-9
 
-Perov = jaxpv.materials.create_material(Eg=1.5,
-                                        Chi=3.9,
-                                        eps=10,
-                                        Nc=3.9e18,
-                                        Nv=2.7e18,
-                                        mn=2,
-                                        mp=2,
+Perov = jaxpv.materials.create_material(Eg=Eg_P,
+                                        Chi=Chi_P,
+                                        eps=eps_P,
+                                        Nc=Nc_P,
+                                        Nv=Nv_P,
+                                        mn=mn_P,
+                                        mp=mp_P,
                                         tn=tau,
                                         tp=tau,
-                                        Br=2.3e-9,
+                                        Br=Br_P,
                                         A=A)
 
 region_ETM = lambda x: x <= L_ETM
@@ -29,7 +36,7 @@ region_Perov = lambda x: np.logical_and(L_ETM < x, x <= L_ETM + L_Perov)
 region_HTM = lambda x: L_ETM + L_Perov < x
 
 
-def psceff(params):
+def f(params):
 
     Eg_ETM = params[0]
     Chi_ETM = params[1]
@@ -47,6 +54,8 @@ def psceff(params):
     mp_HTM = params[13]
     Nd_ETM = 10**params[14]
     Na_HTM = 10**params[15]
+    PhiM0 = params[16]
+    PhiML = params[17]
 
     ETM = jaxpv.materials.create_material(Eg=Eg_ETM,
                                           Chi=Chi_ETM,
@@ -77,40 +86,102 @@ def psceff(params):
     des = jaxpv.simulator.add_material(des, HTM, region_HTM)
     des = jaxpv.simulator.doping(des, Nd_ETM, region_ETM)
     des = jaxpv.simulator.doping(des, -Na_HTM, region_HTM)
-    des = jaxpv.simulator.contacts(des, S, S, S, S)
+    des = jaxpv.simulator.contacts(des, S, S, S, S, PhiM0=PhiM0, PhiML=PhiML)
 
     ls = jaxpv.simulator.incident_light()
 
     results = jaxpv.simulator.simulate(des, ls)
-    eff = results["eff"] * 100
+    neff = -results["eff"] * 100
 
-    return eff
+    return neff
 
+
+def h(params):
+
+    return np.sum(params)
+
+
+def g(x):
+
+    r = np.array([g1(x), g2(x), g3(x), g4(x)])
+
+    return r
+
+
+def g1(x):
+
+    Chi_ETM = x[1]
+    PhiM0 = x[16]
+
+    return -Chi_ETM + PhiM0
+
+
+def g2(x):
+
+    Chi_HTM = x[8]
+
+    return -Chi_HTM + Chi_P
+
+
+def g3(x):
+
+    Eg_HTM = x[7]
+    Chi_HTM = x[8]
+    PhiML = x[17]
+
+    return -PhiML + Chi_HTM + Eg_HTM
+
+
+def g4(x):
+
+    Eg_HTM = x[7]
+    Chi_HTM = x[8]
+
+    return -Chi_HTM - Eg_HTM + Chi_P + Eg_P
+
+
+def feasible(x):
+
+    return np.alltrue(g(x) >= 0)
+
+
+gradf = value_and_grad(f)
+gradh = value_and_grad(h)
+
+x0 = np.array([
+    4,
+    4.0692,
+    8.4,
+    18.8,
+    18,
+    191.4,
+    5.4,  # ETM
+    3.3336,
+    2.0663,
+    20,
+    19.3,
+    18,
+    4.5,
+    361,  # HTM
+    17.8,
+    18,  # doping
+    4.0763,
+    5.3759  # contacts
+])
+
+jac1 = jacobian(g1)(x0)
+jac2 = jacobian(g2)(x0)
+jac3 = jacobian(g3)(x0)
+jac4 = jacobian(g4)(x0)
+
+n_params = x0.size
 
 if __name__ == "__main__":
 
-    x = np.array([
-        4,
-        4.1,
-        8.4,
-        18.8,
-        18,
-        191.4,
-        5.4,  # ETM
-        3.3,
-        2.1,
-        20,
-        19.3,
-        18,
-        4.5,
-        361,  # HTM
-        17.8,
-        18  # doping
-    ])
+    print(feasible(x0))
 
-    pscvg = value_and_grad(psceff)
-    eff, grad = pscvg(x)
+    neff, grad = gradf(x0)
 
-    print(x)
-    print(eff)
+    print(x0)
+    print(neff)
     print(grad)
