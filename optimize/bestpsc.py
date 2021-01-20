@@ -23,7 +23,7 @@ Perov = jaxpv.materials.create_material(Eg=1.5,
                                         Br=2.3e-9,
                                         A=A)
 ETM = jaxpv.materials.create_material(Eg=4,
-                                      Chi=4.1,
+                                      Chi=4,
                                       eps=8.4,
                                       Nc=5.6e18,
                                       Nv=1.1e18,
@@ -53,7 +53,7 @@ des = jaxpv.simulator.add_material(des, HTM, region_HTM)
 des = jaxpv.simulator.doping(des, 6e17, region_ETM)
 des = jaxpv.simulator.doping(des, -1e18, region_HTM)
 
-des = jaxpv.simulator.contacts(des, 1e7, 1e7, 1e7, 1e7)
+des = jaxpv.simulator.contacts(des, 1e7, 1e7, 1e7, 1e7, PhiM0=4.1, PhiML=5.2)
 
 ls = jaxpv.simulator.incident_light()
 
