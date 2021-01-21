@@ -59,5 +59,6 @@ if __name__ == "__main__":
     jaxpv.plotting.plot_bars(des)
     jaxpv.plotting.plot_band_diagram(des, results["eq"], eq=True)
     jaxpv.plotting.plot_band_diagram(des, results["Voc"])
+    jaxpv.plotting.plot_charge(des, results["eq"])
     eff = results["eff"] * 100
     print(f"efficiency: {eff}%")

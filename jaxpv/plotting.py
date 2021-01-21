@@ -212,6 +212,7 @@ def plot_charge(design: PVDesign, pot: Potentials):
     plt.plot(x, n, label="electron", color="lightcoral")
     plt.plot(x, p, label="hole", color="cornflowerblue")
 
+    plt.yscale("log")
     plt.xlabel("position / $\mu m$")
     plt.ylabel("density / $cm^{-3}$")
     plt.legend()
