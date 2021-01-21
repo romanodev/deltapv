@@ -104,11 +104,6 @@ def f(params):
     return neff
 
 
-def h(params):
-
-    return np.sum(params)
-
-
 def g1(x):
 
     Chi_ETM = x[1]
@@ -169,7 +164,6 @@ def feasible(x):
 
 
 gradf = value_and_grad(f)
-gradh = value_and_grad(h)
 
 bounds = [(1, 5), (1, 5), (1, 10), (17, 20), (17, 20), (1, 500), (1, 500),
           (1, 5), (1, 5), (1, 10), (17, 20), (17, 20), (1, 500), (1, 500),
@@ -178,25 +172,9 @@ bounds = [(1, 5), (1, 5), (1, 10), (17, 20), (17, 20), (1, 500), (1, 500),
 vl = np.array([tup[0] for tup in bounds])
 vu = np.array([tup[1] for tup in bounds])
 
-x0 = np.array([
-    4,
-    4.0692,
-    8.4,
-    18.8,
-    18,
-    191.4,
-    5.4,  # ETM
-    3.3336,
-    2.0663,
-    20,
-    19.3,
-    18,
-    4.5,
-    361,  # HTM
-    17.8,
-    18,  # doping
-    4.0763,
-    5.3759  # contacts
+x_ref = np.array([
+    4, 4.0692, 8.4, 18.8, 18, 191.4, 5.4, 3.3336, 2.0663, 20, 19.3, 18, 4.5,
+    361, 17.8, 18, 4.0763, 5.3759
 ])
 
 x_init = np.array([
@@ -223,17 +201,17 @@ def sample():
             return sample
 
 
-jac1 = jacobian(g1)(x0)
-jac2 = jacobian(g2)(x0)
-jac3 = jacobian(g3)(x0)
-jac4 = jacobian(g4)(x0)
-jac5 = jacobian(g5)(x0)
-jac6 = jacobian(g6)(x0)
+jac1 = jacobian(g1)(x_ref)
+jac2 = jacobian(g2)(x_ref)
+jac3 = jacobian(g3)(x_ref)
+jac4 = jacobian(g4)(x_ref)
+jac5 = jacobian(g5)(x_ref)
+jac6 = jacobian(g6)(x_ref)
 
-n_params = x0.size
+n_params = x_ref.size
 
 if __name__ == "__main__":
-    
+
     des = x2des(x_best)
     jaxpv.plotting.plot_bars(des)
     ls = jaxpv.simulator.incident_light()
