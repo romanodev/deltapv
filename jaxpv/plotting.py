@@ -1,4 +1,4 @@
-from jaxpv import scales, objects, util
+from jaxpv import scales, physics, objects, util
 from jax import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -14,13 +14,14 @@ COLORS = ["darkorange", "yellow", "limegreen", "cyan", "indigo"]
 def plot_bars(design: PVDesign) -> None:
 
     _, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
-    ax2.margins(x=.2, y=.5)
+    ax1.margins(x=.2, y=.5)
     ax1.set_zorder(1)
     ax1.patch.set_visible(False)
 
-    Ec = -scales.energy * design.Chi
-    Ev = -scales.energy * (design.Chi + design.Eg)
+    Ec = scales.energy * physics.Ec(design)
+    Ev = scales.energy * physics.Ev(design)
+    EFi = scales.energy * physics.EFi(design)
+    EF = scales.energy * physics.EF(design)
     dim_grid = scales.length * design.grid * 1e4
 
     idx = np.concatenate(
@@ -50,33 +51,7 @@ def plot_bars(design: PVDesign) -> None:
                  va="bottom")
         ax1.text(x + w / 2, y - .1, round(y, 2), ha="center", va="top")
 
-    ax1.set_ylim(np.min(uv) * 1.2, 0)
-    ax1.set_xlabel("position / $\mu m$")
-    ax1.set_ylabel("energy / $eV$")
-
-    ax2.set_yscale("log")
-    dim_Ndop = scales.density * design.Ndop
-
-    ax2.plot(dim_grid, dim_Ndop, label="donor", color="lightcoral")
-
-    ax2.plot(dim_grid, -dim_Ndop, label="acceptor", color="cornflowerblue")
-
-    posline = np.argwhere(dim_Ndop[:-1] != dim_Ndop[1:]).flatten()
-
-    for idx in posline:
-        ax2.axvline(dim_grid[idx], color="white", linewidth=2)
-        ax2.axvline(dim_grid[idx + 1], color="white", linewidth=2)
-        ax2.axvline(dim_grid[idx],
-                    color="lightgray",
-                    linewidth=1,
-                    linestyle="dashed")
-
-    for idx in [0, -1]:
-        ax2.axvline(dim_grid[idx], color="white", linewidth=2)
-        ax2.axvline(dim_grid[idx],
-                    color="lightgray",
-                    linewidth=1,
-                    linestyle="dashed")
+    ax1.plot(dim_grid, EF, linestyle="--", color="black", label="$E_{F}$")
 
     if design.PhiM0 > 0:
         phim0 = -design.PhiM0 * scales.energy
@@ -87,7 +62,7 @@ def plot_bars(design: PVDesign) -> None:
         rect = Rectangle((xstart, ystart),
                          width,
                          height,
-                         color="black",
+                         color="red",
                          linewidth=0,
                          alpha=.2)
         ax1.add_patch(rect)
@@ -101,6 +76,7 @@ def plot_bars(design: PVDesign) -> None:
                  "contact",
                  ha="center",
                  va="top")
+        ax1.axhline(y=phim0, xmin=0, xmax=1/7, linestyle="--", color="black")
 
     if design.PhiML > 0:
         phiml = -design.PhiML * scales.energy
@@ -112,7 +88,7 @@ def plot_bars(design: PVDesign) -> None:
         rect = Rectangle((xstart, ystart),
                          width,
                          height,
-                         color="black",
+                         color="blue",
                          linewidth=0,
                          alpha=.2)
         ax1.add_patch(rect)
@@ -126,9 +102,29 @@ def plot_bars(design: PVDesign) -> None:
                  "contact",
                  ha="center",
                  va="top")
+        ax1.axhline(y=phiml, xmin=6/7, xmax=1, linestyle="--", color="black")
 
-    ax2.legend()
-    ax2.set_ylabel("doping / $cm^{-3}$")
+    posline = np.argwhere(design.Ndop[:-1] != design.Ndop[1:]).flatten()
+
+    for idx in posline:
+        ax1.axvline(dim_grid[idx], color="white", linewidth=2)
+        ax1.axvline(dim_grid[idx + 1], color="white", linewidth=2)
+        ax1.axvline(dim_grid[idx],
+                    color="lightgray",
+                    linewidth=1,
+                    linestyle="dashed")
+
+    for idx in [0, -1]:
+        ax1.axvline(dim_grid[idx], color="white", linewidth=2)
+        ax1.axvline(dim_grid[idx],
+                    color="lightgray",
+                    linewidth=1,
+                    linestyle="dashed")
+    
+    ax1.set_ylim(np.min(uv) * 1.2, 0)
+    ax1.set_xlabel("position / $\mu m$")
+    ax1.set_ylabel("energy / $eV$")
+    ax1.legend()
 
     plt.show()
 
@@ -191,15 +187,33 @@ def plot_iv_curve(voltages: Array, currents: Array) -> None:
                      edgecolor="lightgray",
                      hatch="/",
                      linestyle="--")
-    plt.text(vmax / 2,
-             1e3 * jmax / 2,
-             f"$FF = {round(FF, 2)}\%$\n$MPP = {round(pmax * 1e4, 2)} W / m^2$",
-             ha="center",
-             va="center")
+    plt.text(
+        vmax / 2,
+        1e3 * jmax / 2,
+        f"$FF = {round(FF, 2)}\%$\n$MPP = {round(pmax * 1e4, 2)} W / m^2$",
+        ha="center",
+        va="center")
     plt.gca().add_patch(rect)
     plt.plot(vint, 1e3 * jint, color="black")
     plt.xlabel("bias / $V$")
     plt.ylabel("current density / $mA/cm^2$")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
+    plt.show()
+
+
+def plot_charge(design: PVDesign, pot: Potentials):
+
+    n = scales.density * physics.n(design, pot)
+    p = scales.density * physics.p(design, pot)
+
+    x = scales.length * design.grid * 1e4
+
+    plt.plot(x, n, label="electron", color="lightcoral")
+    plt.plot(x, p, label="hole", color="cornflowerblue")
+
+    plt.xlabel("position / $\mu m$")
+    plt.ylabel("density / $cm^{-3}$")
+    plt.legend()
+
     plt.show()

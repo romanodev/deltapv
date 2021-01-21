@@ -22,17 +22,17 @@ hc = const.c * const.h  # J m
 eV = const.eV  # J
 q = const.e  # C
 eps0 = const.epsilon_0 * 1e-2  # C / (V m) -> C / (V cm)
-temperature = 300.  # K
+T = 300.  # K
 
 # Constants for scaling physical quantities to be dimensionless:
 density = 1e19  # 1 / cm^3
 mobility = 1.  # cm^2 / (V s)
-energy = kB * temperature / q  # J -> eV through dividing by numerical value of q
+energy = kB * T / q  # J -> eV through dividing by numerical value of q
 time = eps0 / q / density / mobility  # s
-length = np.sqrt(eps0 * kB * temperature / (q**2 * density))  # cm
+length = np.sqrt(eps0 * kB * T / (q**2 * density))  # cm
 velocity = length / time  # cm / s
-current = kB * temperature * density * mobility / length  # A / cm^2
-gratedens = density * mobility * kB * temperature / (q * length**2)  # 1 / (cm^3 s)
+current = kB * T * density * mobility / length  # A / cm^2
+gratedens = density * mobility * kB * T / (q * length**2)  # 1 / (cm^3 s)
 
 # Scaling dictionary for input quantities:
 units = {

@@ -162,7 +162,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     dv = vincr(cell)
     vstep = 0
 
-    while vstep < 100:
+    while vstep < 500:
 
         v = dv * vstep
         scaled_v = v * scales.energy

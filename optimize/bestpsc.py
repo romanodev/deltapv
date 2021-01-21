@@ -58,6 +58,11 @@ des = jaxpv.simulator.contacts(des, 1e7, 1e7, 1e7, 1e7, PhiM0=4.1, PhiML=5.2)
 ls = jaxpv.simulator.incident_light()
 
 if __name__ == "__main__":
+
+    jaxpv.plotting.plot_charge(
+        des, jaxpv.simulator.equilibrium(des,
+                                         jaxpv.simulator.incident_light()))
+    raise SystemExit
     jaxpv.plotting.plot_bars(des)
     results = jaxpv.simulator.simulate(des, ls)
     jaxpv.plotting.plot_band_diagram(des, results["eq"], eq=True)
