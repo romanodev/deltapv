@@ -5,7 +5,6 @@ from typing import Union
 Array = util.Array
 f64 = util.f64
 
-{"eps", "Chi", "Eg", "Nc", "Nv", "mn", "mp", "tn", "tp", "Et", "Br", "Cn", "Cp", "A", "Ndop"}
 
 @dataclasses.dataclass
 class PVDesign:
@@ -31,6 +30,8 @@ class PVDesign:
     Snr: f64
     Spl: f64
     Spr: f64
+    PhiM0: f64
+    PhiML: f64
 
 
 @dataclasses.dataclass
@@ -56,6 +57,8 @@ class PVCell:
     Snr: f64
     Spl: f64
     Spr: f64
+    PhiM0: f64
+    PhiML: f64
 
 
 @dataclasses.dataclass

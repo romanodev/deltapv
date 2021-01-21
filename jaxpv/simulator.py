@@ -24,7 +24,10 @@ def create_design(dim_grid: Array) -> PVDesign:
             "Cn", "Cp", "A", "Ndop"
         }
     }
-    init_params.update({key: f64(0) for key in {"Snl", "Snr", "Spl", "Spr"}})
+    init_params.update({
+        key: f64(0)
+        for key in {"Snl", "Snr", "Spl", "Spr", "PhiM0", "PhiML"}
+    })
     init_params.update({"grid": grid, "alpha": np.zeros((100, n))})
 
     return PVDesign(**init_params)
@@ -50,14 +53,21 @@ def add_material(cell: PVDesign, mat: materials.Material,
     return objects.update(cell, **updatedict)
 
 
-def contacts(cell: PVDesign, Snl: f64, Snr: f64, Spl: f64,
-             Spr: f64) -> PVDesign:
+def contacts(cell: PVDesign,
+             Snl: f64,
+             Snr: f64,
+             Spl: f64,
+             Spr: f64,
+             PhiM0: f64 = -1,
+             PhiML: f64 = -1) -> PVDesign:
 
     return objects.update(cell,
                           Snl=f64(Snl / scales.units["Snl"]),
                           Snr=f64(Snr / scales.units["Snr"]),
                           Spl=f64(Spl / scales.units["Spl"]),
-                          Spr=f64(Spr / scales.units["Spr"]))
+                          Spr=f64(Spr / scales.units["Spr"]),
+                          PhiM0=f64(PhiM0 / scales.units["PhiM0"]),
+                          PhiML=f64(PhiML / scales.units["PhiML"]))
 
 
 def single_pn_junction(cell: PVDesign, Nleft: f64, Nright: f64,
@@ -101,7 +111,9 @@ def incident_light(kind: str = "sun",
         return LightSource(Lambda=Lambda, P_in=P_in)
 
 
-def init_cell(design: PVDesign, ls: LightSource, optics: bool = True) -> PVCell:
+def init_cell(design: PVDesign,
+              ls: LightSource,
+              optics: bool = True) -> PVCell:
 
     G = optical.compute_G(design, ls, optics=optics)
     dgrid = np.diff(design.grid)
@@ -150,7 +162,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     dv = vincr(cell)
     vstep = 0
 
-    while vstep < 100:
+    while vstep < 500:
 
         v = dv * vstep
         scaled_v = v * scales.energy
