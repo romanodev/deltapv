@@ -1,3 +1,5 @@
+import os
+os.environ["ALLOWNANS"] = "TRUE"
 import psc
 import numpy as np
 import matplotlib.pyplot as plt
@@ -39,6 +41,4 @@ def plot_stats(effs):
 if __name__ == "__main__":
 
     effs, fails = find_success("randomsearch.log")
-
-    for fail in fails:
-        psc.f(np.array(fail))
+    psc.f(np.array(fails[1]))

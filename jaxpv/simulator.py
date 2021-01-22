@@ -130,10 +130,6 @@ def init_cell(design: PVDesign,
 
 def vincr(cell: PVCell, num_vals: i64 = 50) -> f64:
 
-    """phi_ini_left, phi_ini_right = bcond.boundary_phi(cell)
-    incr_step = np.abs(phi_ini_right - phi_ini_left) / num_vals
-    incr_sign = (-1)**(phi_ini_right > phi_ini_left)"""
-
     dv = 1 / num_vals / scales.energy
 
     return dv

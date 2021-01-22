@@ -1,6 +1,7 @@
 from jaxpv import objects, residual, linalg, util
-from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd
+from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd, vmap
 from typing import Tuple, Callable
+import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger("jaxpv")
 
@@ -10,14 +11,25 @@ Potentials = objects.Potentials
 Boundary = objects.Boundary
 Array = util.Array
 f64 = util.f64
+NLS = 500
 
 
 @jit
-def damp(move: Array) -> Array:
+def logdamp(move: Array) -> Array:
 
     damped = np.where(
         np.abs(move) > 1,
         np.log(1 + np.abs(move) * 1.72) * np.sign(move), move)
+
+    return damped
+
+
+@jit
+def scaledamp(move: Array) -> Array:
+
+    big = np.max(np.abs(move))
+    gamma = np.maximum(big, 50)
+    damped = 50 * move / gamma
 
     return damped
 
@@ -35,25 +47,49 @@ def pot2vec(pot: Potentials) -> Array:
 
 
 @jit
-def step(cell: PVCell, bound: Boundary,
-         pot: Potentials) -> Tuple[Potentials, f64]:
+def modify(pot: Potentials, move: Array) -> Potentials:
 
-    N = cell.Eg.size
-
-    F = residual.comp_F(cell, bound, pot)
-    spgradF = residual.comp_F_deriv(cell, bound, pot)
-    move = linalg.linsol(spgradF, -F)
-
-    error = np.max(np.abs(move))
-    resid = np.linalg.norm(F)
-    damp_move = damp(move)
-    phi_new = pot.phi + damp_move[2:3 * N:3]
-    phi_n_new = pot.phi_n + damp_move[:3 * N:3]
-    phi_p_new = pot.phi_p + damp_move[1:3 * N:3]
-
+    phi_new = pot.phi + move[2::3]
+    phi_n_new = pot.phi_n + move[::3]
+    phi_p_new = pot.phi_p + move[1::3]
     pot_new = Potentials(phi_new, phi_n_new, phi_p_new)
 
-    return pot_new, error, resid
+    return pot_new
+
+
+@jit
+def residnorm(cell, bound, pot, move, alpha):
+
+    pot_new = modify(pot, alpha * move)
+    F = residual.comp_F(cell, bound, pot_new)
+    Fnorm = np.linalg.norm(F)
+
+    return Fnorm
+
+
+@jit
+def step(cell: PVCell, bound: Boundary,
+         pot: Potentials) -> Tuple[Potentials, dict]:
+
+    F = residual.comp_F(cell, bound, pot)
+    spJ = residual.comp_F_deriv(cell, bound, pot)
+    p = linalg.linsol(spJ, -F)
+
+    error = np.max(np.abs(p))
+    resid = np.linalg.norm(F)
+    dx = logdamp(p)
+
+    """alphas = np.linspace(0, 2, NLS)
+    R = vmap(residnorm, (None, None, None, None, 0))(cell, bound, pot,
+                                                     dx, alphas)
+    alpha_best = alphas[NLS // 10:][np.argmin(R[NLS // 10:])]"""
+
+    alpha_best = 1
+    pot_new = modify(pot, alpha_best * dx)
+
+    stats = {"error": error, "resid": resid}
+
+    return pot_new, stats
 
 
 @jit
@@ -61,16 +97,18 @@ def step_eq(cell: PVCell, bound: Boundary,
             pot: Potentials) -> Tuple[Potentials, f64]:
 
     Feq = residual.comp_F_eq(cell, bound, pot)
-    spgradFeq = residual.comp_F_eq_deriv(cell, bound, pot)
-    move = linalg.linsol(spgradFeq, -Feq)
+    spJeq = residual.comp_F_eq_deriv(cell, bound, pot)
+    p = linalg.linsol(spJeq, -Feq)
 
-    error = np.max(np.abs(move))
+    error = np.max(np.abs(p))
     resid = np.linalg.norm(Feq)
-    damp_move = damp(move)
+    dx = logdamp(p)
 
-    pot_new = Potentials(pot.phi + damp_move, pot.phi_n, pot.phi_p)
+    pot_new = Potentials(pot.phi + dx, pot.phi_n, pot.phi_p)
 
-    return pot_new, error, resid
+    stats = {"error": error, "resid": resid}
+
+    return pot_new, stats
 
 
 @custom_jvp
@@ -82,9 +120,13 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
     while error > 1e-6 and niter < 100:
 
-        pot, error, resid = step(cell, bound, pot)
+        pot, stats = step(cell, bound, pot)
+        error = stats["error"]
+        resid = stats["resid"]
         niter += 1
-        logger.info(f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}")
+        logger.info(
+            f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+        )
 
     return pot
 
@@ -98,9 +140,13 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
     while error > 1e-6 and niter < 100:
 
-        pot, error, resid = step_eq(cell, bound, pot)
+        pot, stats = step_eq(cell, bound, pot)
+        error = stats["error"]
+        resid = stats["resid"]
         niter += 1
-        logger.info(f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}")
+        logger.info(
+            f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+        )
 
     return pot
 
