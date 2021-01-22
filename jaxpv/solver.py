@@ -45,6 +45,7 @@ def step(cell: PVCell, bound: Boundary,
     move = linalg.linsol(spgradF, -F)
 
     error = np.max(np.abs(move))
+    resid = np.linalg.norm(F)
     damp_move = damp(move)
     phi_new = pot.phi + damp_move[2:3 * N:3]
     phi_n_new = pot.phi_n + damp_move[:3 * N:3]
@@ -52,7 +53,7 @@ def step(cell: PVCell, bound: Boundary,
 
     pot_new = Potentials(phi_new, phi_n_new, phi_p_new)
 
-    return pot_new, error
+    return pot_new, error, resid
 
 
 @jit
@@ -64,11 +65,12 @@ def step_eq(cell: PVCell, bound: Boundary,
     move = linalg.linsol(spgradFeq, -Feq)
 
     error = np.max(np.abs(move))
+    resid = np.linalg.norm(Feq)
     damp_move = damp(move)
 
     pot_new = Potentials(pot.phi + damp_move, pot.phi_n, pot.phi_p)
 
-    return pot_new, error
+    return pot_new, error, resid
 
 
 @custom_jvp
@@ -80,9 +82,9 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
     while error > 1e-6 and niter < 100:
 
-        pot, error = step(cell, bound, pot)
+        pot, error, resid = step(cell, bound, pot)
         niter += 1
-        logger.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
+        logger.info(f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}")
 
     return pot
 
@@ -96,9 +98,9 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
     while error > 1e-6 and niter < 100:
 
-        pot, error = step_eq(cell, bound, pot)
+        pot, error, resid = step_eq(cell, bound, pot)
         niter += 1
-        logger.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
+        logger.info(f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}")
 
     return pot
 
