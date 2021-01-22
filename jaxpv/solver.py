@@ -2,7 +2,7 @@ from jaxpv import objects, residual, linalg, util
 from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd
 from typing import Tuple, Callable
 import logging
-import time
+logger = logging.getLogger("jaxpv")
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
@@ -43,7 +43,7 @@ def step(cell: PVCell, bound: Boundary,
     F = residual.comp_F(cell, bound, pot)
     spgradF = residual.comp_F_deriv(cell, bound, pot)
     move = linalg.linsol(spgradF, -F)
-    
+
     error = np.max(np.abs(move))
     damp_move = damp(move)
     phi_new = pot.phi + damp_move[2:3 * N:3]
@@ -62,7 +62,7 @@ def step_eq(cell: PVCell, bound: Boundary,
     Feq = residual.comp_F_eq(cell, bound, pot)
     spgradFeq = residual.comp_F_eq_deriv(cell, bound, pot)
     move = linalg.linsol(spgradFeq, -Feq)
-    
+
     error = np.max(np.abs(move))
     damp_move = damp(move)
 
@@ -82,7 +82,7 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
         pot, error = step(cell, bound, pot)
         niter += 1
-        logging.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
+        logger.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
     return pot
 
@@ -98,7 +98,7 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
         pot, error = step_eq(cell, bound, pot)
         niter += 1
-        logging.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
+        logger.info(f"\t iteration: {str(niter).ljust(10)} error: {error}")
 
     return pot
 

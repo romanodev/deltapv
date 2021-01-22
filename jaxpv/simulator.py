@@ -3,6 +3,7 @@ from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
 import logging
+logger = logging.getLogger("jaxpv")
 
 PVCell = objects.PVCell
 PVDesign = objects.PVDesign
@@ -129,11 +130,13 @@ def init_cell(design: PVDesign,
 
 def vincr(cell: PVCell, num_vals: i64 = 50) -> f64:
 
-    phi_ini_left, phi_ini_right = bcond.boundary_phi(cell)
+    """phi_ini_left, phi_ini_right = bcond.boundary_phi(cell)
     incr_step = np.abs(phi_ini_right - phi_ini_left) / num_vals
-    incr_sign = (-1)**(phi_ini_right > phi_ini_left)
+    incr_sign = (-1)**(phi_ini_right > phi_ini_left)"""
 
-    return incr_sign * incr_step
+    dv = 1 / num_vals / scales.energy
+
+    return dv
 
 
 def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
@@ -141,7 +144,7 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     N = design.grid.size
     cell = init_cell(design, ls)
 
-    logging.info("Solving equilibrium...")
+    logger.info("Solving equilibrium...")
     bound_eq = bcond.boundary_eq(cell)
     pot_ini = Potentials(
         np.linspace(bound_eq.phi0, bound_eq.phiL, cell.Eg.size), np.zeros(N),
@@ -162,11 +165,11 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     dv = vincr(cell)
     vstep = 0
 
-    while vstep < 500:
+    while vstep < 100:
 
         v = dv * vstep
         scaled_v = v * scales.energy
-        logging.info(f"Solving for {scaled_v} V...")
+        logger.info(f"Solving for {scaled_v} V...")
         bound = bcond.boundary(cell, v)
         pot = solver.solve(cell, bound, pot)
 
@@ -184,6 +187,9 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
 
     pmax = np.max(dim_currents * dim_voltages) * 1e4  # W/cm^2 -> W/m2
     eff = pmax / np.sum(ls.P_in)
+    eff_print = round(eff * 100, 2)
+
+    logger.info(f"Finished simulation with efficiency {eff_print}%")
 
     results = {
         "cell": cell,

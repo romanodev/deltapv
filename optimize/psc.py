@@ -37,6 +37,37 @@ region_Perov = lambda x: np.logical_and(L_ETM < x, x <= L_ETM + L_Perov)
 region_HTM = lambda x: L_ETM + L_Perov < x
 
 
+def EF(Nc, Nv, Eg, Chi, N):
+
+    kBT = jaxpv.scales.kB * jaxpv.scales.T / jaxpv.scales.q
+    ni = np.sqrt(Nc * Nv) * np.exp(-Eg / (2 * kBT))
+    Ec = -Chi
+    EFi = Ec - Eg / 2 + (kBT / 2) * np.log(Nc / Nv)
+    dEF = kBT * np.where(N > 0, np.log(np.abs(N) / ni),
+                         -np.log(np.abs(N) / ni))
+
+    return EFi + dEF
+
+
+def getPhis(params):
+
+    Eg_ETM = params[0]
+    Chi_ETM = params[1]
+    Nc_ETM = 10**params[3]
+    Nv_ETM = 10**params[4]
+    Eg_HTM = params[7]
+    Chi_HTM = params[8]
+    Nc_HTM = 10**params[10]
+    Nv_HTM = 10**params[11]
+    Nd_ETM = 10**params[14]
+    Na_HTM = 10**params[15]
+
+    PhiM0 = -EF(Nc_ETM, Nv_ETM, Eg_ETM, Chi_ETM, Nd_ETM)
+    PhiML = -EF(Nc_HTM, Nv_HTM, Eg_HTM, Chi_HTM, -Na_HTM)
+
+    return PhiM0, PhiML
+
+
 def x2des(params):
 
     Eg_ETM = params[0]
@@ -55,8 +86,8 @@ def x2des(params):
     mp_HTM = params[13]
     Nd_ETM = 10**params[14]
     Na_HTM = 10**params[15]
-    PhiM0 = params[16]
-    PhiML = params[17]
+
+    PhiM0, PhiML = getPhis(params)
 
     ETM = jaxpv.materials.create_material(Eg=Eg_ETM,
                                           Chi=Chi_ETM,
@@ -107,7 +138,7 @@ def f(params):
 def g1(x):
 
     Chi_ETM = x[1]
-    PhiM0 = x[16]
+    PhiM0, _ = getPhis(x)
 
     return -Chi_ETM + PhiM0
 
@@ -123,7 +154,7 @@ def g3(x):
 
     Eg_HTM = x[7]
     Chi_HTM = x[8]
-    PhiML = x[17]
+    _, PhiML = getPhis(x)
 
     return -PhiML + Chi_HTM + Eg_HTM
 
@@ -143,17 +174,10 @@ def g5(x):
     return Chi_ETM - Chi_P
 
 
-def g6(x):
-
-    PhiM0 = x[16]
-    PhiML = x[17]
-
-    return PhiML - PhiM0
-
-
 def g(x):
 
-    r = np.array([g1(x), g2(x), g3(x), g4(x), g5(x), g6(x)])
+    r = np.array([g1(x), g2(x), g3(x), g4(x), g5(x)])
+    r = np.array([g1(x), g2(x), g3(x), g4(x), g5(x)])
 
     return r
 
@@ -167,29 +191,14 @@ gradf = value_and_grad(f)
 
 bounds = [(1, 5), (1, 5), (1, 10), (17, 20), (17, 20), (1, 500), (1, 500),
           (1, 5), (1, 5), (1, 10), (17, 20), (17, 20), (1, 500), (1, 500),
-          (17, 20), (17, 20), (1, 5), (1, 5)]
+          (17, 20), (17, 20)]
 
 vl = np.array([tup[0] for tup in bounds])
 vu = np.array([tup[1] for tup in bounds])
 
 x_ref = np.array([
     4, 4.0692, 8.4, 18.8, 18, 191.4, 5.4, 3.3336, 2.0663, 20, 19.3, 18, 4.5,
-    361, 17.8, 18, 4.0763, 5.3759
-])
-
-x_init = np.array([
-    3.408894345400288, 4.489246205336617, 1.4033100964331489,
-    18.102458440549007, 18.751701092270405, 215.58363583274289,
-    430.34070902692133, 3.1258643466074822, 1.8802527998007066,
-    3.250312948834226, 18.271563189488432, 17.919572451168687,
-    39.6584011905537, 170.04590415884542, 19.831435093004217,
-    19.708285354975096, 4.599962930469092, 4.888665497007468
-])
-
-x_best = np.array([
-    3.9518632, 3.92177767, 1.39785952, 17.01335127, 18.75170086, 215.58363592,
-    430.34070903, 3.19959275, 2.00876491, 3.25084181, 18.27156182, 17.60708458,
-    39.65840014, 170.04591322, 19.98740757, 19.99101872, 3.92177767, 4.97098514
+    361, 17.8, 18
 ])
 
 
@@ -206,19 +215,15 @@ jac2 = jacobian(g2)(x_ref)
 jac3 = jacobian(g3)(x_ref)
 jac4 = jacobian(g4)(x_ref)
 jac5 = jacobian(g5)(x_ref)
-jac6 = jacobian(g6)(x_ref)
 
 n_params = x_ref.size
 
 if __name__ == "__main__":
 
-    des = x2des(x_best)
+    x = sample()
+    print(x)
+    des = x2des(x)
     jaxpv.plotting.plot_bars(des)
     ls = jaxpv.simulator.incident_light()
     results = jaxpv.simulator.simulate(des, ls)
-    jaxpv.plotting.plot_band_diagram(des, results["eq"], eq=True)
-    jaxpv.plotting.plot_band_diagram(des, results["Voc"])
     jaxpv.plotting.plot_iv_curve(*results["iv"])
-    jaxpv.plotting.plot_charge(des, results["eq"])
-    eff = results["eff"] * 100
-    print(f"efficency: {eff}%")
