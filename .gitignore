@@ -105,3 +105,7 @@ venv.bak/
 .mypy_cache/
 .vscode/settings.json
 .DS_Store
+
+# debugging
+/debug
+/outputs

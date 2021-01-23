@@ -201,6 +201,12 @@ x_ref = np.array([
     361, 17.8, 18
 ])
 
+x_init = np.array([
+    1.85164371, 4.98293216, 8.29670517, 18.84580405, 19.91887512, 102.60205287,
+    473.07855517, 3.74772183, 1.02394888, 2.3392392, 17.76149694, 19.60516244,
+    448.65494921, 311.63744301, 17.19468214, 17.57586159
+])
+
 
 def sample():
     while True:
@@ -210,20 +216,15 @@ def sample():
             return sample
 
 
-jac1 = jacobian(g1)(x_ref)
-jac2 = jacobian(g2)(x_ref)
-jac3 = jacobian(g3)(x_ref)
-jac4 = jacobian(g4)(x_ref)
-jac5 = jacobian(g5)(x_ref)
+jac1 = lambda x: jacobian(g1)(x)
+jac2 = lambda x: jacobian(g2)(x)
+jac3 = lambda x: jacobian(g3)(x)
+jac4 = lambda x: jacobian(g4)(x)
+jac5 = lambda x: jacobian(g5)(x)
 
 n_params = x_ref.size
 
 if __name__ == "__main__":
 
-    x = sample()
-    print(x)
-    des = x2des(x)
-    jaxpv.plotting.plot_bars(des)
-    ls = jaxpv.simulator.incident_light()
-    results = jaxpv.simulator.simulate(des, ls)
-    jaxpv.plotting.plot_iv_curve(*results["iv"])
+    print(gradf(x_init))
+    

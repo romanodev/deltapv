@@ -124,14 +124,23 @@ def bsub(m: Array, b: Array) -> Array:
 
 
 @jit
-def linsol(spmat: Array, vec: Array) -> Array:
+def linsol(spmat: Array,
+           vec: Array,
+           tol=1e-12,
+           maxiter=10) -> Array:
 
     mvp = partial(spmatvec, spmat)
     fact = spilu(spmat)
     precond = lambda b: bsub(fact, fsub(fact, b))
 
-    sol, _ = gmres(mvp, vec, M=precond, tol=1e-12, atol=0., maxiter=10)
- 
+    sol, _ = gmres(mvp,
+                   vec,
+                   M=precond,
+                   tol=tol,
+                   atol=0.,
+                   maxiter=maxiter,
+                   solve_method="batched")
+
     return sol
 
 

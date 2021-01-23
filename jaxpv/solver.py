@@ -11,7 +11,7 @@ Potentials = objects.Potentials
 Boundary = objects.Boundary
 Array = util.Array
 f64 = util.f64
-NLS = 500
+n_lnsrch = 500
 
 
 @jit
@@ -25,11 +25,11 @@ def logdamp(move: Array) -> Array:
 
 
 @jit
-def scaledamp(move: Array) -> Array:
+def scaledamp(move: Array, threshold: f64 = 50) -> Array:
 
     big = np.max(np.abs(move))
-    gamma = np.maximum(big, 50)
-    damped = 50 * move / gamma
+    gamma = np.maximum(big, threshold)
+    damped = threshold * move / gamma
 
     return damped
 
@@ -68,28 +68,15 @@ def residnorm(cell, bound, pot, move, alpha):
 
 
 @jit
-def step(cell: PVCell, bound: Boundary,
-         pot: Potentials) -> Tuple[Potentials, dict]:
+def linesearch(cell: PVCell, bound: Boundary, pot: Potentials,
+               p: Array) -> Array:
 
-    F = residual.comp_F(cell, bound, pot)
-    spJ = residual.comp_F_deriv(cell, bound, pot)
-    p = linalg.linsol(spJ, -F)
+    alphas = np.linspace(0, 2, n_lnsrch)
+    R = vmap(residnorm, (None, None, None, None, 0))(cell, bound, pot, p,
+                                                     alphas)
+    alpha_best = alphas[n_lnsrch // 10:][np.argmin(R[n_lnsrch // 10:])]
 
-    error = np.max(np.abs(p))
-    resid = np.linalg.norm(F)
-    dx = logdamp(p)
-
-    """alphas = np.linspace(0, 2, NLS)
-    R = vmap(residnorm, (None, None, None, None, 0))(cell, bound, pot,
-                                                     dx, alphas)
-    alpha_best = alphas[NLS // 10:][np.argmin(R[NLS // 10:])]"""
-
-    alpha_best = 1
-    pot_new = modify(pot, alpha_best * dx)
-
-    stats = {"error": error, "resid": resid}
-
-    return pot_new, stats
+    return alpha_best
 
 
 @jit
@@ -112,26 +99,6 @@ def step_eq(cell: PVCell, bound: Boundary,
 
 
 @custom_jvp
-def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
-
-    pot = pot_ini
-    error = 1
-    niter = 0
-
-    while error > 1e-6 and niter < 100:
-
-        pot, stats = step(cell, bound, pot)
-        error = stats["error"]
-        resid = stats["resid"]
-        niter += 1
-        logger.info(
-            f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
-        )
-
-    return pot
-
-
-@custom_jvp
 def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
     pot = pot_ini
@@ -143,6 +110,94 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         pot, stats = step_eq(cell, bound, pot)
         error = stats["error"]
         resid = stats["resid"]
+        niter += 1
+        logger.info(
+            f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+        )
+
+    return pot
+
+
+@solve_eq.defjvp
+def solve_eq_jvp(primals, tangents):
+
+    cell, bound, pot_ini = primals
+    dcell, dbound, _ = tangents
+    sol = solve_eq(cell, bound, pot_ini)
+
+    zerodpot = Potentials(np.zeros_like(sol.phi), np.zeros_like(sol.phi_n),
+                          np.zeros_like(sol.phi_p))
+
+    _, rhs = jvp(residual.comp_F_eq, (cell, bound, sol),
+                 (dcell, dbound, zerodpot))
+
+    spF_eq_pot = residual.comp_F_eq_deriv(cell, bound, sol)
+    F_eq_pot = linalg.sparse2dense(spF_eq_pot)
+    dF_eq = np.linalg.solve(F_eq_pot, -rhs)
+
+    primal_out = sol
+    tangent_out = Potentials(dF_eq, np.zeros_like(sol.phi_n),
+                             np.zeros_like(sol.phi_p))
+
+    return primal_out, tangent_out
+
+
+@jit
+def step(cell: PVCell, bound: Boundary,
+         pot: Potentials) -> Tuple[Potentials, dict]:
+
+    F = residual.comp_F(cell, bound, pot)
+    spJ = residual.comp_F_deriv(cell, bound, pot)
+    p = linalg.linsol(spJ, -F)
+
+    error = np.max(np.abs(p))
+    resid = np.linalg.norm(F)
+    dx = logdamp(p)
+
+    pot_new = modify(pot, dx)
+
+    stats = {"error": error, "resid": resid}
+
+    return pot_new, stats
+
+
+@jit
+def step_dense(cell: PVCell, bound: Boundary,
+               pot: Potentials) -> Tuple[Potentials, dict]:
+
+    F = residual.comp_F(cell, bound, pot)
+    spJ = residual.comp_F_deriv(cell, bound, pot)
+    J = linalg.sparse2dense(spJ)
+    p = np.linalg.solve(J, -F)
+
+    error = np.max(np.abs(p))
+    resid = np.linalg.norm(F)
+    dx = logdamp(p)
+
+    pot_new = modify(pot, dx)
+
+    stats = {"error": error, "resid": resid}
+
+    return pot_new, stats
+
+
+@custom_jvp
+def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
+
+    pot = pot_ini
+    error = 1
+    niter = 0
+
+    while error > 1e-6 and niter < 100:
+
+        pot, stats = step(cell, bound, pot)
+        error = stats["error"]
+        resid = stats["resid"]
+        if error == 0 or np.isnan(error):
+            logger.error("Sparse solver failed. Switching to dense solver.")
+            pot, stats = step_dense(cell, bound, pot)
+            error = stats["error"]
+            resid = stats["resid"]
         niter += 1
         logger.info(
             f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
@@ -170,29 +225,5 @@ def solve_jvp(primals, tangents):
 
     primal_out = sol
     tangent_out = Potentials(dF[2::3], dF[0::3], dF[1::3])
-
-    return primal_out, tangent_out
-
-
-@solve_eq.defjvp
-def solve_eq_jvp(primals, tangents):
-
-    cell, bound, pot_ini = primals
-    dcell, dbound, _ = tangents
-    sol = solve_eq(cell, bound, pot_ini)
-
-    zerodpot = Potentials(np.zeros_like(sol.phi), np.zeros_like(sol.phi_n),
-                          np.zeros_like(sol.phi_p))
-
-    _, rhs = jvp(residual.comp_F_eq, (cell, bound, sol),
-                 (dcell, dbound, zerodpot))
-
-    spF_eq_pot = residual.comp_F_eq_deriv(cell, bound, sol)
-    F_eq_pot = linalg.sparse2dense(spF_eq_pot)
-    dF_eq = np.linalg.solve(F_eq_pot, -rhs)
-
-    primal_out = sol
-    tangent_out = Potentials(dF_eq, np.zeros_like(sol.phi_n),
-                             np.zeros_like(sol.phi_p))
 
     return primal_out, tangent_out

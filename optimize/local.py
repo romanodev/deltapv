@@ -1,43 +1,35 @@
-import os
-os.environ["LOGLEVEL"] = "INFO"
 import psc
 from scipy.optimize import minimize
+import logging
+logger = logging.getLogger("jaxpv")
+logger.addHandler(logging.FileHandler("slsqp.log"))
 
 cons = ({
     "type": "ineq",
     "fun": psc.g1,
-    "jac": lambda _: psc.jac1
+    "jac": psc.jac1
 }, {
     "type": "ineq",
     "fun": psc.g2,
-    "jac": lambda _: psc.jac2
+    "jac": psc.jac2
 }, {
     "type": "ineq",
     "fun": psc.g3,
-    "jac": lambda _: psc.jac3
+    "jac": psc.jac3
 }, {
     "type": "ineq",
     "fun": psc.g4,
-    "jac": lambda _: psc.jac4
+    "jac": psc.jac4
 }, {
     "type": "ineq",
     "fun": psc.g5,
-    "jac": lambda _: psc.jac5
-}, {
-    "type": "ineq",
-    "fun": psc.g6,
-    "jac": lambda _: psc.jac6
+    "jac": psc.jac5
 })
 
 
 def fun(x):
 
-    print(list(x))
-    """des = psc.x2des(x)
-    psc.jaxpv.plotting.plot_bars(des)
-    pot_eq = psc.jaxpv.simulator.equilibrium(
-        des, psc.jaxpv.simulator.incident_light())
-    psc.jaxpv.plotting.plot_charge(des, pot_eq)"""
+    logger.info(list(x))
 
     return psc.gradf(x)
 
@@ -48,7 +40,7 @@ results = minimize(fun,
                    jac=True,
                    options={
                        "disp": True,
-                       "maxiter": 30
+                       "maxiter": 10
                    },
                    bounds=psc.bounds,
                    constraints=cons)
@@ -108,4 +100,28 @@ Optimization terminated successfully    (Exit mode 0)
          2.00876491,   3.25084181,  18.27156182,  17.60708458,
         39.65840014, 170.04591322,  19.98740757,  19.99101872,
          3.92177767,   4.97098514])
+"""
+"""
+Trial 3: Flat bands
+
+Iteration limit reached    (Exit mode 9)
+            Current function value: -29.236985976300424
+            Iterations: 10
+            Function evaluations: 39
+            Gradient evaluations: 9
+     fun: DeviceArray(-29.23698598, dtype=float64)
+     jac: array([-1.17460905e-01,  5.61452238e-01,  5.02245898e-04,  3.34162048e-02,
+        5.04224843e-06, -9.72523017e-07,  5.91291325e-12,  1.32131044e+02,
+        1.31727724e+02,  2.68427329e-02,  5.03595722e-04, -7.84118858e+00,
+        1.74619505e-05, -7.64425345e-13, -2.46909359e-03,  1.23172660e+01])
+ message: 'Iteration limit reached'
+    nfev: 39
+     nit: 10
+    njev: 9
+  status: 9
+ success: False
+       x: array([  1.4344334 ,   4.88767481,   6.13460402,  19.99999209,
+        17.00002294, 102.60237715, 473.07117574,   2.2258033 ,
+         1.        ,   2.13719668,  19.40511096,  17.00000379,
+       448.65494922, 311.63744303,  17.00000113,  19.11751152])
 """

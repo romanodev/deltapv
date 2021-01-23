@@ -183,7 +183,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
 
     pmax = np.max(dim_currents * dim_voltages) * 1e4  # W/cm^2 -> W/m2
     eff = pmax / np.sum(ls.P_in)
-    eff_print = round(eff * 100, 2)
+    eff_print = np.round(eff * 100, 2)
 
     logger.info(f"Finished simulation with efficiency {eff_print}%")
 
