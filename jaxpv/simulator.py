@@ -165,7 +165,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
 
         v = dv * vstep
         scaled_v = v * scales.energy
-        logger.info(f"Solving for {scaled_v} V...")
+        logger.info(f"Solving for {scaled_v} V (Step {vstep})...")
         bound = bcond.boundary(cell, v)
         pot = solver.solve(cell, bound, pot)
 
@@ -181,7 +181,13 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     dim_currents = scales.current * currents
     dim_voltages = scales.energy * voltages
 
-    pmax = np.max(dim_currents * dim_voltages) * 1e4  # W/cm^2 -> W/m2
+    p = dim_currents * dim_voltages * 1e4  # W/cm^2 -> W/m2
+    # pmax = util.softmax(p, alpha=1)
+    maxidx = np.argmax(p)
+    pmax = p[maxidx]
+    vmax = dim_voltages[maxidx]
+    logger.info(f"Maximum point is {vmax} V at index {maxidx}")
+
     eff = pmax / np.sum(ls.P_in)
     eff_print = np.round(eff * 100, 2)
 

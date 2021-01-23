@@ -1,8 +1,11 @@
 import jaxpv
-import jax
 from jax import numpy as np, value_and_grad, jacobian
 import numpy as onp
 import matplotlib.pyplot as plt
+import logging
+logger = logging.getLogger("jaxpv")
+logger.addHandler(logging.FileHandler("logs/bands_zoomout.log"))
+
 
 L_ETM = 5e-5
 L_Perov = 1.1e-4
@@ -226,5 +229,12 @@ n_params = x_ref.size
 
 if __name__ == "__main__":
 
-    print(gradf(x_init))
-    
+    dds = np.linspace(-1e-3, 1e-3, 21)
+    effs = []
+    for dd in dds:
+        obj = f(x_ref.at[2].add(dd))
+        effs.append(obj)
+    logger.info(effs)
+    effs = np.array(effs)
+    plt.scatter(dds, effs, marker=".")
+    plt.show()
