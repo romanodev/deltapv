@@ -126,8 +126,7 @@ def bsub(m: Array, b: Array) -> Array:
 @jit
 def linsol(spmat: Array,
            vec: Array,
-           tol=1e-12,
-           maxiter=10) -> Array:
+           tol=1e-12) -> Array:
 
     mvp = partial(spmatvec, spmat)
     fact = spilu(spmat)
@@ -138,7 +137,7 @@ def linsol(spmat: Array,
                    M=precond,
                    tol=tol,
                    atol=0.,
-                   maxiter=maxiter,
+                   maxiter=10,
                    solve_method="batched")
 
     return sol

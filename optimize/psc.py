@@ -4,8 +4,7 @@ import numpy as onp
 import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger("jaxpv")
-logger.addHandler(logging.FileHandler("logs/bands_zoomout.log"))
-
+# logger.addHandler(logging.FileHandler("logs/example.log"))
 
 L_ETM = 5e-5
 L_Perov = 1.1e-4
@@ -134,6 +133,7 @@ def f(params):
 
     results = jaxpv.simulator.simulate(des, ls)
     neff = -results["eff"] * 100
+    obj = results["Voc"].phi_n[100]
 
     return neff
 
@@ -229,12 +229,5 @@ n_params = x_ref.size
 
 if __name__ == "__main__":
 
-    dds = np.linspace(-1e-3, 1e-3, 21)
-    effs = []
-    for dd in dds:
-        obj = f(x_ref.at[2].add(dd))
-        effs.append(obj)
-    logger.info(effs)
-    effs = np.array(effs)
-    plt.scatter(dds, effs, marker=".")
-    plt.show()
+    eff, deff = gradf(x_ref)
+    print(deff)

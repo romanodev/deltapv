@@ -167,7 +167,7 @@ def total_current(cell: PVCell, pot: Potentials) -> Array:
 
     around_zero_n = np.abs(Dpsin) < 1e-5
     around_zero_p = np.abs(Dpsip) < 1e-5
-
+    
     fmn = np.exp(phi_n[1]) - np.exp(phi_n[0])
     numerator = (1 - around_zero_n) * Dpsin + around_zero_n * 1
     denominator = (1 - around_zero_n) * (np.exp(Dpsin) - 1) + around_zero_n * (
