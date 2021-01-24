@@ -1,6 +1,6 @@
 from jaxpv import linalg
 from jax import numpy as np
-from scipy.sparse.linalg import gmres
+from scipy.sparse.linalg import gmres, spilu, LinearOperator
 import matplotlib.pyplot as plt
 
 
@@ -27,12 +27,26 @@ def rowscale(mat, vec, ord=2):
     return mat_scaled, vec_scaled
 
 
-spJ = np.load("spJ.npy")
-J = np.load("J.npy")
-F = np.load("F.npy")
+spJ = np.load("debug/spJ.npy")
+J = np.load("debug/J.npy")
+F = np.load("debug/F.npy")
 
-spJp, Fp = rowscale(spJ, F, ord=2)
-Jp = linalg.sparse2dense(spJp)
 
-p, _ = gmres(J, -F)
-plotpot(p)
+def splinsol(A, b):
+    precon = lambda x: spilu(A).solve(x)
+    lo = LinearOperator(A.shape, precon)
+    x, _ = gmres(A, b, M=lo)
+    return x
+
+
+fact = linalg.spilu(spJ)
+ILU = linalg.sparse2dense(fact)
+
+L = np.tril(ILU, k=-1) + np.eye(ILU.shape[0])
+U = np.triu(ILU)
+
+p = linalg.linsol(spJ, -F)
+
+plt.plot(J @ p)
+plt.plot(-F)
+plt.show()

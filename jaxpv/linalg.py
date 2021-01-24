@@ -87,12 +87,13 @@ def spilu(m: Array) -> Array:
         return cmat.at[i].set(rowi), None
 
     result, _ = lax.scan(iloop, m, np.arange(n))
+
     return result
 
 
 @jit
 def fsub(m: Array, b: Array) -> Array:
-
+    # Lower triangular, unit diagonal
     n = m.shape[0]
 
     def entry(xc, i):
@@ -108,7 +109,7 @@ def fsub(m: Array, b: Array) -> Array:
 
 @jit
 def bsub(m: Array, b: Array) -> Array:
-
+    # Upper triangular
     n = m.shape[0]
 
     def entry(xc, i):
