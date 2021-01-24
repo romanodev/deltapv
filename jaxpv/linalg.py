@@ -87,12 +87,13 @@ def spilu(m: Array) -> Array:
         return cmat.at[i].set(rowi), None
 
     result, _ = lax.scan(iloop, m, np.arange(n))
+
     return result
 
 
 @jit
 def fsub(m: Array, b: Array) -> Array:
-
+    # Lower triangular, unit diagonal
     n = m.shape[0]
 
     def entry(xc, i):
@@ -108,7 +109,7 @@ def fsub(m: Array, b: Array) -> Array:
 
 @jit
 def bsub(m: Array, b: Array) -> Array:
-
+    # Upper triangular
     n = m.shape[0]
 
     def entry(xc, i):
@@ -126,8 +127,7 @@ def bsub(m: Array, b: Array) -> Array:
 @jit
 def linsol(spmat: Array,
            vec: Array,
-           tol=1e-12,
-           maxiter=10) -> Array:
+           tol=1e-12) -> Array:
 
     mvp = partial(spmatvec, spmat)
     fact = spilu(spmat)
@@ -138,7 +138,7 @@ def linsol(spmat: Array,
                    M=precond,
                    tol=tol,
                    atol=0.,
-                   maxiter=maxiter,
+                   maxiter=10,
                    solve_method="batched")
 
     return sol

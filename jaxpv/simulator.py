@@ -1,4 +1,4 @@
-from jaxpv import objects, scales, optical, sun, materials, solver, bcond, current, util
+from jaxpv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
@@ -181,12 +181,8 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     dim_currents = scales.current * currents
     dim_voltages = scales.energy * voltages
 
-    p = dim_currents * dim_voltages * 1e4  # W/cm^2 -> W/m2
-    # pmax = util.softmax(p, alpha=1)
-    maxidx = np.argmax(p)
-    pmax = p[maxidx]
-    vmax = dim_voltages[maxidx]
-    logger.info(f"Maximum point is {vmax} V at index {maxidx}")
+    pmax = spline.calcPmax(dim_voltages, dim_currents)
+    pmax = pmax * 1e4  # W/cm^2 -> W/m2
 
     eff = pmax / np.sum(ls.P_in)
     eff_print = np.round(eff * 100, 2)

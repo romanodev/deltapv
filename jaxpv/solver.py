@@ -85,7 +85,7 @@ def step_eq(cell: PVCell, bound: Boundary,
 
     Feq = residual.comp_F_eq(cell, bound, pot)
     spJeq = residual.comp_F_eq_deriv(cell, bound, pot)
-    p = linalg.linsol(spJeq, -Feq)
+    p = linalg.linsol(spJeq, -Feq, tol=1e-12)
 
     error = np.max(np.abs(p))
     resid = np.linalg.norm(Feq)
@@ -105,7 +105,7 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
     error = 1
     niter = 0
 
-    while error > 1e-6 and niter < 100:
+    while niter < 100 and error > 1e-6:
 
         pot, stats = step_eq(cell, bound, pot)
         error = stats["error"]
@@ -148,27 +148,7 @@ def step(cell: PVCell, bound: Boundary,
 
     F = residual.comp_F(cell, bound, pot)
     spJ = residual.comp_F_deriv(cell, bound, pot)
-    p = linalg.linsol(spJ, -F)
-
-    error = np.max(np.abs(p))
-    resid = np.linalg.norm(F)
-    dx = logdamp(p)
-
-    pot_new = modify(pot, dx)
-
-    stats = {"error": error, "resid": resid}
-
-    return pot_new, stats
-
-
-@jit
-def step_dense(cell: PVCell, bound: Boundary,
-               pot: Potentials) -> Tuple[Potentials, dict]:
-
-    F = residual.comp_F(cell, bound, pot)
-    spJ = residual.comp_F_deriv(cell, bound, pot)
-    J = linalg.sparse2dense(spJ)
-    p = np.linalg.solve(J, -F)
+    p = linalg.linsol(spJ, -F, tol=1e-12)
 
     error = np.max(np.abs(p))
     resid = np.linalg.norm(F)
@@ -188,16 +168,11 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
     error = 1
     niter = 0
 
-    while error > 1e-6 and niter < 100:
+    while niter < 100 and error > 1e-6:
 
         pot, stats = step(cell, bound, pot)
         error = stats["error"]
         resid = stats["resid"]
-        if error == 0 or np.isnan(error):
-            logger.error("Sparse solver failed. Switching to dense solver.")
-            pot, stats = step_dense(cell, bound, pot)
-            error = stats["error"]
-            resid = stats["resid"]
         niter += 1
         logger.info(
             f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
