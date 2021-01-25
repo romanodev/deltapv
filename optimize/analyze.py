@@ -32,9 +32,10 @@ def analyzeRS(filename):
     return effs, fails
 
 
-def analyzeSLSQP(filename):
+def analyzeOptim(filename):
 
     des = []
+    effs = []
 
     with open(filename, "r") as f:
         for line in f.readlines():
@@ -42,10 +43,13 @@ def analyzeSLSQP(filename):
                 strlist = line.strip("][\n").split(", ")
                 x = [float(y) for y in strlist]
                 des.append(x)
+            elif line.startswith("Finished"):
+                streff = line.split()[-1][:-1]
+                effs.append(float(streff))
 
     print(f"N = {len(des)}")
 
-    return des
+    return des, effs
 
 
 def plot_stats(effs):
@@ -59,11 +63,9 @@ def plot_stats(effs):
 
 if __name__ == "__main__":
 
-    _, xs = analyzeRS("logs/randomsearch.log")
-    
-    for i, x in enumerate(xs):
-        logger.info(f"Culprit #{i + 1}")
-        try:
-            psc.f(x)
-        except:
-            pass
+    _, effs = analyzeOptim("logs/nlopt_mma_xinit.log")
+
+    plt.plot(effs)
+    plt.xlabel("function evaluations")
+    plt.ylabel("objective")
+    plt.show()

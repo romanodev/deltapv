@@ -2,9 +2,6 @@ import jaxpv
 from jax import numpy as np, value_and_grad, jacobian
 import numpy as onp
 import matplotlib.pyplot as plt
-import logging
-logger = logging.getLogger("jaxpv")
-# logger.addHandler(logging.FileHandler("logs/example.log"))
 
 L_ETM = 5e-5
 L_Perov = 1.1e-4
@@ -129,11 +126,13 @@ def f(params):
 
     des = x2des(params)
     ls = jaxpv.simulator.incident_light()
-
     results = jaxpv.simulator.simulate(des, ls)
-    neff = -results["eff"] * 100
+    eff = results["eff"] * 100
 
-    return neff
+    return eff
+
+
+gradf = value_and_grad(f)
 
 
 def g1(x):
@@ -141,14 +140,14 @@ def g1(x):
     Chi_ETM = x[1]
     PhiM0, _ = getPhis(x)
 
-    return -Chi_ETM + PhiM0
+    return Chi_ETM - PhiM0
 
 
 def g2(x):
 
     Chi_HTM = x[8]
 
-    return -Chi_HTM + Chi_P
+    return Chi_HTM - Chi_P
 
 
 def g3(x):
@@ -157,7 +156,7 @@ def g3(x):
     Chi_HTM = x[8]
     _, PhiML = getPhis(x)
 
-    return -PhiML + Chi_HTM + Eg_HTM
+    return PhiML - Chi_HTM - Eg_HTM
 
 
 def g4(x):
@@ -165,48 +164,42 @@ def g4(x):
     Eg_HTM = x[7]
     Chi_HTM = x[8]
 
-    return -Chi_HTM - Eg_HTM + Chi_P + Eg_P
+    return Chi_HTM + Eg_HTM - Chi_P - Eg_P
 
 
 def g5(x):
 
     Chi_ETM = x[1]
 
-    return Chi_ETM - Chi_P
+    return Chi_P - Chi_ETM
 
 
 def g(x):
 
     r = np.array([g1(x), g2(x), g3(x), g4(x), g5(x)])
-    r = np.array([g1(x), g2(x), g3(x), g4(x), g5(x)])
 
     return r
 
 
-def feasible(x):
+jac1 = jacobian(g1)
+jac2 = jacobian(g2)
+jac3 = jacobian(g3)
+jac4 = jacobian(g4)
+jac5 = jacobian(g5)
+jac = jacobian(g)
 
-    return np.alltrue(g(x) >= 0)
-
-
-gradf = value_and_grad(f)
-
-bounds = [(1, 5), (1, 5), (1, 10), (17, 20), (17, 20), (1, 500), (1, 500),
-          (1, 5), (1, 5), (1, 10), (17, 20), (17, 20), (1, 500), (1, 500),
+bounds = [(1, 5), (1, 5), (1, 20), (17, 20), (17, 20), (1, 500), (1, 500),
+          (1, 5), (1, 5), (1, 20), (17, 20), (17, 20), (1, 500), (1, 500),
           (17, 20), (17, 20)]
 
 vl = np.array([tup[0] for tup in bounds])
 vu = np.array([tup[1] for tup in bounds])
 
-x_ref = np.array([
-    4, 4.0692, 8.4, 18.8, 18, 191.4, 5.4, 3.3336, 2.0663, 20, 19.3, 18, 4.5,
-    361, 17.8, 18
-])
 
-x_init = np.array([
-    1.85164371, 4.98293216, 8.29670517, 18.84580405, 19.91887512, 102.60205287,
-    473.07855517, 3.74772183, 1.02394888, 2.3392392, 17.76149694, 19.60516244,
-    448.65494921, 311.63744301, 17.19468214, 17.57586159
-])
+def feasible(x):
+
+    return np.alltrue(g(x) <= 0) and np.alltrue(vl <= x) and np.alltrue(
+        x <= vu)
 
 
 def sample():
@@ -217,14 +210,15 @@ def sample():
             return sample
 
 
-jac1 = jacobian(g1)
-jac2 = jacobian(g2)
-jac3 = jacobian(g3)
-jac4 = jacobian(g4)
-jac5 = jacobian(g5)
+x_ref = np.array([
+    4, 4.0692, 8.4, 18.8, 18, 191.4, 5.4, 3.3336, 2.0663, 19.9, 19.3, 18, 4.5,
+    361, 17.8, 18
+])
+
+x_init = np.array([
+    1.85164371, 4.98293216, 8.29670517, 18.84580405, 19.91887512, 102.60205287,
+    473.07855517, 3.74772183, 1.02394888, 2.3392392, 17.76149694, 19.60516244,
+    448.65494921, 311.63744301, 17.19468214, 17.57586159
+])
 
 n_params = x_ref.size
-
-if __name__ == "__main__":
-
-    pass
