@@ -128,12 +128,10 @@ def x2des(params):
 def f(params):
 
     des = x2des(params)
-
     ls = jaxpv.simulator.incident_light()
 
     results = jaxpv.simulator.simulate(des, ls)
     neff = -results["eff"] * 100
-    obj = results["Voc"].phi_n[100]
 
     return neff
 
@@ -219,15 +217,14 @@ def sample():
             return sample
 
 
-jac1 = lambda x: jacobian(g1)(x)
-jac2 = lambda x: jacobian(g2)(x)
-jac3 = lambda x: jacobian(g3)(x)
-jac4 = lambda x: jacobian(g4)(x)
-jac5 = lambda x: jacobian(g5)(x)
+jac1 = jacobian(g1)
+jac2 = jacobian(g2)
+jac3 = jacobian(g3)
+jac4 = jacobian(g4)
+jac5 = jacobian(g5)
 
 n_params = x_ref.size
 
 if __name__ == "__main__":
 
-    eff, deff = gradf(x_ref)
-    print(deff)
+    pass
