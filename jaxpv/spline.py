@@ -3,9 +3,12 @@ from functools import partial
 import matplotlib.pyplot as plt
 
 
-def quad(x):
+def quadratic(x, coef):
 
-    return np.array([x**2, x, 1])
+    a, b, c = coef
+    y = a * x**2 + b * x + c
+
+    return y
 
 
 def qspline(x, y):
@@ -18,10 +21,10 @@ def qspline(x, y):
     z = z.at[1].set(y[0])
 
     for i in range(n - 1):
-        M = M.at[3 * i + 1, 3 * i:3 * i + 3].set(quad(x[i]))
+        M = M.at[3 * i + 1, 3 * i:3 * i + 3].set(np.array([x[i]**2, x[i], 1]))
         z = z.at[3 * i + 1].set(y[i])
 
-        M = M.at[3 * i + 2, 3 * i:3 * i + 3].set(quad(x[i + 1]))
+        M = M.at[3 * i + 2, 3 * i:3 * i + 3].set([x[i + 1]**2, x[i + 1], 1])
         z = z.at[3 * i + 2].set(y[i + 1])
 
     for i in range(n - 2):
@@ -46,16 +49,36 @@ def predict(x, xp, coef):
     return y
 
 
-def ascent(df, x0=0., lr=1., niter=100):
+def ascent(df, x0=0., lr=1., tol=1e-6, niter=100):
 
     x = x0
     for _ in range(niter):
-        x = x + lr * df(x)
+        deriv = df(x)
+        x = x + lr * deriv
+        if np.abs(deriv) < 1e-6:
+            break
 
     return x
 
 
-def calcPmax(v, j):
+def findmax(x, coef):
+
+    a, b, _ = coef
+    xl = x[:-1]
+    xu = x[1:]
+    filla = np.where(a != 0, a, 1)  # avoid divide-by-zero
+    xm = np.clip(-b / (2 * filla), xl, xu)
+
+    yl = quadratic(xl, coef)
+    yu = quadratic(xu, coef)
+    ym = quadratic(xm, coef)
+
+    ymax = np.max(np.concatenate([yl, yu, ym]))
+
+    return ymax
+
+
+def calcPmax_gd(v, j):
     p = v * j
     coef = qspline(v, p)
     fun = partial(predict, xp=v, coef=coef)
@@ -63,4 +86,11 @@ def calcPmax(v, j):
 
     vbest = ascent(dfun, x0=v[np.argmax(p)])
     pmax = fun(vbest)
+    return pmax
+
+
+def calcPmax(v, j):
+    p = v * j
+    coef = qspline(v, p)
+    pmax = findmax(v, coef)
     return pmax

@@ -4,6 +4,10 @@ import psc
 import numpy as np
 import matplotlib.pyplot as plt
 
+import logging
+logger = logging.getLogger("jaxpv")
+logger.addHandler(logging.FileHandler("logs/tsuyoi.log"))
+
 
 def analyzeRS(filename):
 
@@ -56,5 +60,10 @@ def plot_stats(effs):
 if __name__ == "__main__":
 
     _, xs = analyzeRS("logs/randomsearch.log")
-    whack = xs[1]
-    psc.f(whack)
+    
+    for i, x in enumerate(xs):
+        logger.info(f"Culprit #{i + 1}")
+        try:
+            psc.f(x)
+        except:
+            pass

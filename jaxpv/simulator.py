@@ -181,8 +181,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     dim_currents = scales.current * currents
     dim_voltages = scales.energy * voltages
 
-    pmax = spline.calcPmax(dim_voltages, dim_currents)
-    pmax = pmax * 1e4  # W/cm^2 -> W/m2
+    pmax = spline.calcPmax(dim_voltages, dim_currents * 1e4)  # A/cm^2 -> A/m2
 
     eff = pmax / np.sum(ls.P_in)
     eff_print = np.round(eff * 100, 2)

@@ -112,7 +112,7 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         resid = stats["resid"]
         niter += 1
         logger.info(
-            f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
         )
 
     return pot
@@ -143,6 +143,26 @@ def solve_eq_jvp(primals, tangents):
 
 
 @jit
+def step_dense(cell: PVCell, bound: Boundary,
+               pot: Potentials) -> Tuple[Potentials, dict]:
+
+    F = residual.comp_F(cell, bound, pot)
+    spJ = residual.comp_F_deriv(cell, bound, pot)
+    J = linalg.sparse2dense(spJ)
+    p = np.linalg.solve(J, -F)
+
+    error = np.max(np.abs(p))
+    resid = np.linalg.norm(F)
+    dx = logdamp(p)
+
+    pot_new = modify(pot, dx)
+
+    stats = {"error": error, "resid": resid}
+
+    return pot_new, stats
+
+
+@jit
 def step(cell: PVCell, bound: Boundary,
          pot: Potentials) -> Tuple[Potentials, dict]:
 
@@ -161,6 +181,30 @@ def step(cell: PVCell, bound: Boundary,
     return pot_new, stats
 
 
+def solve_dense(cell: PVCell, bound: Boundary,
+                pot_ini: Potentials) -> Potentials:
+
+    pot = pot_ini
+    error = 1
+    niter = 0
+
+    while niter < 100 and error > 1e-6:
+
+        pot, stats = step_dense(cell, bound, pot)
+        error = stats["error"]
+        resid = stats["resid"]
+        niter += 1
+        logger.info(
+            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+        )
+
+        if np.isnan(error) or error == 0:
+            logger.critical("\tDense solver failed! It's all over.")
+            raise SystemExit
+
+    return pot
+
+
 @custom_jvp
 def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
@@ -175,8 +219,12 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         resid = stats["resid"]
         niter += 1
         logger.info(
-            f"\t iteration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
         )
+
+        if np.isnan(error) or error == 0:
+            logger.error("\tSparse solver failed! Switching to dense.")
+            return solve_dense(cell, bound, pot_ini)
 
     return pot
 
