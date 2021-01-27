@@ -129,8 +129,8 @@ def f(params):
     feasibility = feasible(params)
     logger.info(f"Feasible: {feasibility}")
     if not feasibility:
-        logger.error("Unfeasible point, returning zero.")
-        return 0.
+        logger.error("Unfeasible point, penalizing.")
+        return 100.
     try:
         des = x2des(params)
         ls = jaxpv.simulator.incident_light()
@@ -234,8 +234,3 @@ x_init = np.array([
 ])
 
 n_params = x_ref.size
-
-if __name__ == "__main__":
-
-    for alpha in np.linspace(0, 1, 100):
-        jaxpv.plotting.plot_bars(x2des(x_init + alpha * (x_ref - x_init)))
