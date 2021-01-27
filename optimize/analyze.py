@@ -40,12 +40,15 @@ def analyzeOptim(filename):
     with open(filename, "r") as f:
         for line in f.readlines():
             if line.startswith("["):
+                continue
                 strlist = line.strip("][\n").split(", ")
                 x = [float(y) for y in strlist]
                 des.append(x)
             elif line.startswith("Finished"):
                 streff = line.split()[-1][:-1]
                 effs.append(float(streff))
+            elif "returning zero" in line:
+                effs.append(0.)
 
     print(f"N = {len(des)}")
 
@@ -63,7 +66,7 @@ def plot_stats(effs):
 
 if __name__ == "__main__":
 
-    _, effs = analyzeOptim("logs/nlopt_mma_xinit.log")
+    _, effs = analyzeOptim("logs/nlopt_auglag.log")
 
     plt.plot(effs)
     plt.xlabel("function evaluations")

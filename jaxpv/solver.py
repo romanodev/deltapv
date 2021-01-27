@@ -80,6 +80,26 @@ def linesearch(cell: PVCell, bound: Boundary, pot: Potentials,
 
 
 @jit
+def step_eq_dense(cell: PVCell, bound: Boundary,
+                  pot: Potentials) -> Tuple[Potentials, f64]:
+
+    Feq = residual.comp_F_eq(cell, bound, pot)
+    spJeq = residual.comp_F_eq_deriv(cell, bound, pot)
+    Jeq = linalg.sparse2dense(spJeq)
+    p = np.linalg.solve(Jeq, -Feq)
+
+    error = np.max(np.abs(p))
+    resid = np.linalg.norm(Feq)
+    dx = logdamp(p)
+
+    pot_new = Potentials(pot.phi + dx, pot.phi_n, pot.phi_p)
+
+    stats = {"error": error, "resid": resid}
+
+    return pot_new, stats
+
+
+@jit
 def step_eq(cell: PVCell, bound: Boundary,
             pot: Potentials) -> Tuple[Potentials, f64]:
 
@@ -98,6 +118,30 @@ def step_eq(cell: PVCell, bound: Boundary,
     return pot_new, stats
 
 
+def solve_eq_dense(cell: PVCell, bound: Boundary,
+                   pot_ini: Potentials) -> Potentials:
+
+    pot = pot_ini
+    error = 1
+    niter = 0
+
+    while niter < 100 and error > 1e-6:
+
+        pot, stats = step_eq_dense(cell, bound, pot)
+        error = stats["error"]
+        resid = stats["resid"]
+        niter += 1
+        logger.info(
+            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+        )
+
+        if np.isnan(error) or error == 0:
+            logger.critical("\tDense solver failed! It's all over.")
+            raise SystemExit
+
+    return pot
+
+
 @custom_jvp
 def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
@@ -114,6 +158,10 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         logger.info(
             f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
         )
+
+        if np.isnan(error) or error == 0:
+            logger.error("\tSparse solver failed! Switching to dense.")
+            return solve_eq_dense(cell, bound, pot_ini)
 
     return pot
 

@@ -31,7 +31,7 @@ def fun(x):
 
     logger.info(list(x))
 
-    return psc.gradf(x)
+    return psc.vagf(x)
 
 
 if __name__ == "__main__":

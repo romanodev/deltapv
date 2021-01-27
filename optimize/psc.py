@@ -1,7 +1,9 @@
 import jaxpv
-from jax import numpy as np, value_and_grad, jacobian
+from jax import numpy as np, value_and_grad, jacobian, grad
 import numpy as onp
 import matplotlib.pyplot as plt
+import logging
+logger = logging.getLogger("jaxpv")
 
 L_ETM = 5e-5
 L_Perov = 1.1e-4
@@ -124,15 +126,25 @@ def x2des(params):
 
 def f(params):
 
-    des = x2des(params)
-    ls = jaxpv.simulator.incident_light()
-    results = jaxpv.simulator.simulate(des, ls)
-    eff = results["eff"] * 100
+    feasibility = feasible(params)
+    logger.info(f"Feasible: {feasibility}")
+    if not feasibility:
+        logger.error("Unfeasible point, returning zero.")
+        return 0.
+    try:
+        des = x2des(params)
+        ls = jaxpv.simulator.incident_light()
+        results = jaxpv.simulator.simulate(des, ls)
+        eff = results["eff"] * 100
+    except:
+        logger.error("Solver failed, returning zero.")
+        return 0.
 
-    return eff
+    return -eff
 
 
-gradf = value_and_grad(f)
+df = grad(f)
+vagf = value_and_grad(f)
 
 
 def g1(x):
@@ -140,14 +152,14 @@ def g1(x):
     Chi_ETM = x[1]
     PhiM0, _ = getPhis(x)
 
-    return Chi_ETM - PhiM0
+    return -(Chi_ETM - PhiM0)
 
 
 def g2(x):
 
     Chi_HTM = x[8]
 
-    return Chi_HTM - Chi_P
+    return -(Chi_HTM - Chi_P)
 
 
 def g3(x):
@@ -156,7 +168,7 @@ def g3(x):
     Chi_HTM = x[8]
     _, PhiML = getPhis(x)
 
-    return PhiML - Chi_HTM - Eg_HTM
+    return -(PhiML - Chi_HTM - Eg_HTM)
 
 
 def g4(x):
@@ -164,14 +176,14 @@ def g4(x):
     Eg_HTM = x[7]
     Chi_HTM = x[8]
 
-    return Chi_HTM + Eg_HTM - Chi_P - Eg_P
+    return -(Chi_HTM + Eg_HTM - Chi_P - Eg_P)
 
 
 def g5(x):
 
     Chi_ETM = x[1]
 
-    return Chi_P - Chi_ETM
+    return -(Chi_P - Chi_ETM)
 
 
 def g(x):
@@ -198,7 +210,7 @@ vu = np.array([tup[1] for tup in bounds])
 
 def feasible(x):
 
-    return np.alltrue(g(x) <= 0) and np.alltrue(vl <= x) and np.alltrue(
+    return np.alltrue(g(x) >= 0) and np.alltrue(vl <= x) and np.alltrue(
         x <= vu)
 
 
@@ -222,3 +234,8 @@ x_init = np.array([
 ])
 
 n_params = x_ref.size
+
+if __name__ == "__main__":
+
+    for alpha in np.linspace(0, 1, 100):
+        jaxpv.plotting.plot_bars(x2des(x_init + alpha * (x_ref - x_init)))
