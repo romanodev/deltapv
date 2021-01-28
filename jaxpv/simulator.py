@@ -161,7 +161,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     dv = vincr(cell)
     vstep = 0
 
-    while vstep < 100:
+    while vstep < 200:
 
         v = dv * vstep
         scaled_v = v * scales.energy
@@ -177,7 +177,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
         if currents.size > 2:
             if (currents[-2] * currents[-1]) <= 0:
                 break
-
+    
     dim_currents = scales.current * currents
     dim_voltages = scales.energy * voltages
 

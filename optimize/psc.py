@@ -4,6 +4,7 @@ import numpy as onp
 import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger("jaxpv")
+logger.setLevel("INFO")
 
 L_ETM = 5e-5
 L_Perov = 1.1e-4
@@ -52,6 +53,7 @@ def EF(Nc, Nv, Eg, Chi, N):
 
 def getPhis(params):
 
+    params = np.array(params, dtype=np.float64)
     Eg_ETM = params[0]
     Chi_ETM = params[1]
     Nc_ETM = 10**params[3]
@@ -126,6 +128,7 @@ def x2des(params):
 
 def f(params):
 
+    params = np.array(params)
     feasibility = feasible(params)
     logger.info(f"Feasible: {feasibility}")
     if not feasibility:
@@ -215,11 +218,13 @@ def feasible(x):
 
 
 def sample():
+    n_points = 0
     while True:
         u = onp.random.rand(n_params)
         sample = vl + (vu - vl) * u
+        n_points += 1
         if feasible(sample):
-            return sample
+            return sample, n_points
 
 
 x_ref = np.array([
@@ -234,3 +239,7 @@ x_init = np.array([
 ])
 
 n_params = x_ref.size
+
+if __name__ == "__main__":
+
+    f(x_ref)

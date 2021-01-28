@@ -109,3 +109,4 @@ venv.bak/
 # debugging
 /debug
 /outputs
+/plots

@@ -105,7 +105,7 @@ def step_eq(cell: PVCell, bound: Boundary,
 
     Feq = residual.comp_F_eq(cell, bound, pot)
     spJeq = residual.comp_F_eq_deriv(cell, bound, pot)
-    p = linalg.linsol(spJeq, -Feq, tol=1e-12)
+    p = linalg.linsol(spJeq, -Feq, tol=1e-6)
 
     error = np.max(np.abs(p))
     resid = np.linalg.norm(Feq)
@@ -216,7 +216,7 @@ def step(cell: PVCell, bound: Boundary,
 
     F = residual.comp_F(cell, bound, pot)
     spJ = residual.comp_F_deriv(cell, bound, pot)
-    p = linalg.linsol(spJ, -F, tol=1e-12)
+    p = linalg.linsol(spJ, -F, tol=1e-6)
 
     error = np.max(np.abs(p))
     resid = np.linalg.norm(F)
@@ -293,6 +293,7 @@ def solve_jvp(primals, tangents):
     spF_pot = residual.comp_F_deriv(cell, bound, sol)
     F_pot = linalg.sparse2dense(spF_pot)
     dF = np.linalg.solve(F_pot, -rhs)
+    logger.info(f"residual norm {np.linalg.norm(F_pot @ dF + rhs)}")
 
     primal_out = sol
     tangent_out = Potentials(dF[2::3], dF[0::3], dF[1::3])
