@@ -12,6 +12,7 @@ Potentials = objects.Potentials
 Array = util.Array
 f64 = util.f64
 i64 = util.i64
+DIM_V_INIT = 0.01
 
 
 def create_design(dim_grid: Array) -> PVDesign:
@@ -128,7 +129,7 @@ def init_cell(design: PVDesign,
     return PVCell(**params)
 
 
-def vincr(cell: PVCell, num_vals: i64 = 50) -> f64:
+def vincr(cell: PVCell, num_vals: i64 = 20) -> f64:
 
     dv = 1 / num_vals / scales.energy
 
@@ -155,7 +156,6 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     pot_eq = equilibrium(design, ls)
 
     cell = init_cell(design, ls, optics=optics)
-    pot = pot_eq
     currents = np.array([], dtype=f64)
     voltages = np.array([], dtype=f64)
     dv = vincr(cell)
@@ -167,7 +167,27 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
         scaled_v = v * scales.energy
         logger.info(f"Solving for {scaled_v} V (Step {vstep})...")
         bound = bcond.boundary(cell, v)
-        pot = solver.solve(cell, bound, pot)
+
+        if vstep == 0:
+            pot = solver.solve(cell, bound, pot_eq)
+        elif vstep == 1:
+            potl = pot
+            logger.info(f"Solving for {DIM_V_INIT} V for convergence...")
+            vinit = DIM_V_INIT / scales.energy
+            boundinit = bcond.boundary(cell, vinit)
+            potinit = solver.solve(cell, boundinit, pot)
+            logger.info(f"Continuing...")
+            pot = solver.solve(cell, bound, solver.genlinguess(potinit, pot, vinit, dv - vinit))
+        elif vstep == 2:
+            potll = potl
+            new = solver.solve(cell, bound, solver.linguess(pot, potl))
+            potl = pot
+            pot = new
+        else:
+            new = solver.solve(cell, bound, solver.quadguess(pot, potl, potll))
+            potll = potl
+            potl = pot
+            pot = new
 
         total_j = current.total_current(cell, pot)
         currents = np.append(currents, total_j)

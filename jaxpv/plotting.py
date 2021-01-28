@@ -1,4 +1,4 @@
-from jaxpv import scales, physics, objects, util
+from jaxpv import scales, physics, objects, spline, util
 from jax import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -171,8 +171,9 @@ def plot_iv_curve(voltages: Array, currents: Array) -> None:
 
     m = (currents[-1] - currents[-2]) / (voltages[-1] - voltages[-2])
     voc = voltages[-1] + currents[-1] / m
+    coef = spline.qspline(voltages, currents)
     vint = np.linspace(0, voc, 500)
-    jint = np.interp(vint, voltages, currents)
+    jint = spline.predict(vint, voltages, coef)
     idx = np.argmax(vint * jint)
     vmax = vint[idx]
     jmax = jint[idx]
