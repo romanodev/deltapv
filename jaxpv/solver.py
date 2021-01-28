@@ -79,6 +79,29 @@ def linesearch(cell: PVCell, bound: Boundary, pot: Potentials,
     return alpha_best
 
 
+def linguess(pot: Potentials, potl: Potentials):
+
+    return Potentials(2 * pot.phi - potl.phi, 2 * pot.phi_n - potl.phi_n,
+                      2 * pot.phi_p - potl.phi_p)
+
+
+def genlinguess(pot: Potentials, potl: Potentials, dx1: f64, dx2: f64):
+
+    return Potentials(pot.phi + (pot.phi - potl.phi) * dx2 / dx1,
+                      pot.phi_n + (pot.phi_n - potl.phi_n) * dx2 / dx1,
+                      pot.phi_p + (pot.phi_p - potl.phi_p) * dx2 / dx1)
+
+
+def quadguess(pot: Potentials, potl: Potentials, potll: Potentials):
+
+    f, fn, fp = pot.phi, pot.phi_n, pot.phi_p
+    fl, fnl, fpl = potl.phi, potl.phi_n, potl.phi_p
+    fll, fnll, fpll = potll.phi, potll.phi_n, potll.phi_p
+
+    return Potentials(3 * f - 3 * fl + fll, 3 * fn - 3 * fnl + fnll,
+                      3 * fp - 3 * fpl + fpll)
+
+
 @jit
 def step_eq_dense(cell: PVCell, bound: Boundary,
                   pot: Potentials) -> Tuple[Potentials, f64]:
@@ -293,7 +316,6 @@ def solve_jvp(primals, tangents):
     spF_pot = residual.comp_F_deriv(cell, bound, sol)
     F_pot = linalg.sparse2dense(spF_pot)
     dF = np.linalg.solve(F_pot, -rhs)
-    logger.info(f"residual norm {np.linalg.norm(F_pot @ dF + rhs)}")
 
     primal_out = sol
     tangent_out = Potentials(dF[2::3], dF[0::3], dF[1::3])

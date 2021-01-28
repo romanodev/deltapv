@@ -239,7 +239,3 @@ x_init = np.array([
 ])
 
 n_params = x_ref.size
-
-if __name__ == "__main__":
-
-    f(x_ref)
