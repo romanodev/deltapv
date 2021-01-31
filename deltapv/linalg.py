@@ -1,4 +1,4 @@
-from jaxpv import util
+from deltapv import util
 from jax import numpy as np, ops, vmap, lax, jit
 from jax.scipy.sparse.linalg import gmres
 from functools import partial

@@ -1,4 +1,4 @@
-from jaxpv import dataclasses, util
+from deltapv import dataclasses, util
 from jax import numpy as np
 from typing import Union
 

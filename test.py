@@ -1,11 +1,11 @@
 import unittest
-import jaxpv
+import deltapv
 from jax import numpy as np
 
 L = 3e-4
 grid = np.linspace(0, L, 500)
-design = jaxpv.simulator.create_design(grid)
-material = jaxpv.materials.create_material(Chi=3.9,
+design = deltapv.simulator.create_design(grid)
+material = deltapv.materials.create_material(Chi=3.9,
                                            Eg=1.5,
                                            eps=9.4,
                                            Nc=8e17,
@@ -16,16 +16,16 @@ material = jaxpv.materials.create_material(Chi=3.9,
                                            tn=1e-8,
                                            tp=1e-8,
                                            A=1e4)
-design = jaxpv.simulator.add_material(design, material, lambda x: True)
-design = jaxpv.simulator.contacts(design, 1e7, 0, 0, 1e7)
-design = jaxpv.simulator.single_pn_junction(design, 1e17, -1e15, 50e-7)
-ls = jaxpv.simulator.incident_light()
+design = deltapv.simulator.add_material(design, material, lambda x: True)
+design = deltapv.simulator.contacts(design, 1e7, 0, 0, 1e7)
+design = deltapv.simulator.single_pn_junction(design, 1e17, -1e15, 50e-7)
+ls = deltapv.simulator.incident_light()
 
 
-class TestJAXPV(unittest.TestCase):
+class TestDeltaPV(unittest.TestCase):
     def test_iv(self):
 
-        results = jaxpv.simulator.simulate(design, ls)
+        results = deltapv.simulator.simulate(design, ls)
         v, j = results["iv"]
 
         v_correct = [

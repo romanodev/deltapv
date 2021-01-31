@@ -1,4 +1,4 @@
-from jaxpv import objects, physics, current, util
+from deltapv import objects, physics, current, util
 from jax import numpy as np
 from typing import Tuple
 

@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skopt import gp_minimize
 import logging
-logger = logging.getLogger("jaxpv")
+logger = logging.getLogger("deltapv")
 
 res = gp_minimize(
     psc.f,  # the function to minimize

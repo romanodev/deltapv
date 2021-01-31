@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='jax-pv',
+    name='deltapv',
     version='0.0.1',
     description='Solar cell simulator with automatic differentiation',
     author=
@@ -10,4 +10,4 @@ setup(
     long_description=open('README.rst').read(),
     install_requires=['numpy', 'jax'],
     license='MIT',
-    packages=['jaxpv'])
+    packages=['deltapv'])

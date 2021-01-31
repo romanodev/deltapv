@@ -11,8 +11,8 @@ Run
 
         import os
         os.environ['JAX'] = 'NO'
-        from jaxpv.utils import *
-        from jaxpv import JAXPV
+        from deltapv.utils import *
+        from deltapv import deltapv
 
         # Defining properties of grid
         ETM_THICKNESS = 0.1701e-4
@@ -30,7 +30,7 @@ Run
 
         GRID = np.linspace(0, CELL_THICKNESS, num=NUM_POINTS)
 
-        pv_obj = JAXPV(GRID)
+        pv_obj = deltapv(GRID)
 
         # Defining properties of materials 
         PEROV_PROP = {'eps': 10,

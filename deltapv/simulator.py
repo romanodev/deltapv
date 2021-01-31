@@ -1,9 +1,9 @@
-from jaxpv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util
+from deltapv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
 import logging
-logger = logging.getLogger("jaxpv")
+logger = logging.getLogger("deltapv")
 
 PVCell = objects.PVCell
 PVDesign = objects.PVDesign

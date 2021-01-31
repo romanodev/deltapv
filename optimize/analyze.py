@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import logging
-logger = logging.getLogger("jaxpv")
+logger = logging.getLogger("deltapv")
 logger.addHandler(logging.FileHandler("logs/tsuyoi.log"))
 
 

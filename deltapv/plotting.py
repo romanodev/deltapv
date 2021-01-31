@@ -1,4 +1,4 @@
-from jaxpv import scales, physics, objects, spline, util
+from deltapv import scales, physics, objects, spline, util
 from jax import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle

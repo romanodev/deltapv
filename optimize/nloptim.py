@@ -2,7 +2,7 @@ import psc
 import nlopt
 import numpy as np
 import logging
-logger = logging.getLogger("jaxpv")
+logger = logging.getLogger("deltapv")
 logger.addHandler(logging.FileHandler("logs/nlopt_auglag.log"))
 
 

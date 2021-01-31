@@ -1,4 +1,4 @@
-from jaxpv import objects, scales, util
+from deltapv import objects, scales, util
 from jax import numpy as np
 
 PVCell = objects.PVCell

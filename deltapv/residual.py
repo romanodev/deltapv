@@ -1,4 +1,4 @@
-from jaxpv import objects, ddiff, bcond, poisson, linalg, util
+from deltapv import objects, ddiff, bcond, poisson, linalg, util
 from jax import numpy as np, ops, jit
 
 PVCell = objects.PVCell

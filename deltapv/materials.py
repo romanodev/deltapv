@@ -1,4 +1,4 @@
-from jaxpv import dataclasses, objects
+from deltapv import dataclasses, objects
 from jax import numpy as np
 import pandas as pd, yaml, glob, os
 

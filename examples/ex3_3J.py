@@ -1,4 +1,4 @@
-import jaxpv
+import deltapv
 import jax.numpy as np
 import argparse
 import matplotlib.pyplot as plt
@@ -28,41 +28,41 @@ grid = np.concatenate([
     np.linspace(nodes[5] + dd, nodes[6], 100, endpoint=True)
 ])
 
-des = jaxpv.simulator.create_design(grid)
+des = deltapv.simulator.create_design(grid)
 
-GaP = jaxpv.materials.load_material("GaP")
-InP = jaxpv.materials.load_material("InP")
-Ge = jaxpv.materials.load_material("Ge")
+GaP = deltapv.materials.load_material("GaP")
+InP = deltapv.materials.load_material("InP")
+Ge = deltapv.materials.load_material("Ge")
 
-des = jaxpv.simulator.add_material(des, GaP, lambda x: x < nodes[2])
-des = jaxpv.simulator.add_material(
+des = deltapv.simulator.add_material(des, GaP, lambda x: x < nodes[2])
+des = deltapv.simulator.add_material(
     des, InP, lambda x: np.logical_and(nodes[2] <= x, x < nodes[4]))
-des = jaxpv.simulator.add_material(des, Ge, lambda x: nodes[4] <= x)
+des = deltapv.simulator.add_material(des, Ge, lambda x: nodes[4] <= x)
 
-des = jaxpv.simulator.doping(des, 2e18, lambda x: x < nodes[1])
-des = jaxpv.simulator.doping(
+des = deltapv.simulator.doping(des, 2e18, lambda x: x < nodes[1])
+des = deltapv.simulator.doping(
     des, -1e17, lambda x: np.logical_and(nodes[1] <= x, x < nodes[2]))
-des = jaxpv.simulator.doping(
+des = deltapv.simulator.doping(
     des, 3e17, lambda x: np.logical_and(nodes[2] <= x, x < nodes[3]))
-des = jaxpv.simulator.doping(
+des = deltapv.simulator.doping(
     des, -1e17, lambda x: np.logical_and(nodes[3] <= x, x < nodes[4]))
-des = jaxpv.simulator.doping(
+des = deltapv.simulator.doping(
     des, 2e18, lambda x: np.logical_and(nodes[4] <= x, x < nodes[5]))
-des = jaxpv.simulator.doping(des, -1e17, lambda x: nodes[5] <= x)
+des = deltapv.simulator.doping(des, -1e17, lambda x: nodes[5] <= x)
 
-des = jaxpv.simulator.contacts(des, 1e7, 0, 0, 1e7)
+des = deltapv.simulator.contacts(des, 1e7, 0, 0, 1e7)
 
-ls = jaxpv.simulator.incident_light()
+ls = deltapv.simulator.incident_light()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--save")
     args = parser.parse_args()
 
-    results = jaxpv.simulator.simulate(des, ls)
+    results = deltapv.simulator.simulate(des, ls)
     v, j = results["iv"]
 
-    jaxpv.plotting.plot_iv_curve(v, j)
-    jaxpv.plotting.plot_bars(des)
-    jaxpv.plotting.plot_band_diagram(des, results["eq"], eq=True)
-    jaxpv.plotting.plot_band_diagram(des, results["Voc"])
+    deltapv.plotting.plot_iv_curve(v, j)
+    deltapv.plotting.plot_bars(des)
+    deltapv.plotting.plot_band_diagram(des, results["eq"], eq=True)
+    deltapv.plotting.plot_band_diagram(des, results["Voc"])

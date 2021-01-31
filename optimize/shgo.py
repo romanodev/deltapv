@@ -1,7 +1,7 @@
 import psc
 from scipy.optimize import shgo
 import logging
-logger = logging.getLogger("jaxpv")
+logger = logging.getLogger("deltapv")
 logger.addHandler(logging.FileHandler("logs/shgo_1hr.log"))
 
 

@@ -1,9 +1,9 @@
-from jaxpv import objects, residual, linalg, util
+from deltapv import objects, residual, linalg, util
 from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd, vmap
 from typing import Tuple, Callable
 import matplotlib.pyplot as plt
 import logging
-logger = logging.getLogger("jaxpv")
+logger = logging.getLogger("deltapv")
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource

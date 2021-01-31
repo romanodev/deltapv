@@ -7,7 +7,7 @@ if os.environ.get("NOJIT") == "TRUE":
     config.update('jax_disable_jit', True)
 
 import logging
-logger = logging.getLogger("jaxpv")
+logger = logging.getLogger("deltapv")
 logger.setLevel("INFO")
 
-from jaxpv import simulator, materials, plotting
+from deltapv import simulator, materials, plotting

@@ -1,9 +1,9 @@
-import jaxpv
+import deltapv
 from jax import numpy as np, value_and_grad, jacobian, grad
 import numpy as onp
 import matplotlib.pyplot as plt
 import logging
-logger = logging.getLogger("jaxpv")
+logger = logging.getLogger("deltapv")
 logger.setLevel("INFO")
 
 L_ETM = 5e-5
@@ -22,7 +22,7 @@ mn_P = 2
 mp_P = 2
 Br_P = 2.3e-9
 
-Perov = jaxpv.materials.create_material(Eg=Eg_P,
+Perov = deltapv.materials.create_material(Eg=Eg_P,
                                         Chi=Chi_P,
                                         eps=eps_P,
                                         Nc=Nc_P,
@@ -41,7 +41,7 @@ region_HTM = lambda x: L_ETM + L_Perov < x
 
 def EF(Nc, Nv, Eg, Chi, N):
 
-    kBT = jaxpv.scales.kB * jaxpv.scales.T / jaxpv.scales.q
+    kBT = deltapv.scales.kB * deltapv.scales.T / deltapv.scales.q
     ni = np.sqrt(Nc * Nv) * np.exp(-Eg / (2 * kBT))
     Ec = -Chi
     EFi = Ec - Eg / 2 + (kBT / 2) * np.log(Nc / Nv)
@@ -92,7 +92,7 @@ def x2des(params):
 
     PhiM0, PhiML = getPhis(params)
 
-    ETM = jaxpv.materials.create_material(Eg=Eg_ETM,
+    ETM = deltapv.materials.create_material(Eg=Eg_ETM,
                                           Chi=Chi_ETM,
                                           eps=eps_ETM,
                                           Nc=Nc_ETM,
@@ -102,7 +102,7 @@ def x2des(params):
                                           tn=tau,
                                           tp=tau,
                                           A=A)
-    HTM = jaxpv.materials.create_material(Eg=Eg_HTM,
+    HTM = deltapv.materials.create_material(Eg=Eg_HTM,
                                           Chi=Chi_HTM,
                                           eps=eps_HTM,
                                           Nc=Nc_HTM,
@@ -114,14 +114,14 @@ def x2des(params):
                                           A=A)
 
     grid = np.linspace(0, L_ETM + L_Perov + L_HTM, N)
-    des = jaxpv.simulator.create_design(grid)
+    des = deltapv.simulator.create_design(grid)
 
-    des = jaxpv.simulator.add_material(des, ETM, region_ETM)
-    des = jaxpv.simulator.add_material(des, Perov, region_Perov)
-    des = jaxpv.simulator.add_material(des, HTM, region_HTM)
-    des = jaxpv.simulator.doping(des, Nd_ETM, region_ETM)
-    des = jaxpv.simulator.doping(des, -Na_HTM, region_HTM)
-    des = jaxpv.simulator.contacts(des, S, S, S, S, PhiM0=PhiM0, PhiML=PhiML)
+    des = deltapv.simulator.add_material(des, ETM, region_ETM)
+    des = deltapv.simulator.add_material(des, Perov, region_Perov)
+    des = deltapv.simulator.add_material(des, HTM, region_HTM)
+    des = deltapv.simulator.doping(des, Nd_ETM, region_ETM)
+    des = deltapv.simulator.doping(des, -Na_HTM, region_HTM)
+    des = deltapv.simulator.contacts(des, S, S, S, S, PhiM0=PhiM0, PhiML=PhiML)
 
     return des
 
@@ -136,8 +136,8 @@ def f(params):
         return 100.
     try:
         des = x2des(params)
-        ls = jaxpv.simulator.incident_light()
-        results = jaxpv.simulator.simulate(des, ls)
+        ls = deltapv.simulator.incident_light()
+        results = deltapv.simulator.simulate(des, ls)
         eff = results["eff"] * 100
     except:
         logger.error("Solver failed, returning zero.")

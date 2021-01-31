@@ -1,4 +1,4 @@
-from jaxpv import objects, scales, physics, util
+from deltapv import objects, scales, physics, util
 from jax import numpy as np, vmap
 
 PVDesign = objects.PVDesign
