@@ -1,4 +1,4 @@
-from deltapv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util
+from deltapv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util, plotting
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
@@ -129,23 +129,12 @@ def init_cell(design: PVDesign,
     return PVCell(**params)
 
 
-def vincr(cell: PVCell, num_vals: i64 = 20) -> f64:
-
-    dv = 1 / num_vals / scales.energy
-
-    return dv
-
-
 def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
 
-    N = design.grid.size
     cell = init_cell(design, ls)
-
     logger.info("Solving equilibrium...")
     bound_eq = bcond.boundary_eq(cell)
-    pot_ini = Potentials(
-        np.linspace(bound_eq.phi0, bound_eq.phiL, cell.Eg.size), np.zeros(N),
-        np.zeros(N))
+    pot_ini = solver.eq_guess(cell, bound_eq)
     pot = solver.solve_eq(cell, bound_eq, pot_ini)
 
     return pot
@@ -158,10 +147,11 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     cell = init_cell(design, ls, optics=optics)
     currents = np.array([], dtype=f64)
     voltages = np.array([], dtype=f64)
-    dv = vincr(cell)
+    dv = solver.vincr(cell)
     vstep = 0
+    pot_ini = solver.ooe_guess(cell, pot_eq)
 
-    while vstep < 200:
+    while vstep < 100:
 
         v = dv * vstep
         scaled_v = v * scales.energy
@@ -169,7 +159,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
         bound = bcond.boundary(cell, v)
 
         if vstep == 0:
-            pot = solver.solve(cell, bound, pot_eq)
+            pot = solver.solve(cell, bound, pot_ini)
         elif vstep == 1:
             potl = pot
             logger.info(f"Solving for {DIM_V_INIT} V for convergence...")
@@ -188,7 +178,7 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
             potll = potl
             potl = pot
             pot = new
-
+        
         total_j = current.total_current(cell, pot)
         currents = np.append(currents, total_j)
         voltages = np.append(voltages, dv * vstep)

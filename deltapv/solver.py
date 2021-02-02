@@ -1,5 +1,5 @@
-from deltapv import objects, residual, linalg, util
-from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd, vmap
+from deltapv import objects, residual, linalg, physics, scales, util
+from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd, vmap, lax
 from typing import Tuple, Callable
 import matplotlib.pyplot as plt
 import logging
@@ -11,7 +11,35 @@ Potentials = objects.Potentials
 Boundary = objects.Boundary
 Array = util.Array
 f64 = util.f64
+i64 = util.i64
 n_lnsrch = 500
+
+
+def vincr(cell: PVCell, num_vals: i64 = 20) -> f64:
+
+    dv = 1 / num_vals / scales.energy
+
+    return dv
+
+
+def eq_guess(cell: PVCell, bound_eq: Boundary) -> Potentials:
+
+    N = cell.Eg.size
+    phi_guess = physics.EF(cell)
+    pot_guess = Potentials(phi_guess, np.zeros(N), np.zeros(N))
+
+    return pot_guess
+
+
+def ooe_guess(cell: PVCell, pot_eq: Potentials) -> Potentials:
+
+    Ec = -cell.Chi - pot_eq.phi
+    Ev = -cell.Chi - cell.Eg - pot_eq.phi
+    # Ec = Ec  # temporary
+    # Ev = Ev  # temporary
+    pot_guess = Potentials(pot_eq.phi, Ec, Ev)
+
+    return pot_guess
 
 
 @jit
@@ -75,6 +103,31 @@ def linesearch(cell: PVCell, bound: Boundary, pot: Potentials,
     R = vmap(residnorm, (None, None, None, None, 0))(cell, bound, pot, p,
                                                      alphas)
     alpha_best = alphas[n_lnsrch // 10:][np.argmin(R[n_lnsrch // 10:])]
+
+    return alpha_best
+
+
+@jit
+def fwdlnsrch(cell: PVCell,
+              bound: Boundary,
+              pot: Potentials,
+              p: Array,
+              gamma: f64 = 1.1) -> Array:
+
+    pair_ini = 1., gamma
+
+    def cond_fun(pair):
+        alpha0, alpha1 = pair
+        R0 = residnorm(cell, bound, pot, p, alpha0)
+        R1 = residnorm(cell, bound, pot, p, alpha1)
+        return R0 > R1
+
+    def body_fun(pair):
+        _, alpha1 = pair
+        pair_new = alpha1, gamma * alpha1
+        return pair_new
+
+    alpha_best, _ = lax.while_loop(cond_fun, body_fun, pair_ini)
 
     return alpha_best
 

@@ -76,7 +76,7 @@ def plot_bars(design: PVDesign) -> None:
                  "contact",
                  ha="center",
                  va="top")
-        ax1.axhline(y=phim0, xmin=0, xmax=1/7, linestyle="--", color="black")
+        ax1.axhline(y=phim0, xmin=0, xmax=1 / 7, linestyle="--", color="black")
 
     if design.PhiML > 0:
         phiml = -design.PhiML * scales.energy
@@ -102,7 +102,7 @@ def plot_bars(design: PVDesign) -> None:
                  "contact",
                  ha="center",
                  va="top")
-        ax1.axhline(y=phiml, xmin=6/7, xmax=1, linestyle="--", color="black")
+        ax1.axhline(y=phiml, xmin=6 / 7, xmax=1, linestyle="--", color="black")
 
     posline = np.argwhere(design.Ndop[:-1] != design.Ndop[1:]).flatten()
 
@@ -120,7 +120,7 @@ def plot_bars(design: PVDesign) -> None:
                     color="lightgray",
                     linewidth=1,
                     linestyle="dashed")
-    
+
     ax1.set_ylim(np.min(uv) * 1.2, 0)
     ax1.set_xlabel("position / $\mu m$")
     ax1.set_ylabel("energy / $eV$")
@@ -196,6 +196,7 @@ def plot_iv_curve(voltages: Array, currents: Array) -> None:
         va="center")
     plt.gca().add_patch(rect)
     plt.plot(vint, 1e3 * jint, color="black")
+    plt.scatter(voltages, 1e3 * currents, color="black", marker=".")
     plt.xlabel("bias / $V$")
     plt.ylabel("current density / $mA/cm^2$")
     plt.xlim(left=0)

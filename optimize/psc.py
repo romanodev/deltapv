@@ -1,3 +1,5 @@
+import os
+os.environ["ALLOWNANS"] = "TRUE"
 import deltapv
 from jax import numpy as np, value_and_grad, jacobian, grad
 import numpy as onp
@@ -23,16 +25,16 @@ mp_P = 2
 Br_P = 2.3e-9
 
 Perov = deltapv.materials.create_material(Eg=Eg_P,
-                                        Chi=Chi_P,
-                                        eps=eps_P,
-                                        Nc=Nc_P,
-                                        Nv=Nv_P,
-                                        mn=mn_P,
-                                        mp=mp_P,
-                                        tn=tau,
-                                        tp=tau,
-                                        Br=Br_P,
-                                        A=A)
+                                          Chi=Chi_P,
+                                          eps=eps_P,
+                                          Nc=Nc_P,
+                                          Nv=Nv_P,
+                                          mn=mn_P,
+                                          mp=mp_P,
+                                          tn=tau,
+                                          tp=tau,
+                                          Br=Br_P,
+                                          A=A)
 
 region_ETM = lambda x: x <= L_ETM
 region_Perov = lambda x: np.logical_and(L_ETM < x, x <= L_ETM + L_Perov)
@@ -93,25 +95,25 @@ def x2des(params):
     PhiM0, PhiML = getPhis(params)
 
     ETM = deltapv.materials.create_material(Eg=Eg_ETM,
-                                          Chi=Chi_ETM,
-                                          eps=eps_ETM,
-                                          Nc=Nc_ETM,
-                                          Nv=Nv_ETM,
-                                          mn=mn_ETM,
-                                          mp=mp_ETM,
-                                          tn=tau,
-                                          tp=tau,
-                                          A=A)
+                                            Chi=Chi_ETM,
+                                            eps=eps_ETM,
+                                            Nc=Nc_ETM,
+                                            Nv=Nv_ETM,
+                                            mn=mn_ETM,
+                                            mp=mp_ETM,
+                                            tn=tau,
+                                            tp=tau,
+                                            A=A)
     HTM = deltapv.materials.create_material(Eg=Eg_HTM,
-                                          Chi=Chi_HTM,
-                                          eps=eps_HTM,
-                                          Nc=Nc_HTM,
-                                          Nv=Nv_HTM,
-                                          mn=mn_HTM,
-                                          mp=mp_HTM,
-                                          tn=tau,
-                                          tp=tau,
-                                          A=A)
+                                            Chi=Chi_HTM,
+                                            eps=eps_HTM,
+                                            Nc=Nc_HTM,
+                                            Nv=Nv_HTM,
+                                            mn=mn_HTM,
+                                            mp=mp_HTM,
+                                            tn=tau,
+                                            tp=tau,
+                                            A=A)
 
     grid = np.linspace(0, L_ETM + L_Perov + L_HTM, N)
     des = deltapv.simulator.create_design(grid)
@@ -133,7 +135,7 @@ def f(params):
     logger.info(f"Feasible: {feasibility}")
     if not feasibility:
         logger.error("Unfeasible point, penalizing.")
-        return 100.
+        return penalty(params)
     try:
         des = x2des(params)
         ls = deltapv.simulator.incident_light()
@@ -203,9 +205,9 @@ jac4 = jacobian(g4)
 jac5 = jacobian(g5)
 jac = jacobian(g)
 
-bounds = [(1, 5), (1, 5), (1, 20), (17, 20), (17, 20), (1, 500), (1, 500),
-          (1, 5), (1, 5), (1, 20), (17, 20), (17, 20), (1, 500), (1, 500),
-          (17, 20), (17, 20)]
+bounds = [(1., 5.), (1., 5.), (1., 20.), (17., 20.), (17., 20.), (1., 500.),
+          (1., 500.), (1., 5.), (1., 5.), (1., 20.), (17., 20.), (17., 20.),
+          (1., 500.), (1., 500.), (17., 20.), (17., 20.)]
 
 vl = np.array([tup[0] for tup in bounds])
 vu = np.array([tup[1] for tup in bounds])
@@ -217,6 +219,16 @@ def feasible(x):
         x <= vu)
 
 
+def penalty(x):
+
+    cons = np.clip(g(x), a_max=0)
+    lb = np.clip(vl - x, a_min=0)
+    ub = np.clip(x - vu, a_min=0)
+    pen = np.linalg.norm(np.concatenate([cons, lb, ub]))
+
+    return pen
+
+
 def sample():
     n_points = 0
     while True:
@@ -224,6 +236,16 @@ def sample():
         sample = vl + (vu - vl) * u
         n_points += 1
         if feasible(sample):
+            return sample, n_points
+
+
+def sample_bad():
+    n_points = 0
+    while True:
+        u = onp.random.rand(n_params)
+        sample = vl + (vu - vl) * u
+        n_points += 1
+        if not feasible(sample):
             return sample, n_points
 
 
@@ -239,3 +261,18 @@ x_init = np.array([
 ])
 
 n_params = x_ref.size
+
+if __name__ == "__main__":
+
+    x = np.array([
+        4.410146754501431, 4.2782263357153445, 8.587045990195787,
+        18.319763242101743, 18.82292458737451, 21.71846119307608,
+        261.75542737348155, 2.3585935263240994, 2.263264563332344,
+        6.741020724467137, 19.43672610973179, 19.589950186706773,
+        284.6728760260496, 20.500359435192184, 17.8162103275087,
+        18.433340278835097
+    ])
+    des = x2des(x)
+    ls = deltapv.simulator.incident_light()
+    results = deltapv.simulator.simulate(des, ls)
+    deltapv.plotting.plot_iv_curve(*results["iv"])
