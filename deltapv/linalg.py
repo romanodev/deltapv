@@ -74,12 +74,12 @@ def spilu(m: Array) -> Array:
                     def jone(dispj):
                         j = i + dispj - _W // 2
                         mij = row[dispj]
-                        return mij - (j > k) * (mij != 0) * row[dispk] * spget(
-                            cmat, k, j)
+                        return mij - (j > k) * row[dispk] * spget(cmat, k, j)
 
                     return vmap(jone)(np.arange(_W))
 
-                return lax.cond(mik * mkk != 0, processrow, lambda r: r, crow)
+                return lax.cond(np.logical_and(mik != 0, mkk != 0), processrow,
+                                lambda r: r, crow)
 
             return lax.cond(k < i, kli, lambda k: crow, k), None
 
@@ -125,9 +125,7 @@ def bsub(m: Array, b: Array) -> Array:
 
 
 @jit
-def linsol(spmat: Array,
-           vec: Array,
-           tol=1e-12) -> Array:
+def linsol(spmat: Array, vec: Array, tol=1e-12) -> Array:
 
     mvp = partial(spmatvec, spmat)
     fact = spilu(spmat)

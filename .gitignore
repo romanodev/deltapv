@@ -111,3 +111,4 @@ debug/
 outputs/
 plots/
 deltapv/accel.py
+sptest.py

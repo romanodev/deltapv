@@ -260,11 +260,7 @@ x_init = np.array([
     448.65494921, 311.63744301, 17.19468214, 17.57586159
 ])
 
-n_params = x_ref.size
-
-if __name__ == "__main__":
-
-    x = np.array([
+x_fail = np.array([
         4.410146754501431, 4.2782263357153445, 8.587045990195787,
         18.319763242101743, 18.82292458737451, 21.71846119307608,
         261.75542737348155, 2.3585935263240994, 2.263264563332344,
@@ -273,9 +269,10 @@ if __name__ == "__main__":
         18.433340278835097
     ])
 
-    logger.addHandler(logging.FileHandler("logs/accel.log"))
-    
-    for _ in range(10):
+n_params = x_ref.size
+
+if __name__ == "__main__":
+
+    for _ in range(20):
         x, _ = sample()
-        logger.info(f"{list(x)}")
         f(x)
