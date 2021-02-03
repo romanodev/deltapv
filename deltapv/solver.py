@@ -343,7 +343,7 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         resid = stats["resid"]
         niter += 1
         logger.info(
-            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid).ljust(25)}"
         )
 
         if np.isnan(error) or error == 0:

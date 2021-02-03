@@ -272,6 +272,7 @@ if __name__ == "__main__":
         284.6728760260496, 20.500359435192184, 17.8162103275087,
         18.433340278835097
     ])
+    x = x_ref
     des = x2des(x)
     ls = deltapv.simulator.incident_light()
     results = deltapv.simulator.simulate(des, ls)
