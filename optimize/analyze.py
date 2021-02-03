@@ -1,5 +1,3 @@
-import os
-os.environ["ALLOWNANS"] = "TRUE"
 import psc
 import numpy as np
 import matplotlib.pyplot as plt

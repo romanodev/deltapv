@@ -1,5 +1,3 @@
-import os
-os.environ["ALLOWNANS"] = "TRUE"
 import deltapv
 from jax import numpy as np, value_and_grad, jacobian, grad
 import numpy as onp
@@ -273,6 +271,6 @@ n_params = x_ref.size
 
 if __name__ == "__main__":
 
-    for _ in range(20):
+    for _ in range(5):
         x, _ = sample()
         f(x)
