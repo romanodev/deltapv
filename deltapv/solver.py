@@ -267,40 +267,39 @@ def solve_eq_jvp(primals, tangents):
 
 
 @jit
-def step_dense(cell: PVCell, bound: Boundary,
-               pot: Potentials) -> Tuple[Potentials, dict]:
+def similarity(v1, v2):
+    sim = np.dot(v1, v2) / (
+        np.maximum(np.linalg.norm(v1), np.linalg.norm(v2))**2 + 1e-3)
+    return sim
+
+
+@jit
+def acceleration(p, pl, dxl, beta):
+
+    sim = np.maximum(similarity(p, pl), 0)
+    dx = p + beta * sim * dxl
+
+    return dx
+
+
+@jit
+def step_dense(cell: PVCell,
+               bound: Boundary,
+               pot: Potentials,
+               pl: Array,
+               dxl: Array,
+               beta: f64 = 0.9) -> Tuple[Potentials, dict]:
 
     F = residual.comp_F(cell, bound, pot)
     spJ = residual.comp_F_deriv(cell, bound, pot)
     J = linalg.sparse2dense(spJ)
-    p = np.linalg.solve(J, -F)
+    p = logdamp(np.linalg.solve(J, -F))
+    dx = acceleration(p, pl, dxl, beta)
+    pot_new = modify(pot, dx)
 
     error = np.max(np.abs(p))
     resid = np.linalg.norm(F)
-    dx = logdamp(p)
-
-    pot_new = modify(pot, dx)
-
-    stats = {"error": error, "resid": resid}
-
-    return pot_new, stats
-
-
-@jit
-def step(cell: PVCell, bound: Boundary,
-         pot: Potentials) -> Tuple[Potentials, dict]:
-
-    F = residual.comp_F(cell, bound, pot)
-    spJ = residual.comp_F_deriv(cell, bound, pot)
-    p = linalg.linsol(spJ, -F, tol=1e-6)
-
-    error = np.max(np.abs(p))
-    resid = np.linalg.norm(F)
-    dx = logdamp(p)
-
-    pot_new = modify(pot, dx)
-
-    stats = {"error": error, "resid": resid}
+    stats = {"error": error, "resid": resid, "p": p, "dx": dx}
 
     return pot_new, stats
 
@@ -311,15 +310,19 @@ def solve_dense(cell: PVCell, bound: Boundary,
     pot = pot_ini
     error = 1
     niter = 0
+    pl = np.zeros(3 * pot.phi.size)
+    dxl = np.zeros(3 * pot.phi.size)
 
     while niter < 100 and error > 1e-6:
 
-        pot, stats = step_dense(cell, bound, pot)
+        pot, stats = step_dense(cell, bound, pot, pl, dxl)
         error = stats["error"]
         resid = stats["resid"]
+        pl = stats["p"]
+        dxl = stats["dx"]
         niter += 1
         logger.info(
-            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
+            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid).ljust(25)}"
         )
 
         if np.isnan(error) or error == 0:
@@ -329,18 +332,43 @@ def solve_dense(cell: PVCell, bound: Boundary,
     return pot
 
 
+@jit
+def step(cell: PVCell,
+         bound: Boundary,
+         pot: Potentials,
+         pl: Array,
+         dxl: Array,
+         beta: f64 = 0.9) -> Tuple[Potentials, dict]:
+
+    F = residual.comp_F(cell, bound, pot)
+    spJ = residual.comp_F_deriv(cell, bound, pot)
+    p = logdamp(linalg.linsol(spJ, -F, tol=1e-6))
+    dx = acceleration(p, pl, dxl, beta)
+    pot_new = modify(pot, dx)
+
+    error = np.max(np.abs(p))
+    resid = np.linalg.norm(F)
+    stats = {"error": error, "resid": resid, "p": p, "dx": dx}
+
+    return pot_new, stats
+
+
 @custom_jvp
 def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
 
     pot = pot_ini
     error = 1
     niter = 0
+    pl = np.zeros(3 * pot.phi.size)
+    dxl = np.zeros(3 * pot.phi.size)
 
     while niter < 100 and error > 1e-6:
 
-        pot, stats = step(cell, bound, pot)
+        pot, stats = step(cell, bound, pot, pl, dxl)
         error = stats["error"]
         resid = stats["resid"]
+        pl = stats["p"]
+        dxl = stats["dx"]
         niter += 1
         logger.info(
             f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid).ljust(25)}"
