@@ -260,11 +260,7 @@ x_init = np.array([
     448.65494921, 311.63744301, 17.19468214, 17.57586159
 ])
 
-n_params = x_ref.size
-
-if __name__ == "__main__":
-
-    x = np.array([
+x_fail = np.array([
         4.410146754501431, 4.2782263357153445, 8.587045990195787,
         18.319763242101743, 18.82292458737451, 21.71846119307608,
         261.75542737348155, 2.3585935263240994, 2.263264563332344,
@@ -272,8 +268,11 @@ if __name__ == "__main__":
         284.6728760260496, 20.500359435192184, 17.8162103275087,
         18.433340278835097
     ])
-    x = x_ref
-    des = x2des(x)
-    ls = deltapv.simulator.incident_light()
-    results = deltapv.simulator.simulate(des, ls)
-    deltapv.plotting.plot_iv_curve(*results["iv"])
+
+n_params = x_ref.size
+
+if __name__ == "__main__":
+
+    for _ in range(20):
+        x, _ = sample()
+        f(x)
