@@ -22,7 +22,6 @@ dd = 0.1
 objs = np.zeros((psc.n_params, n_dx))
 derivs = np.zeros((psc.n_params, n_dx))
 
-"""
 for j, dx in tqdm(enumerate(np.linspace(-dd, dd, n_dx))):
     for i in range(psc.n_params):
         xc = x.at[i].add(dx)
@@ -32,15 +31,15 @@ for j, dx in tqdm(enumerate(np.linspace(-dd, dd, n_dx))):
 
 print(objs)
 print(derivs)
-np.save("debug/fdtest_objs.npy", objs)
-np.save("debug/fdtest_derivs.npy", derivs)
-"""
+np.save("debug/fdtest_objs_adjoint.npy", objs)
+np.save("debug/fdtest_derivs_adjoint.npy", derivs)
 
+"""
 eff0 = -15.96076275050233
 alpha = np.linspace(-dd, dd, n_dx)
-objs = np.load("debug/fdtest_objs.npy")
+objs = np.load("debug/fdtest_objs_hr.npy")
 objs = objs - eff0
-derivs = np.load("debug/fdtest_derivs.npy")
+derivs = np.load("debug/fdtest_derivs_hr.npy")
 
 fig, axs = plt.subplots(4, 4, sharex=True)
 
@@ -60,3 +59,4 @@ plt.subplots_adjust(left=0.05,
                     wspace=0.4, 
                     hspace=0.4)
 plt.show()
+"""

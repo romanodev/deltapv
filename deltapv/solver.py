@@ -75,6 +75,12 @@ def pot2vec(pot: Potentials) -> Array:
 
 
 @jit
+def vec2pot(vec: Array) -> Potentials:
+
+    return Potentials(vec[2::3], vec[0::3], vec[1::3])
+
+
+@jit
 def modify(pot: Potentials, move: Array) -> Potentials:
 
     phi_new = pot.phi + move[2::3]

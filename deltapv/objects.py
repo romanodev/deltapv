@@ -4,6 +4,7 @@ from typing import Union
 
 Array = util.Array
 f64 = util.f64
+i64 = util.i64
 
 
 @dataclasses.dataclass
@@ -61,6 +62,14 @@ class PVCell:
     PhiML: f64
 
 
+def zero_cell(n: i64) -> PVCell:
+    nz = np.zeros(n)
+    mn1z = np.zeros(n - 1)
+    zc = PVCell(mn1z, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz,
+                nz, 0., 0., 0., 0., 0., 0.)
+    return zc
+
+
 @dataclasses.dataclass
 class LightSource:
 
@@ -95,6 +104,12 @@ class Potentials:
     phi: Array
     phi_n: Array
     phi_p: Array
+
+
+def zero_pot(n: i64) -> Potentials:
+    nz = np.zeros(n)
+    zp = Potentials(nz, nz, nz)
+    return zp
 
 
 @dataclasses.dataclass
