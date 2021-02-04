@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from skopt import gp_minimize
 import logging
 logger = logging.getLogger("deltapv")
-logger.addHandler(logging.FileHandler("logs/bayes.log"))
+logger.addHandler(logging.FileHandler("logs/bayes_new_lcb.log"))
 
 
 def fun(x):

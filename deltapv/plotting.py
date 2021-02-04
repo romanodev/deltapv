@@ -169,9 +169,15 @@ def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False) -> None:
 
 def plot_iv_curve(voltages: Array, currents: Array) -> None:
 
-    m = (currents[-1] - currents[-2]) / (voltages[-1] - voltages[-2])
-    voc = voltages[-1] + currents[-1] / m
+    currents = 1e3 * currents # A / cm^2 -> mA / cm^2
     coef = spline.qspline(voltages, currents)
+
+    a, b, c = coef
+    al, bl, cl = a[-1], b[-1], c[-1]
+    discr = np.sqrt(bl**2 - 4 * al * cl)
+    x0 = (-bl - discr) / (2 * al)
+    voc = np.clip(x0, voltages[-2], voltages[-1])
+
     vint = np.linspace(0, voc, 500)
     jint = spline.predict(vint, voltages, coef)
     idx = np.argmax(vint * jint)
@@ -179,24 +185,24 @@ def plot_iv_curve(voltages: Array, currents: Array) -> None:
     jmax = jint[idx]
     pmax = vmax * jmax
     p0 = np.sum(np.diff(vint) * (jint[:-1] + jint[1:]) / 2)
-    FF = pmax / p0 * 100
+    FF = pmax / p0 * 100  # %
 
     rect = Rectangle((0, 0),
                      vmax,
-                     1e3 * jmax,
+                     jmax,
                      fill=False,
                      edgecolor="lightgray",
                      hatch="/",
                      linestyle="--")
     plt.text(
         vmax / 2,
-        1e3 * jmax / 2,
-        f"$FF = {round(FF, 2)}\%$\n$MPP = {round(pmax * 1e4, 2)} W / m^2$",
+        jmax / 2,
+        f"$FF = {round(FF, 2)}\%$\n$MPP = {round(pmax * 10, 2)} W / m^2$",
         ha="center",
         va="center")
     plt.gca().add_patch(rect)
-    plt.plot(vint, 1e3 * jint, color="black")
-    plt.scatter(voltages, 1e3 * currents, color="black", marker=".")
+    plt.plot(vint, jint, color="black")
+    plt.scatter(voltages, currents, color="black", marker=".")
     plt.xlabel("bias / $V$")
     plt.ylabel("current density / $mA/cm^2$")
     plt.xlim(left=0)
