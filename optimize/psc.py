@@ -3,6 +3,7 @@ from jax import numpy as np, value_and_grad, jacobian, grad
 import numpy as onp
 import matplotlib.pyplot as plt
 import logging
+from tqdm import tqdm
 logger = logging.getLogger("deltapv")
 logger.setLevel("INFO")
 
@@ -37,6 +38,12 @@ Perov = deltapv.materials.create_material(Eg=Eg_P,
 region_ETM = lambda x: x <= L_ETM
 region_Perov = lambda x: np.logical_and(L_ETM < x, x <= L_ETM + L_Perov)
 region_HTM = lambda x: L_ETM + L_Perov < x
+
+PARAMS = [
+    "Eg_ETM", "Chi_ETM", "eps_ETM", "Nc_ETM", "Nv_ETM", "mn_ETM", "mp_ETM",
+    "Eg_HTM", "Chi_HTM", "eps_HTM", "Nc_HTM", "Nv_HTM", "mn_HTM", "mp_HTM",
+    "Nd_ETM", "Na_HTM"
+]
 
 
 def EF(Nc, Nv, Eg, Chi, N):
@@ -278,4 +285,32 @@ x_best = np.array([
 n_params = x_ref.size
 
 if __name__ == "__main__":
-    pass
+
+    n = 50
+    x0 = x_ref
+    x1 = x_best
+    effs = np.zeros(n)
+    grads = np.zeros((n, n_params))
+    alphas = np.linspace(0, 1, n)
+
+    for i, alpha in tqdm(enumerate(alphas)):
+        x = x0 + alpha * (x1 - x0)
+        y, dydx = vagf(x)
+        effs = effs.at[i].set(y)
+        grads = grads.at[i].set(dydx)
+
+    print(effs)
+    print(grads)
+
+    plt.plot(alphas, effs, color="black", marker=".")
+    plt.title("efficiency")
+    plt.show()
+
+    fig, axs = plt.subplots(4, 4, sharex=True)
+
+    for i in range(n_params):
+        j, k = i // 4, i % 4
+        axs[j, k].plot(alphas, grads[:, i], color="black", marker=".")
+        axs[j, k].set_title(PARAMS[i])
+        axs[j, k].ticklabel_format(scilimits=(0, 0), useMathText=True)
+    plt.show()

@@ -38,12 +38,34 @@ def analyzeOptim(filename):
     with open(filename, "r") as f:
         for line in f.readlines():
             if line.startswith("["):
-                continue
                 strlist = line.strip("][\n").split(", ")
                 x = [float(y) for y in strlist]
                 des.append(x)
             elif line.startswith("Finished"):
                 streff = line.split()[-1][:-1]
+                effs.append(float(streff))
+            elif "returning zero" in line:
+                effs.append(0.)
+
+    print(f"N = {len(des)}")
+
+    return des, effs
+
+
+def analyzeOptimNew(filename):
+
+    des = []
+    effs = []
+
+    with open(filename, "r") as f:
+        for line in f.readlines():
+            if line.startswith("["):
+                continue
+                strlist = line.strip("][\n").split(", ")
+                x = [float(y) for y in strlist]
+                des.append(x)
+            elif line.startswith("Objective:"):
+                streff = line.split()[-1]
                 effs.append(float(streff))
             elif "returning zero" in line:
                 effs.append(0.)
@@ -64,9 +86,7 @@ def plot_stats(effs):
 
 if __name__ == "__main__":
 
-    _, effs = analyzeOptim("logs/nlopt_auglag.log")
-
-    plt.plot(effs)
-    plt.xlabel("function evaluations")
-    plt.ylabel("objective")
+    _, effs = analyzeOptim("logs/rds.log")
+    print(max(effs))
+    plt.hist(effs, bins=20, histtype="step", cumulative=False, density=True)
     plt.show()
