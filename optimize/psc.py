@@ -128,7 +128,8 @@ def x2des(params):
     des = deltapv.simulator.add_material(des, HTM, region_HTM)
     des = deltapv.simulator.doping(des, Nd_ETM, region_ETM)
     des = deltapv.simulator.doping(des, -Na_HTM, region_HTM)
-    des = deltapv.simulator.contacts(des, S, S, S, S, PhiM0=PhiM0, PhiML=PhiML)
+    # des = deltapv.simulator.contacts(des, S, S, S, S, PhiM0=PhiM0, PhiML=PhiML)
+    des = deltapv.simulator.contacts(des, S, S, S, S)
 
     return des
 
