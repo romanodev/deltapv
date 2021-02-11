@@ -140,7 +140,7 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     return pot
 
 
-def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
+def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> dict:
 
     pot_eq = equilibrium(design, ls)
 
@@ -213,3 +213,19 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     }
 
     return results
+
+
+def solve_isc(design: PVDesign):
+
+    ls = incident_light()
+    cell = init_cell(design, ls)
+
+    bound_eq = bcond.boundary_eq(cell)
+    guess_eq = solver.eq_guess(cell, bound_eq)
+    pot_eq = solver.solve_eq(cell, bound_eq, guess_eq)
+
+    guess = solver.ooe_guess(cell, pot_eq)
+    j, _ = adjoint.solve_pdd(cell, 0., guess)
+    isc = scales.current * j
+
+    return isc

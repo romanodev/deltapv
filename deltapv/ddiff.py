@@ -33,6 +33,7 @@ def ddp_deriv(
                   dJp_phip_maindiag[1:]) / ave_dgrid + DR_phip[1:-1]
     ddp_phip___ = dJp_phip_upperdiag[1:] / ave_dgrid
 
+    # Following 3 quantities are wrong (probably "dJp_phi_maindiag", "dJp_phi_upperdiag" with issue)
     ddp_phi_ = -dJp_phi_maindiag[:-1] / ave_dgrid
     ddp_phi__ = (-dJp_phi_upperdiag[:-1] +
                  dJp_phi_maindiag[1:]) / ave_dgrid + DR_phi[1:-1]
@@ -70,6 +71,7 @@ def ddn_deriv(
                   dJn_phin_maindiag[1:]) / ave_dgrid - DR_phin[1:-1]
     dde_phin___ = dJn_phin_upperdiag[1:] / ave_dgrid
 
+    # Following 3 quantities are wrong (probably "dJn_phi_maindiag", "dJn_phi_upperdiag" with issue)
     dde_phi_ = -dJn_phi_maindiag[:-1] / ave_dgrid
     dde_phi__ = (-dJn_phi_upperdiag[:-1] +
                  dJn_phi_maindiag[1:]) / ave_dgrid - DR_phi[1:-1]

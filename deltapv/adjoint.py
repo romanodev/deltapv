@@ -1,5 +1,6 @@
-from deltapv import objects, solver, bcond, current, residual, linalg, util
+from deltapv import objects, solver, bcond, current, residual, linalg, scales, util
 from jax import numpy as np, custom_jvp, jvp, jacfwd, jit
+import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger("deltapv")
 
@@ -43,7 +44,6 @@ def solve_pdd_jvp(primals, tangents):
 
     # Compute gradients with adjoint method
     n = cell.Eg.size
-    zc = objects.zero_cell(n)
     zp = objects.zero_pot(n)
 
     _, delF = jvp(F_wb, (cell, v, pot), (dcell, 0., zp))  # Fp @ dp
@@ -51,8 +51,11 @@ def solve_pdd_jvp(primals, tangents):
 
     gx_pot = jacfwd(current.total_current, argnums=1)(cell, pot)
     gx = solver.pot2vec(gx_pot)  # vector form
-    spFx = residual.comp_F_deriv(cell, bound, pot)
-    FxT = linalg.sparse2dense(spFx).T
+
+    # spFx = residual.comp_F_deriv(cell, bound, pot)
+    # FxT = linalg.sparse2dense(spFx).T
+    FxT = residual.dense_comp_F_deriv(cell, bound, pot).T
+
     lam = np.linalg.solve(FxT, gx)
 
     dg = delg - np.dot(lam, delF)  # total derivative

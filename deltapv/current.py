@@ -12,147 +12,153 @@ def Jn(cell: PVCell, pot: Potentials) -> Array:
 
     phi = pot.phi
     phi_n = pot.phi_n
-    phi_p = pot.phi_p
+    phi_n0 = phi_n[:-1]
+    phi_n1 = phi_n[1:]
+    fm = np.exp(phi_n1) - np.exp(phi_n0)
+    mn0 = cell.mn[:-1]
 
     psi_n = cell.Chi + np.log(cell.Nc) + phi
-    Dpsin = -np.diff(psi_n)
+    psi_n0 = psi_n[:-1]
+    psi_n1 = psi_n[1:]
+    Dpsin = psi_n0 - psi_n1
 
-    around_zero = np.abs(Dpsin) < 1e-5
+    Dpsin_Dexppsin = np.where(
+        np.abs(Dpsin) < 1e-5,
+        np.exp(psi_n0) / (1 + Dpsin / 2 + Dpsin**2 / 6),
+        np.exp(psi_n0) * Dpsin / (np.exp(Dpsin) - 1))
 
-    fm = np.diff(np.exp(phi_n))
-
-    numerator = (1 - around_zero) * Dpsin + around_zero
-    denominator = (1 - around_zero) * (np.exp(Dpsin) - 1) + around_zero * (
-        1 + 0.5 * Dpsin + Dpsin**2 / 6.)
-    Dpsin_Dexppsin = np.exp(psi_n[:-1]) * numerator / denominator
-
-    return cell.mn[:-1] * Dpsin_Dexppsin * fm / cell.dgrid
-
-
-def Jn_deriv(cell: PVCell,
-             pot: Potentials) -> Tuple[Array, Array, Array, Array]:
-
-    phi = pot.phi
-    phi_n = pot.phi_n
-    phi_p = pot.phi_p
-
-    psi_n = cell.Chi + np.log(cell.Nc) + phi
-    Dpsin = -np.diff(psi_n)
-
-    around_zero = np.abs(Dpsin) < 1e-5
-
-    fm = np.diff(np.exp(phi_n))
-
-    numerator = (1 - around_zero) * Dpsin + around_zero
-    denominator = (1 - around_zero) * (np.exp(Dpsin) - 1) + around_zero * (
-        1 + 0.5 * Dpsin + Dpsin**2 / 6.)
-    Dpsin_Dexppsin = np.exp(psi_n[:-1]) * numerator / denominator
-
-    fm_deriv_maindiag = -np.exp(phi_n[:-1])
-    fm_deriv_upperdiag = np.exp(phi_n[1:])
-
-    numerator2 = (1 - around_zero) * (
-        -Dpsin + np.exp(Dpsin) - 1) + around_zero * (
-            -3 + psi_n[:-1] + psi_n[1:] + 2 * psi_n[:-1] * psi_n[1:] -
-            psi_n[:-1]**2 - psi_n[1:]**2)
-    denominator2 = (1 - around_zero) * (np.exp(Dpsin) - 1)**2 + around_zero * (
-        1 + 0.5 * psi_n[:-1] - 0.5 * psi_n[1:] - 1 / 3. * psi_n[:-1] *
-        psi_n[1:] + 1 / 6. * psi_n[:-1]**2 + 1 / 6. * psi_n[1:]**2)**2
-    numerator3 = (1 - around_zero) * (-np.exp(Dpsin) + 1 +
-                                      Dpsin * np.exp(Dpsin)) + around_zero * (
-                                          -3 - 2 * psi_n[:-1] + 2 * psi_n[1:])
-    denominator3 = (1 - around_zero) * (np.exp(Dpsin) - 1)**2 + around_zero * (
-        1 + 0.5 * psi_n[:-1] - 0.5 * psi_n[1:] - 1 / 3. * psi_n[:-1] *
-        psi_n[1:] + 1 / 6. * psi_n[:-1]**2 + 1 / 6. * psi_n[1:]**2)**2
-
-    Dpsin_Dexppsin_deriv_maindiag = np.exp(
-        psi_n[:-1]) * numerator2 / denominator2
-    Dpsin_Dexppsin_deriv_upperdiag = np.exp(
-        psi_n[:-1]) * numerator3 / denominator3
-
-    dJn_phin__ = cell.mn[:-1] * Dpsin_Dexppsin / cell.dgrid * fm_deriv_maindiag
-    dJn_phin___ = cell.mn[:-1] * Dpsin_Dexppsin / cell.dgrid * fm_deriv_upperdiag
-
-    dJn_phi__ = cell.mn[:-1] * fm / cell.dgrid * Dpsin_Dexppsin_deriv_maindiag
-    dJn_phi___ = cell.mn[:-1] * fm / cell.dgrid * Dpsin_Dexppsin_deriv_upperdiag
-
-    return dJn_phin__, dJn_phin___, dJn_phi__, dJn_phi___
+    return mn0 * Dpsin_Dexppsin * fm / cell.dgrid
 
 
 def Jp(cell: PVCell, pot: Potentials) -> Array:
 
     phi = pot.phi
-    phi_n = pot.phi_n
     phi_p = pot.phi_p
+    phi_p0 = phi_p[:-1]
+    phi_p1 = phi_p[1:]
+    fm = np.exp(-phi_p1) - np.exp(-phi_p0)
+    mp0 = cell.mp[:-1]
 
     psi_p = cell.Chi + cell.Eg - np.log(cell.Nv) + phi
-    Dpsip = -np.diff(psi_p)
+    psi_p0 = psi_p[:-1]
+    psi_p1 = psi_p[1:]
+    Dpsip = psi_p0 - psi_p1
 
-    around_zero = np.abs(Dpsip) < 1e-5
+    Dpsip_Dexppsip = np.where(
+        np.abs(Dpsip) < 1e-5,
+        np.exp(-psi_p0) / (-1 + Dpsip / 2 - Dpsip**2 / 6),
+        np.exp(-psi_p0) * Dpsip / (np.exp(-Dpsip) - 1))
 
-    fm = np.diff(np.exp(-phi_p))
-
-    numerator = (1 - around_zero) * Dpsip + around_zero * 1
-    denominator = (1 - around_zero) * (np.exp(-Dpsip) - 1) + around_zero * (
-        -1 + 0.5 * Dpsip - Dpsip**2 / 6.)
-    Dpsip_Dexppsip = np.exp(-psi_p[:-1]) * numerator / denominator
-
-    return cell.mp[:-1] * Dpsip_Dexppsip * fm / cell.dgrid
+    return mp0 * Dpsip_Dexppsip * fm / cell.dgrid
 
 
-def Jp_deriv(cell: PVCell,
-             pot: Potentials) -> Tuple[Array, Array, Array, Array]:
+def Jn_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array, Array]:
 
     phi = pot.phi
     phi_n = pot.phi_n
+    phi_n0 = phi_n[:-1]
+    phi_n1 = phi_n[1:]
+    fm = np.exp(phi_n1) - np.exp(phi_n0)
+    mn0 = cell.mn[:-1]
+
+    psi_n = cell.Chi + np.log(cell.Nc) + phi
+    psi_n0 = psi_n[:-1]
+    psi_n1 = psi_n[1:]
+    Dpsin = psi_n0 - psi_n1
+
+    expDpsin = np.exp(Dpsin)
+    exppsi_n0 = np.exp(psi_n0)
+
+    Q = np.where(
+        np.abs(Dpsin) < 1e-5,
+        np.exp(psi_n0) / (1 + Dpsin / 2 + Dpsin**2 / 6),
+        np.exp(psi_n0) * Dpsin / (np.exp(Dpsin) - 1))
+
+    DQDphi0_norm = exppsi_n0 / (expDpsin - 1) * (Dpsin + 1 - Dpsin * expDpsin /
+                                                 (expDpsin - 1))
+    DQDphi1_norm = exppsi_n0 / (expDpsin - 1) * (-1 + Dpsin * expDpsin /
+                                                 (expDpsin - 1))
+
+    DQDphi0_taylor = 6 * exppsi_n0 * (
+        3 + psi_n0 + psi_n0**2 - psi_n1 - 2 * psi_n0 * psi_n1 +
+        psi_n1**2) / (6 + 3 * psi_n0 + psi_n0**2 - 3 * psi_n1 -
+                      2 * psi_n0 * psi_n1 + psi_n1**2)**2
+    DQDphi1_taylor = -exppsi_n0 * (-1 / 2 - Dpsin / 3) / (1 + Dpsin / 2 +
+                                                          Dpsin**2 / 6)**2
+
+    DfmDphi_n0 = -np.exp(phi_n0)
+    DfmDphi_n1 = np.exp(phi_n1)
+
+    DJnDphi0 = mn0 * fm / cell.dgrid * np.where(
+        np.abs(Dpsin) < 1e-5, DQDphi0_taylor, DQDphi0_norm)
+
+    DJnDphi1 = mn0 * fm / cell.dgrid * np.where(
+        np.abs(Dpsin) < 1e-5, DQDphi1_taylor, DQDphi1_norm)
+
+    DJnDphi_n0 = mn0 * Q / cell.dgrid * DfmDphi_n0
+    DJnDphi_n1 = mn0 * Q / cell.dgrid * DfmDphi_n1
+
+    return DJnDphi_n0, DJnDphi_n1, DJnDphi0, DJnDphi1
+
+
+def Jp_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array, Array]:
+
+    phi = pot.phi
     phi_p = pot.phi_p
+    phi_p0 = phi_p[:-1]
+    phi_p1 = phi_p[1:]
+    fm = np.exp(-phi_p1) - np.exp(-phi_p0)
+    mp0 = cell.mp[:-1]
 
     psi_p = cell.Chi + cell.Eg - np.log(cell.Nv) + phi
-    Dpsip = -np.diff(psi_p)
+    psi_p0 = psi_p[:-1]
+    psi_p1 = psi_p[1:]
+    Dpsip = psi_p0 - psi_p1
 
-    around_zero = np.abs(Dpsip) < 1e-5
+    expDpsip = np.exp(Dpsip)
+    expmpsi_p0 = np.exp(-psi_p0)
 
-    fm = np.diff(np.exp(-phi_p))
+    Q = np.where(
+        np.abs(Dpsip) < 1e-5, expmpsi_p0 / (-1 + Dpsip / 2 - Dpsip**2 / 6),
+        expmpsi_p0 * Dpsip / (np.exp(-Dpsip) - 1))
 
-    numerator = (1 - around_zero) * Dpsip + around_zero * 1
-    denominator = (1 - around_zero) * (np.exp(-Dpsip) - 1) + around_zero * (
-        -1 + 0.5 * Dpsip - Dpsip**2 / 6.)
-    Dpsip_Dexppsip = np.exp(-psi_p[:-1]) * numerator / denominator
+    DQDphi0_norm = (np.exp(psi_p1) - np.exp(psi_p0) *
+                    (1 + psi_p1 - psi_p0)) / (np.exp(psi_p0) -
+                                              np.exp(psi_p1))**2
+    DQDphi1_norm = (np.exp(psi_p0) - np.exp(psi_p1) *
+                    (1 + psi_p0 - psi_p1)) / (np.exp(psi_p0) -
+                                              np.exp(psi_p1))**2
 
-    fm_deriv_maindiag = np.exp(-phi_p[:-1])
-    fm_deriv_upperdiag = -np.exp(-phi_p[1:])
+    DQDphi0_taylor = -expmpsi_p0 / (
+        -1 + Dpsip / 2 - Dpsip**2 / 6) - expmpsi_p0 * (1 / 2 - Dpsip / 3) / (
+            -1 + Dpsip / 2 - Dpsip**2 / 6)**2
+    DQDphi1_taylor = -expmpsi_p0 * (-1 / 2 + Dpsip / 3) / (-1 + Dpsip / 2 -
+                                                           Dpsip**2 / 6)**2
 
-    numerator2 = (1 - around_zero) * (
-        Dpsip + np.exp(-Dpsip) - 1) + around_zero * (
-            -3 + psi_p[:-1] - psi_p[1:] + 2 * psi_p[:-1] * psi_p[1:] -
-            psi_p[:-1]**2 - psi_p[1:]**2)
-    denominator2 = (1 - around_zero) * (
-        np.exp(-Dpsip) - 1)**2 + around_zero * (
-            1 - 0.5 * psi_p[:-1] + 0.5 * psi_p[1:] - 1 / 3. * psi_p[:-1] *
-            psi_p[1:] + 1 / 6. * psi_p[:-1]**2 + 1 / 6. * psi_p[1:]**2)**2
-    numerator3 = (1 - around_zero) * (-np.exp(-Dpsip) + 1 -
-                                      Dpsip * np.exp(-Dpsip)) + around_zero * (
-                                          -3 + 2 * psi_p[:-1] - 2 * psi_p[1:])
-    denominator3 = (1 - around_zero) * (
-        np.exp(-Dpsip) - 1)**2 + around_zero * (
-            1 - 0.5 * psi_p[:-1] + 0.5 * psi_p[1:] - 1 / 3. * psi_p[:-1] *
-            psi_p[1:] + 1 / 6. * psi_p[:-1]**2 + 1 / 6. * psi_p[1:]**2)**2
+    DfmDphi_p0 = np.exp(-phi_p0)
+    DfmDphi_p1 = -np.exp(-phi_p1)
 
-    Dpsip_Dexppsip_deriv_maindiag = np.exp(
-        -psi_p[:-1]) * numerator2 / denominator2
-    Dpsip_Dexppsip_deriv_upperdiag = np.exp(
-        -psi_p[:-1]) * numerator3 / denominator3
+    DJpDphi0 = mp0 * fm / cell.dgrid * np.where(
+        np.abs(Dpsip) < 1e-5, DQDphi0_taylor, DQDphi0_norm)
 
-    dJp_phip__ = cell.mp[:-1] * Dpsip_Dexppsip / cell.dgrid * fm_deriv_maindiag
-    dJp_phip___ = cell.mp[:-1] * Dpsip_Dexppsip / cell.dgrid * fm_deriv_upperdiag
+    DJpDphi1 = mp0 * fm / cell.dgrid * np.where(
+        np.abs(Dpsip) < 1e-5, DQDphi1_taylor, DQDphi1_norm)
 
-    dJp_phi__ = cell.mp[:-1] * fm / cell.dgrid * Dpsip_Dexppsip_deriv_maindiag
-    dJp_phi___ = cell.mp[:-1] * fm / cell.dgrid * Dpsip_Dexppsip_deriv_upperdiag
+    DJpDphi_p0 = mp0 * Q / cell.dgrid * DfmDphi_p0
+    DJpDphi_p1 = mp0 * Q / cell.dgrid * DfmDphi_p1
 
-    return dJp_phip__, dJp_phip___, dJp_phi__, dJp_phi___
+    return DJpDphi_p0, DJpDphi_p1, DJpDphi0, DJpDphi1
 
 
-def total_current(cell: PVCell, pot: Potentials) -> Array:
+def total_current(cell: PVCell, pot: Potentials) -> f64:
+
+    Jtotal = Jn(cell, pot) + Jp(cell, pot)
+    curr = np.mean(Jtotal)
+
+    return curr
+
+
+def total_current_old(cell: PVCell, pot: Potentials) -> f64:
 
     phi = pot.phi
     phi_n = pot.phi_n
@@ -167,7 +173,7 @@ def total_current(cell: PVCell, pot: Potentials) -> Array:
 
     around_zero_n = np.abs(Dpsin) < 1e-5
     around_zero_p = np.abs(Dpsip) < 1e-5
-    
+
     fmn = np.exp(phi_n[1]) - np.exp(phi_n[0])
     numerator = (1 - around_zero_n) * Dpsin + around_zero_n * 1
     denominator = (1 - around_zero_n) * (np.exp(Dpsin) - 1) + around_zero_n * (
