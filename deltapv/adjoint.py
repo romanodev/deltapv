@@ -52,9 +52,8 @@ def solve_pdd_jvp(primals, tangents):
     gx_pot = jacfwd(current.total_current, argnums=1)(cell, pot)
     gx = solver.pot2vec(gx_pot)  # vector form
 
-    # spFx = residual.comp_F_deriv(cell, bound, pot)
-    # FxT = linalg.sparse2dense(spFx).T
-    FxT = residual.dense_comp_F_deriv(cell, bound, pot).T
+    spFx = residual.comp_F_deriv(cell, bound, pot)
+    FxT = linalg.sparse2dense(spFx).T
 
     lam = np.linalg.solve(FxT, gx)
 

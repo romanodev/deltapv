@@ -203,4 +203,4 @@ def test_pot_Eg():
 
 
 if __name__ == "__main__":
-    test_all()
+    test_pot_Eg()
