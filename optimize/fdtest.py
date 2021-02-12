@@ -23,19 +23,19 @@ objs = np.zeros((psc.n_params, n_dx))
 derivs = np.zeros((psc.n_params, n_dx))
 alpha = np.linspace(-dd, dd, n_dx)
 
-"""
 for j, dx in tqdm(enumerate(np.linspace(-dd, dd, n_dx))):
     for i in range(psc.n_params):
         xc = x.at[i].add(dx)
+        print(psc.feasible(xc))
         y, dy = psc.vagf(xc)
         objs = objs.at[i, j].set(y)
         derivs = derivs.at[i, j].set(dy[i])
 
 print(objs)
 print(derivs)
+
 np.save("debug/fdtest_objs_ohmic.npy", objs)
 np.save("debug/fdtest_derivs_ohmic.npy", derivs)
-"""
 
 eff0 = -15.96076275050233
 objs = np.load("debug/fdtest_objs_adjoint.npy")
@@ -61,7 +61,6 @@ plt.subplots_adjust(left=0.05,
                     hspace=0.4)
 plt.show()
 
-"""
 objs = np.load("debug/fdtest_objs_ohmic.npy")
 derivs = np.load("debug/fdtest_derivs_ohmic.npy")
 
@@ -74,4 +73,3 @@ axs[1].set_title("FD gradient")
 axs[2].plot(alpha, derivs[3], color="red")
 axs[2].set_title("JAX gradient")
 plt.show()
-"""
