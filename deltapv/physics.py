@@ -1,5 +1,5 @@
 from deltapv import objects, scales, util
-from jax import numpy as np
+from jax import numpy as np, custom_jvp
 
 PVCell = objects.PVCell
 LightSource = objects.LightSource
@@ -8,14 +8,36 @@ Array = util.Array
 f64 = util.f64
 
 
+@custom_jvp
 def n(cell: PVCell, pot: Potentials) -> Array:
 
     return cell.Nc * np.exp(cell.Chi + pot.phi_n + pot.phi)
 
 
+@n.defjvp
+def n_jvp(primals, tangents):
+    cell, pot = primals
+    dcell, dpot = tangents
+    expterm = np.exp(cell.Chi + pot.phi_n + pot.phi)
+    primal_out = cell.Nc * expterm
+    tangent_out = expterm * (dcell.Nc + cell.Nc * (dcell.Chi + dpot.phi_n + dpot.phi))
+    return primal_out, tangent_out
+
+
+@custom_jvp
 def p(cell: PVCell, pot: Potentials) -> Array:
 
     return cell.Nv * np.exp(-cell.Chi - cell.Eg - pot.phi_p - pot.phi)
+
+
+@p.defjvp
+def p_jvp(primals, tangents):
+    cell, pot = primals
+    dcell, dpot = tangents
+    expterm = np.exp(-cell.Chi - cell.Eg - pot.phi_p - pot.phi)
+    primal_out = cell.Nv * expterm
+    tangent_out = expterm * (dcell.Nv - cell.Nv * (dcell.Chi + dcell.Eg + dpot.phi_p + dpot.phi))
+    return primal_out, tangent_out
 
 
 def charge(cell: PVCell, pot: Potentials) -> Array:

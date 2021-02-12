@@ -35,8 +35,6 @@ def ooe_guess(cell: PVCell, pot_eq: Potentials) -> Potentials:
 
     Ec = -cell.Chi - pot_eq.phi
     Ev = -cell.Chi - cell.Eg - pot_eq.phi
-    # Ec = Ec  # temporary
-    # Ev = Ev  # temporary
     pot_guess = Potentials(pot_eq.phi, Ec, Ev)
 
     return pot_guess
@@ -72,6 +70,12 @@ def pot2vec(pot: Potentials) -> Array:
     vec = vec.at[2::3].set(pot.phi)
 
     return vec
+
+
+@jit
+def vec2pot(vec: Array) -> Potentials:
+
+    return Potentials(vec[2::3], vec[0::3], vec[1::3])
 
 
 @jit

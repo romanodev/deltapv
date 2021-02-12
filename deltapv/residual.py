@@ -1,5 +1,5 @@
 from deltapv import objects, ddiff, bcond, poisson, linalg, util
-from jax import numpy as np, ops, jit
+from jax import numpy as np, ops, jit, jacfwd
 
 PVCell = objects.PVCell
 Potentials = objects.Potentials

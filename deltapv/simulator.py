@@ -1,4 +1,4 @@
-from deltapv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util, plotting
+from deltapv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util, adjoint, plotting
 from jax import numpy as np, ops, lax, vmap
 from typing import Callable, Tuple
 import matplotlib.pyplot as plt
@@ -140,7 +140,7 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     return pot
 
 
-def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
+def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> dict:
 
     pot_eq = equilibrium(design, ls)
 
@@ -149,37 +149,42 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     voltages = np.array([], dtype=f64)
     dv = solver.vincr(cell)
     vstep = 0
-    pot_ini = solver.ooe_guess(cell, pot_eq)
 
     while vstep < 100:
 
         v = dv * vstep
         scaled_v = v * scales.energy
         logger.info(f"Solving for {scaled_v} V (Step {vstep})...")
-        bound = bcond.boundary(cell, v)
 
         if vstep == 0:
-            pot = solver.solve(cell, bound, pot_ini)
+            # Just use a rough guess from equilibrium
+            guess = solver.ooe_guess(cell, pot_eq)
+            total_j, pot = adjoint.solve_pdd(cell, v, guess)
         elif vstep == 1:
+            # Solve for a voltage close to zero for linear guess
             potl = pot
             logger.info(f"Solving for {DIM_V_INIT} V for convergence...")
             vinit = DIM_V_INIT / scales.energy
-            boundinit = bcond.boundary(cell, vinit)
-            potinit = solver.solve(cell, boundinit, pot)
+            _, potinit = adjoint.solve_pdd(cell, vinit, pot)
+            # Generate linear guess
             logger.info(f"Continuing...")
-            pot = solver.solve(cell, bound, solver.genlinguess(potinit, pot, vinit, dv - vinit))
+            guess = solver.genlinguess(potinit, pot, vinit, dv - vinit)
+            total_j, pot = adjoint.solve_pdd(cell, v, guess)
         elif vstep == 2:
+            # Generate linear guess from first two steps
             potll = potl
-            new = solver.solve(cell, bound, solver.linguess(pot, potl))
+            guess = solver.linguess(pot, potl)
+            total_j, new = adjoint.solve_pdd(cell, v, guess)
             potl = pot
             pot = new
         else:
-            new = solver.solve(cell, bound, solver.quadguess(pot, potl, potll))
+            # Generate quadratic guess from last three steps
+            guess = solver.quadguess(pot, potl, potll)
+            total_j, new = adjoint.solve_pdd(cell, v, guess)
             potll = potl
             potl = pot
             pot = new
-        
-        total_j = current.total_current(cell, pot)
+
         currents = np.append(currents, total_j)
         voltages = np.append(voltages, dv * vstep)
         vstep += 1
@@ -208,3 +213,19 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     }
 
     return results
+
+
+def solve_isc(design: PVDesign):
+
+    ls = incident_light()
+    cell = init_cell(design, ls)
+
+    bound_eq = bcond.boundary_eq(cell)
+    guess_eq = solver.eq_guess(cell, bound_eq)
+    pot_eq = solver.solve_eq(cell, bound_eq, guess_eq)
+
+    guess = solver.ooe_guess(cell, pot_eq)
+    j, _ = adjoint.solve_pdd(cell, 0., guess)
+    isc = scales.current * j
+
+    return isc

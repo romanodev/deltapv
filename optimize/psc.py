@@ -128,7 +128,8 @@ def x2des(params):
     des = deltapv.simulator.add_material(des, HTM, region_HTM)
     des = deltapv.simulator.doping(des, Nd_ETM, region_ETM)
     des = deltapv.simulator.doping(des, -Na_HTM, region_HTM)
-    des = deltapv.simulator.contacts(des, S, S, S, S, PhiM0=PhiM0, PhiML=PhiML)
+    # des = deltapv.simulator.contacts(des, S, S, S, S, PhiM0=PhiM0, PhiML=PhiML)
+    des = deltapv.simulator.contacts(des, S, S, S, S)
 
     return des
 
@@ -146,7 +147,7 @@ def f(params):
         ls = deltapv.simulator.incident_light()
         results = deltapv.simulator.simulate(des, ls)
         eff = results["eff"] * 100
-    except:
+    except ValueError:
         logger.error("Solver failed, returning zero.")
         return 0.
 
@@ -283,34 +284,3 @@ x_best = np.array([
 ])
 
 n_params = x_ref.size
-
-if __name__ == "__main__":
-
-    n = 50
-    x0 = x_ref
-    x1 = x_best
-    effs = np.zeros(n)
-    grads = np.zeros((n, n_params))
-    alphas = np.linspace(0, 1, n)
-
-    for i, alpha in tqdm(enumerate(alphas)):
-        x = x0 + alpha * (x1 - x0)
-        y, dydx = vagf(x)
-        effs = effs.at[i].set(y)
-        grads = grads.at[i].set(dydx)
-
-    print(effs)
-    print(grads)
-
-    plt.plot(alphas, effs, color="black", marker=".")
-    plt.title("efficiency")
-    plt.show()
-
-    fig, axs = plt.subplots(4, 4, sharex=True)
-
-    for i in range(n_params):
-        j, k = i // 4, i % 4
-        axs[j, k].plot(alphas, grads[:, i], color="black", marker=".")
-        axs[j, k].set_title(PARAMS[i])
-        axs[j, k].ticklabel_format(scilimits=(0, 0), useMathText=True)
-    plt.show()

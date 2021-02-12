@@ -21,6 +21,7 @@ n_dx = 30
 dd = 0.1
 objs = np.zeros((psc.n_params, n_dx))
 derivs = np.zeros((psc.n_params, n_dx))
+alpha = np.linspace(-dd, dd, n_dx)
 
 for j, dx in tqdm(enumerate(np.linspace(-dd, dd, n_dx))):
     for i in range(psc.n_params):
@@ -32,15 +33,14 @@ for j, dx in tqdm(enumerate(np.linspace(-dd, dd, n_dx))):
 
 print(objs)
 print(derivs)
-np.save("debug/fdtest_objs_new.npy", objs)
-np.save("debug/fdtest_derivs_new.npy", derivs)
 
-"""
+np.save("debug/fdtest_objs_ohmic.npy", objs)
+np.save("debug/fdtest_derivs_ohmic.npy", derivs)
+
 eff0 = -15.96076275050233
-alpha = np.linspace(-dd, dd, n_dx)
-objs = np.load("debug/fdtest_objs.npy")
+objs = np.load("debug/fdtest_objs_adjoint.npy")
 objs = objs - eff0
-derivs = np.load("debug/fdtest_derivs.npy")
+derivs = np.load("debug/fdtest_derivs_adjoint.npy")
 
 fig, axs = plt.subplots(4, 4, sharex=True)
 
@@ -60,4 +60,16 @@ plt.subplots_adjust(left=0.05,
                     wspace=0.4, 
                     hspace=0.4)
 plt.show()
-"""
+
+objs = np.load("debug/fdtest_objs_ohmic.npy")
+derivs = np.load("debug/fdtest_derivs_ohmic.npy")
+
+fig, axs = plt.subplots(3, sharex=True)
+
+axs[0].plot(alpha, objs[3], color="blue")
+axs[0].set_title("efficiency")
+axs[1].plot(alpha[:-1], np.diff(objs[3]) / np.diff(alpha), color="red", linestyle="--")
+axs[1].set_title("FD gradient")
+axs[2].plot(alpha, derivs[3], color="red")
+axs[2].set_title("JAX gradient")
+plt.show()
