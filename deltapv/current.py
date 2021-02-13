@@ -22,10 +22,14 @@ def Jn(cell: PVCell, pot: Potentials) -> Array:
     psi_n1 = psi_n[1:]
     Dpsin = psi_n0 - psi_n1
 
+    # AVOID NANS
+    Dpsin_norm = np.where(np.abs(Dpsin) < 1e-5, 1e-5, Dpsin)
+    Dpsin_taylor = np.clip(Dpsin, -1e-5, 1e-5)
+
     Dpsin_Dexppsin = np.where(
         np.abs(Dpsin) < 1e-5,
-        np.exp(psi_n0) / (1 + Dpsin / 2 + Dpsin**2 / 6),
-        np.exp(psi_n0) * Dpsin / (np.exp(Dpsin) - 1))
+        np.exp(psi_n0) / (1 + Dpsin_taylor / 2 + Dpsin_taylor**2 / 6),
+        np.exp(psi_n0) * Dpsin_norm / (np.exp(Dpsin_norm) - 1))
 
     return mn0 * Dpsin_Dexppsin * fm / cell.dgrid
 
@@ -44,10 +48,14 @@ def Jp(cell: PVCell, pot: Potentials) -> Array:
     psi_p1 = psi_p[1:]
     Dpsip = psi_p0 - psi_p1
 
+    # AVOID NANS
+    Dpsip_norm = np.where(np.abs(Dpsip) < 1e-5, 1e-5, Dpsip)
+    Dpsip_taylor = np.clip(Dpsip, -1e-5, 1e-5)
+
     Dpsip_Dexppsip = np.where(
         np.abs(Dpsip) < 1e-5,
-        np.exp(-psi_p0) / (-1 + Dpsip / 2 - Dpsip**2 / 6),
-        np.exp(-psi_p0) * Dpsip / (np.exp(-Dpsip) - 1))
+        np.exp(-psi_p0) / (-1 + Dpsip_taylor / 2 - Dpsip_taylor**2 / 6),
+        np.exp(-psi_p0) * Dpsip_norm / (np.exp(-Dpsip_norm) - 1))
 
     return mp0 * Dpsip_Dexppsip * fm / cell.dgrid
 
@@ -66,13 +74,17 @@ def Jn_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array, Array]
     psi_n1 = psi_n[1:]
     Dpsin = psi_n0 - psi_n1
 
+    # AVOID NANS
+    Dpsin_norm = np.where(np.abs(Dpsin) < 1e-5, 1e-5, Dpsin)
+    Dpsin_taylor = np.clip(Dpsin, -1e-5, 1e-5)
+
     expDpsin = np.exp(Dpsin)
     exppsi_n0 = np.exp(psi_n0)
 
     Q = np.where(
         np.abs(Dpsin) < 1e-5,
-        np.exp(psi_n0) / (1 + Dpsin / 2 + Dpsin**2 / 6),
-        np.exp(psi_n0) * Dpsin / (np.exp(Dpsin) - 1))
+        np.exp(psi_n0) / (1 + Dpsin_taylor / 2 + Dpsin_taylor**2 / 6),
+        np.exp(psi_n0) * Dpsin_norm / (np.exp(Dpsin_norm) - 1))
 
     DQDphi0_norm = exppsi_n0 / (expDpsin - 1) * (Dpsin + 1 - Dpsin * expDpsin /
                                                  (expDpsin - 1))
@@ -115,12 +127,17 @@ def Jp_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array, Array]
     psi_p1 = psi_p[1:]
     Dpsip = psi_p0 - psi_p1
 
+    # AVOID NANS
+    Dpsip_norm = np.where(np.abs(Dpsip) < 1e-5, 1e-5, Dpsip)
+    Dpsip_taylor = np.clip(Dpsip, -1e-5, 1e-5)
+
     expDpsip = np.exp(Dpsip)
     expmpsi_p0 = np.exp(-psi_p0)
 
     Q = np.where(
-        np.abs(Dpsip) < 1e-5, expmpsi_p0 / (-1 + Dpsip / 2 - Dpsip**2 / 6),
-        expmpsi_p0 * Dpsip / (np.exp(-Dpsip) - 1))
+        np.abs(Dpsip) < 1e-5,
+        expmpsi_p0 / (-1 + Dpsip_taylor / 2 - Dpsip_taylor**2 / 6),
+        expmpsi_p0 * Dpsip_norm / (np.exp(-Dpsip_norm) - 1))
 
     DQDphi0_norm = (np.exp(psi_p1) - np.exp(psi_p0) *
                     (1 + psi_p1 - psi_p0)) / (np.exp(psi_p0) -

@@ -190,7 +190,8 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> dict:
         vstep += 1
 
         if currents.size > 2:
-            if (currents[-2] * currents[-1]) <= 0:
+            ll, l = currents[-2], currents[-1]
+            if (ll * l <= 0) or l < 0:
                 break
     
     dim_currents = scales.current * currents
