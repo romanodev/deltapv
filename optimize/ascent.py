@@ -2,11 +2,12 @@ import os
 os.environ["DEBUGNANS"] = "TRUE"
 import deltapv
 import jax
-from jax import numpy as np
+from jax import numpy as np, lax
 from jax.experimental import optimizers
 import matplotlib.pyplot as plt
 import logging
 from tqdm import tqdm
+import ast
 logger = logging.getLogger("deltapv")
 logger.setLevel("INFO")
 
@@ -117,17 +118,6 @@ def graddesc(lr=1e-4):
     logger.info(derivs)
     logger.info(growth)
 
-    plt.plot(growth)
-    plt.title("PCE")
-    plt.show()
-
-    for param in trajs:
-        _, axs = plt.subplots(2)
-        axs[0].plot(trajs[param])
-        axs[1].plot(derivs[param])
-        plt.title(param)
-        plt.show()
-
 
 def adam(niters, lr=1e-3, filename=None):
     if filename is not None:
@@ -161,12 +151,13 @@ def adam(niters, lr=1e-3, filename=None):
     logger.info("growth:")
     logger.info([float(i) for i in growth])
     logger.info("trajs:")
-    logger.info({key: [float(i) for i in value] for key, value in trajs.items()})
+    logger.info(
+        {key: [float(i) for i in value]
+         for key, value in trajs.items()})
     logger.info("derivs:")
-    logger.info({key: [float(i) for i in value] for key, value in derivs.items()})
-
-    plt.plot(growth)
-    plt.show()
+    logger.info(
+        {key: [float(i) for i in value]
+         for key, value in derivs.items()})
 
 
 def random(niters, filename=None, seed=0):
@@ -193,7 +184,46 @@ def random(niters, filename=None, seed=0):
     logger.info(vals)
 
 
+def analyze_adam(filename):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    growth = ast.literal_eval(lines[-5])
+    trajs = ast.literal_eval(lines[-3])
+    derivs = ast.literal_eval(lines[-1])
+    return growth, trajs, derivs
+
+
+def analyze_random(filename):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+    growth = ast.literal_eval(lines[-1])
+    return growth
+
+
 if __name__ == "__main__":
 
-    adam(niters=100, lr=1e-1, filename="adam_1em1_100iter.log")
+    # adam(niters=100, lr=1e-1, filename="adam_1em1_100iter.log")
     # random(500, filename="random_500iter.log")
+    growth, trajs, derivs = analyze_adam("logs/adam_1em1_100iter.log")
+    values = analyze_random("logs/random_500iter.log")
+    growth = np.array(growth)
+    values = np.array(values)
+
+    plt.plot(growth)
+    plt.xlabel("iterations")
+    plt.ylabel("objective")
+    plt.ylim(top=0)
+    plt.show()
+
+    plt.plot(values)
+    plt.xlabel("iterations")
+    plt.ylabel("objective")
+    plt.ylim(top=0)
+    plt.show()
+
+    plt.plot(lax.cummin(growth), label="adam")
+    plt.plot(lax.cummin(values), label="random")
+    plt.xlabel("iterations")
+    plt.ylabel("objective")
+    plt.legend()
+    plt.show()
