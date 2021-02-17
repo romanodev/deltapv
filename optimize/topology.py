@@ -52,6 +52,9 @@ def f(Eg):
     deltapv.plotting.plot_charge(des, results["Voc"])
     deltapv.plotting.plot_iv_curve(*results["iv"])"""
 
+    logger.info(results["cell"].G * deltapv.scales.gratedens)
+    np.save("debug/G_ends.npy", results["cell"].G * deltapv.scales.gratedens)
+
     return -eta
 
 
@@ -123,4 +126,7 @@ def analyze_adam(filename):
 
 
 if __name__ == "__main__":
-    pass
+    Egvec = np.linspace(Eg_0, Eg_0, N)
+    Egvec = Egvec.at[0].set(2.4)
+    Egvec = Egvec.at[-1].set(2.4)
+    print(f(Egvec))

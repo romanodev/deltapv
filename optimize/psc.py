@@ -1,11 +1,21 @@
 import deltapv
-from jax import numpy as np, value_and_grad, jacobian, grad
+from jax import numpy as np, random, value_and_grad, grad
+from jax.experimental import optimizers
 import numpy as onp
 import matplotlib.pyplot as plt
 import logging
 from tqdm import tqdm
 logger = logging.getLogger("deltapv")
 logger.setLevel("INFO")
+
+key = random.PRNGKey(0)
+
+PARAMS = [
+    "Eg_ETM", "Chi_ETM", "eps_ETM", "logNc_ETM", "logNv_ETM", "logmn_ETM",
+    "logmp_ETM", "Eg_HTM", "Chi_HTM", "eps_HTM", "logNc_HTM", "logNv_HTM",
+    "logmn_HTM", "logmp_HTM", "logNd_ETM", "logNa_HTM"
+]
+n_params = len(PARAMS)
 
 L_ETM = 5e-5
 L_Perov = 1.1e-4
@@ -23,6 +33,13 @@ mn_P = 2
 mp_P = 2
 Br_P = 2.3e-9
 
+bounds = [(1., 5.), (1., 5.), (1., 20.), (17., 20.), (17., 20.), (0., 3.),
+          (0., 3.), (1., 5.), (1., 5.), (1., 20.), (17., 20.), (17., 20.),
+          (0., 3.), (0., 3.), (17., 20.), (17., 20.)]
+
+vl = np.array([tup[0] for tup in bounds])
+vu = np.array([tup[1] for tup in bounds])
+
 Perov = deltapv.materials.create_material(Eg=Eg_P,
                                           Chi=Chi_P,
                                           eps=eps_P,
@@ -38,12 +55,6 @@ Perov = deltapv.materials.create_material(Eg=Eg_P,
 region_ETM = lambda x: x <= L_ETM
 region_Perov = lambda x: np.logical_and(L_ETM < x, x <= L_ETM + L_Perov)
 region_HTM = lambda x: L_ETM + L_Perov < x
-
-PARAMS = [
-    "Eg_ETM", "Chi_ETM", "eps_ETM", "Nc_ETM", "Nv_ETM", "mn_ETM", "mp_ETM",
-    "Eg_HTM", "Chi_HTM", "eps_HTM", "Nc_HTM", "Nv_HTM", "mn_HTM", "mp_HTM",
-    "Nd_ETM", "Na_HTM"
-]
 
 
 def EF(Nc, Nv, Eg, Chi, N):
@@ -76,86 +87,6 @@ def getPhis(params):
     PhiML = -EF(Nc_HTM, Nv_HTM, Eg_HTM, Chi_HTM, -Na_HTM)
 
     return PhiM0, PhiML
-
-
-def x2des(params):
-
-    Eg_ETM = params[0]
-    Chi_ETM = params[1]
-    eps_ETM = params[2]
-    Nc_ETM = 10**params[3]
-    Nv_ETM = 10**params[4]
-    mn_ETM = params[5]
-    mp_ETM = params[6]
-    Eg_HTM = params[7]
-    Chi_HTM = params[8]
-    eps_HTM = params[9]
-    Nc_HTM = 10**params[10]
-    Nv_HTM = 10**params[11]
-    mn_HTM = params[12]
-    mp_HTM = params[13]
-    Nd_ETM = 10**params[14]
-    Na_HTM = 10**params[15]
-
-    PhiM0, PhiML = getPhis(params)
-
-    ETM = deltapv.materials.create_material(Eg=Eg_ETM,
-                                            Chi=Chi_ETM,
-                                            eps=eps_ETM,
-                                            Nc=Nc_ETM,
-                                            Nv=Nv_ETM,
-                                            mn=mn_ETM,
-                                            mp=mp_ETM,
-                                            tn=tau,
-                                            tp=tau,
-                                            A=A)
-    HTM = deltapv.materials.create_material(Eg=Eg_HTM,
-                                            Chi=Chi_HTM,
-                                            eps=eps_HTM,
-                                            Nc=Nc_HTM,
-                                            Nv=Nv_HTM,
-                                            mn=mn_HTM,
-                                            mp=mp_HTM,
-                                            tn=tau,
-                                            tp=tau,
-                                            A=A)
-
-    grid = np.linspace(0, L_ETM + L_Perov + L_HTM, N)
-    des = deltapv.simulator.create_design(grid)
-
-    des = deltapv.simulator.add_material(des, ETM, region_ETM)
-    des = deltapv.simulator.add_material(des, Perov, region_Perov)
-    des = deltapv.simulator.add_material(des, HTM, region_HTM)
-    des = deltapv.simulator.doping(des, Nd_ETM, region_ETM)
-    des = deltapv.simulator.doping(des, -Na_HTM, region_HTM)
-    # des = deltapv.simulator.contacts(des, S, S, S, S, PhiM0=PhiM0, PhiML=PhiML)
-    des = deltapv.simulator.contacts(des, S, S, S, S)
-
-    return des
-
-
-def f(params):
-
-    params = np.array(params)
-    feasibility = feasible(params)
-    logger.info(f"Feasible: {feasibility}")
-    if not feasibility:
-        logger.error("Unfeasible point, penalizing.")
-        return penalty(params)
-    try:
-        des = x2des(params)
-        ls = deltapv.simulator.incident_light()
-        results = deltapv.simulator.simulate(des, ls)
-        eff = results["eff"] * 100
-    except ValueError:
-        logger.error("Solver failed, returning zero.")
-        return 0.
-
-    return -eff
-
-
-df = grad(f)
-vagf = value_and_grad(f)
 
 
 def g1(x):
@@ -204,83 +135,135 @@ def g(x):
     return r
 
 
-jac1 = jacobian(g1)
-jac2 = jacobian(g2)
-jac3 = jacobian(g3)
-jac4 = jacobian(g4)
-jac5 = jacobian(g5)
-jac = jacobian(g)
-
-bounds = [(1., 5.), (1., 5.), (1., 20.), (17., 20.), (17., 20.), (1., 500.),
-          (1., 500.), (1., 5.), (1., 5.), (1., 20.), (17., 20.), (17., 20.),
-          (1., 500.), (1., 500.), (17., 20.), (17., 20.)]
-
-vl = np.array([tup[0] for tup in bounds])
-vu = np.array([tup[1] for tup in bounds])
-
-
 def feasible(x):
 
     return np.alltrue(g(x) <= 0) and np.alltrue(vl <= x) and np.alltrue(
         x <= vu)
 
 
-def penalty(x):
+def penalty(x, sigma=1e4):
 
-    cons = np.clip(g(x), a_max=0)
-    lb = np.clip(vl - x, a_min=0)
-    ub = np.clip(x - vu, a_min=0)
-    pen = np.linalg.norm(np.concatenate([cons, lb, ub]))
+    upper = np.clip(x - vu, a_min=0)
+    lower = np.clip(vl - x, a_min=0)
+    cons = np.clip(g(x), a_min=0)
+    pen = sigma * (np.sum(upper**2) + np.sum(lower**2) + np.sum(cons**2))
 
     return pen
 
 
-def sample():
+def x2des(params):
+
+    Eg_ETM = params[0]
+    Chi_ETM = params[1]
+    eps_ETM = params[2]
+    Nc_ETM = 10**params[3]
+    Nv_ETM = 10**params[4]
+    mn_ETM = 10**params[5]
+    mp_ETM = 10**params[6]
+    Eg_HTM = params[7]
+    Chi_HTM = params[8]
+    eps_HTM = params[9]
+    Nc_HTM = 10**params[10]
+    Nv_HTM = 10**params[11]
+    mn_HTM = 10**params[12]
+    mp_HTM = 10**params[13]
+    Nd_ETM = 10**params[14]
+    Na_HTM = 10**params[15]
+
+    ETM = deltapv.materials.create_material(Eg=Eg_ETM,
+                                            Chi=Chi_ETM,
+                                            eps=eps_ETM,
+                                            Nc=Nc_ETM,
+                                            Nv=Nv_ETM,
+                                            mn=mn_ETM,
+                                            mp=mp_ETM,
+                                            tn=tau,
+                                            tp=tau,
+                                            A=A)
+    HTM = deltapv.materials.create_material(Eg=Eg_HTM,
+                                            Chi=Chi_HTM,
+                                            eps=eps_HTM,
+                                            Nc=Nc_HTM,
+                                            Nv=Nv_HTM,
+                                            mn=mn_HTM,
+                                            mp=mp_HTM,
+                                            tn=tau,
+                                            tp=tau,
+                                            A=A)
+
+    grid = np.linspace(0, L_ETM + L_Perov + L_HTM, N)
+    des = deltapv.simulator.create_design(grid)
+
+    des = deltapv.simulator.add_material(des, ETM, region_ETM)
+    des = deltapv.simulator.add_material(des, Perov, region_Perov)
+    des = deltapv.simulator.add_material(des, HTM, region_HTM)
+    des = deltapv.simulator.doping(des, Nd_ETM, region_ETM)
+    des = deltapv.simulator.doping(des, -Na_HTM, region_HTM)
+    des = deltapv.simulator.contacts(des, S, S, S, S)
+
+    return des
+
+
+def f(params):
+
+    params = np.array(params)
+    des = x2des(params)
+    ls = deltapv.simulator.incident_light()
+    results = deltapv.simulator.simulate(des, ls)
+    eff = results["eff"] * 100
+    pen = penalty(params)
+
+    return -eff + pen
+
+
+df = value_and_grad(f)
+
+
+def sample(key):
     n_points = 0
     while True:
-        u = onp.random.rand(n_params)
+        key, subkey = random.split(key)
+        u = random.uniform(subkey, (n_params, ))
         sample = vl + (vu - vl) * u
         n_points += 1
         if feasible(sample):
-            return sample, n_points
+            return sample, key
 
 
-def sample_bad():
-    n_points = 0
-    while True:
-        u = onp.random.rand(n_params)
-        sample = vl + (vu - vl) * u
-        n_points += 1
-        if not feasible(sample):
-            return sample, n_points
+def adam(x0, niters, lr=1e-2, filename=None):
+    if filename is not None:
+        logger.addHandler(logging.FileHandler(f"logs/{filename}"))
+    opt_init, opt_update, get_params = optimizers.adam(lr,
+                                                       b1=0.9,
+                                                       b2=0.999,
+                                                       eps=1e-8)
+    opt_state = opt_init(x0)
+    growth = []
+
+    def take_step(step, opt_state):
+        param = get_params(opt_state)
+        logger.info(f"param = {list(param)}")
+        logger.info(f"feasible = {feasible(param)}")
+        value, grads = df(param)
+        logger.info(f"value = {value}")
+        logger.info(f"grads = {list(grads)}")
+        opt_state = opt_update(step, grads, opt_state)
+        return value, opt_state
+
+    for step in range(niters):
+        value, opt_state = take_step(step, opt_state)
+        growth.append(value)
+
+    logger.info("done")
+    logger.info("growth:")
+    logger.info([float(i) for i in growth])
+
+    return growth
 
 
-x_ref = np.array([
-    4, 4.0692, 8.4, 18.8, 18, 191.4, 5.4, 3.3336, 2.0663, 19.9, 19.3, 18, 4.5,
-    361, 17.8, 18
-])
+if __name__ == "__main__":
 
-x_init = np.array([
-    1.85164371, 4.98293216, 8.29670517, 18.84580405, 19.91887512, 102.60205287,
-    473.07855517, 3.74772183, 1.02394888, 2.3392392, 17.76149694, 19.60516244,
-    448.65494921, 311.63744301, 17.19468214, 17.57586159
-])
-
-x_fail = np.array([
-    4.410146754501431, 4.2782263357153445, 8.587045990195787,
-    18.319763242101743, 18.82292458737451, 21.71846119307608,
-    261.75542737348155, 2.3585935263240994, 2.263264563332344,
-    6.741020724467137, 19.43672610973179, 19.589950186706773,
-    284.6728760260496, 20.500359435192184, 17.8162103275087, 18.433340278835097
-])
-
-x_best = np.array([
-    3.874512008922627, 3.9459613218914384, 14.015727655839237,
-    17.50864016900316, 18.889491116940235, 382.90766362482304,
-    10.46687583294245, 1.5749891655560615, 3.5795141113791535,
-    11.102742018819606, 19.640851948614323, 17.572042961919298,
-    259.71224379401247, 457.1088025683001, 18.497398913489686,
-    18.015768992944416
-])
-
-n_params = x_ref.size
+    x0, key = sample(key)
+    growth = adam(x0, 5, lr=1e-1, filename="adam_psc_1em1_5iter.log")
+    plt.plot(growth)
+    plt.show()
