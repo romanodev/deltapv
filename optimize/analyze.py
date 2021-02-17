@@ -1,6 +1,7 @@
 import psc
 import numpy as np
 import matplotlib.pyplot as plt
+import ast
 
 import logging
 logger = logging.getLogger("deltapv")
@@ -52,41 +53,48 @@ def analyzeOptim(filename):
     return des, effs
 
 
-def analyzeOptimNew(filename):
+def analyzeAdam(filename):
 
-    des = []
     effs = []
+    value = []
+    param = []
+    grads = []
 
     with open(filename, "r") as f:
         for line in f.readlines():
-            if line.startswith("["):
-                continue
-                strlist = line.strip("][\n").split(", ")
-                x = [float(y) for y in strlist]
-                des.append(x)
-            elif line.startswith("Objective:"):
-                streff = line.split()[-1]
-                effs.append(float(streff))
-            elif "returning zero" in line:
-                effs.append(0.)
+            if line.startswith("value = "):
+                y = ast.literal_eval(line.strip("value = "))
+                value.append(y)
+            elif line.startswith("param = "):
+                x = ast.literal_eval(line.strip("param = "))
+                param.append(x)
+            elif line.startswith("grads = "):
+                dydx = ast.literal_eval(line.strip("grads = "))
+                grads.append(dydx)
+            elif line.startswith("Finished simulation"):
+                eff = float(line.split()[-1][:-1])
+                effs.append(eff)
+    
+    effs = np.array(effs)
+    value = np.array(value)
+    param = np.array(param)
+    grads = np.array(grads)
 
-    print(f"N = {len(des)}")
-
-    return des, effs
-
-
-def plot_stats(effs):
-
-    plt.hist(effs, bins=20, histtype="step")
-    plt.show()
-
-    plt.boxplot(effs)
-    plt.show()
-
+    return effs, value, param, grads
+    
 
 if __name__ == "__main__":
 
-    _, effs = analyzeOptim("logs/rds.log")
-    print(max(effs))
-    plt.hist(effs, bins=20, histtype="step", cumulative=False, density=True)
+    e, v, p, g = analyzeAdam("logs/adam_psc_1em1_50iter.log")
+
+    plt.plot(v)
+    plt.plot(-e, linestyle="--")
+    plt.show()
+
+    for traj in p.T:
+        plt.plot(traj)
+    plt.show()
+    
+    for traj in g.T:
+        plt.plot(traj)
     plt.show()

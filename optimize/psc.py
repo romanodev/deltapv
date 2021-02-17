@@ -232,7 +232,8 @@ def sample(key):
 
 def adam(x0, niters, lr=1e-2, filename=None):
     if filename is not None:
-        logger.addHandler(logging.FileHandler(f"logs/{filename}"))
+        h = logging.FileHandler(f"logs/{filename}")
+        logger.addHandler(h)
     opt_init, opt_update, get_params = optimizers.adam(lr,
                                                        b1=0.9,
                                                        b2=0.999,
@@ -258,12 +259,34 @@ def adam(x0, niters, lr=1e-2, filename=None):
     logger.info("growth:")
     logger.info([float(i) for i in growth])
 
+    if filename is not None:
+        logger.removeHandler(h)
+
     return growth
 
 
 if __name__ == "__main__":
 
     x0, key = sample(key)
-    growth = adam(x0, 5, lr=1e-1, filename="adam_psc_1em1_5iter.log")
-    plt.plot(growth)
-    plt.show()
+
+    try:
+        schedule = lambda n: 10**(-1 - n / 50)
+        growth = adam(x0, 100, lr=schedule, filename="adam_psc_sched_100iter.log")
+    except:
+        logger.critical("failed!")
+        for h in logger.handlers:
+            logger.removeHandler(h)
+    
+    try:
+        growth = adam(x0, 100, lr=1e-1, filename="adam_psc_1em1_100iter.log")
+    except:
+        logger.critical("failed!")
+        for h in logger.handlers:
+            logger.removeHandler(h)
+
+    try:
+        growth = adam(x0, 500, lr=1e-2, filename="adam_psc_1em2_500iter.log")
+    except:
+        logger.critical("failed!")
+        for h in logger.handlers:
+            logger.removeHandler(h)
