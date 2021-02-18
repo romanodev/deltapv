@@ -19,7 +19,7 @@ material = deltapv.materials.create_material(Chi=3.9,
                                            A=2e4)
 des = deltapv.simulator.add_material(des, material, lambda x: True)
 des = deltapv.simulator.contacts(des, 1e7, 0, 0, 1e7)
-des = deltapv.simulator.single_pn_junction(des, 1e17, -1e15, 50e-7)
+des = deltapv.simulator.single_pn_junction(des, 1e17, -1e15, 5e-6)
 
 ls = deltapv.simulator.incident_light()
 
@@ -29,11 +29,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     results = deltapv.simulator.simulate(des, ls)
-    v, j = results["iv"]
-
-    deltapv.plotting.plot_iv_curve(v, j)
+    
+    deltapv.plotting.plot_iv_curve(*results["iv"])
     deltapv.plotting.plot_bars(des)
     deltapv.plotting.plot_band_diagram(des, results["eq"], eq=True)
-    deltapv.plotting.plot_band_diagram(des, results["Voc"])
     deltapv.plotting.plot_charge(des, results["eq"])
     eff = results["eff"] * 100

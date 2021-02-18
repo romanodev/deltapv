@@ -85,16 +85,24 @@ def analyzeAdam(filename):
 
 if __name__ == "__main__":
 
-    e, v, p, g = analyzeAdam("logs/adam_psc_1em1_50iter.log")
+    e, v, p, g = analyzeAdam("logs/adam_psc_sched_200iter.log")
 
     plt.plot(v)
     plt.plot(-e, linestyle="--")
     plt.show()
 
-    for traj in p.T:
-        plt.plot(traj)
+    fig, axs = plt.subplots(4, 4)
+    for i, traj in enumerate(p.T):
+        j, k = i // 4, i % 4
+        axs[j, k].plot(traj)
+        axs[j, k].set_title(psc.PARAMS[i])
+    fig.tight_layout()
     plt.show()
-    
-    for traj in g.T:
-        plt.plot(traj)
+
+    fig, axs = plt.subplots(4, 4)
+    for i, traj in enumerate(g.T):
+        j, k = i // 4, i % 4
+        axs[j, k].plot(traj)
+        axs[j, k].set_title(psc.PARAMS[i])
+    fig.tight_layout()
     plt.show()

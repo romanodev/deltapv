@@ -212,6 +212,8 @@ def f(params):
     results = deltapv.simulator.simulate(des, ls)
     eff = results["eff"] * 100
     pen = penalty(params)
+    """deltapv.plotting.plot_bars(des)
+    deltapv.plotting.plot_band_diagram(des, results["eq"], eq=True)"""
 
     return -eff + pen
 
@@ -266,27 +268,34 @@ def adam(x0, niters, lr=1e-2, filename=None):
 
 
 if __name__ == "__main__":
+    """x0, key = sample(key)
+    schedule = lambda n: 10**(-1 - n / 50)
+    growth = adam(x0, 100, lr=schedule, filename="adam_psc_sched_100iter.log")"""
 
-    x0, key = sample(key)
+    xold = np.array([
+        3.874512008922627, 3.9459613218914384, 14.015727655839237,
+        17.50864016900316, 18.889491116940235,
+        np.log10(382.90766362482304),
+        np.log10(10.46687583294245), 1.5749891655560615, 3.5795141113791535,
+        11.102742018819606, 19.640851948614323, 17.572042961919298,
+        np.log10(259.71224379401247),
+        np.log10(457.1088025683001), 18.497398913489686, 18.015768992944416
+    ])
+    xstart = np.array([
+        1.661788237392516, 4.698293002285373, 19.6342803183675,
+        18.83471869026531, 19.54569869328745, 0.7252792557586427,
+        1.6231392299175988, 2.5268524699070234, 2.51936429069554,
+        6.933634938056497, 19.41835918276137, 18.271793488422656,
+        0.46319949214386513, 0.2058139980642224, 18.63975340175838,
+        17.643726318153238
+    ])
+    xend = np.array([
+        3.115495910637979, 4.06940086312913, 18.463501689826042,
+        17.89577903536547, 19.463162800153576, 1.5307420017117994,
+        2.844611915457188, 2.4885973103035113, 2.4827406294654266,
+        5.9215308503471995, 18.906972950958565, 17.088146198977856,
+        1.1593583761940989, 1.33813724146359, 19.212078301272115,
+        18.912561819478245
+    ])
 
-    try:
-        schedule = lambda n: 10**(-1 - n / 50)
-        growth = adam(x0, 100, lr=schedule, filename="adam_psc_sched_100iter.log")
-    except:
-        logger.critical("failed!")
-        for h in logger.handlers:
-            logger.removeHandler(h)
-    
-    try:
-        growth = adam(x0, 100, lr=1e-1, filename="adam_psc_1em1_100iter.log")
-    except:
-        logger.critical("failed!")
-        for h in logger.handlers:
-            logger.removeHandler(h)
-
-    try:
-        growth = adam(x0, 500, lr=1e-2, filename="adam_psc_1em2_500iter.log")
-    except:
-        logger.critical("failed!")
-        for h in logger.handlers:
-            logger.removeHandler(h)
+    print(df(xend))
