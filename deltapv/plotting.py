@@ -1,14 +1,27 @@
 from deltapv import scales, physics, objects, spline, util
 from jax import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import font_manager as fm, rcParams
 from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
+import os
 
 PVDesign = objects.PVDesign
 Potentials = objects.Potentials
 Array = util.Array
 
 COLORS = ["darkorange", "yellow", "limegreen", "cyan", "indigo"]
+
+font_dir = os.path.join(os.path.dirname(__file__), "fonts")
+font_files = fm.findSystemFonts(fontpaths=font_dir)
+for font_file in font_files:
+    fm.fontManager.addfont(font_file)
+rcParams["font.family"] = "CMU Serif"
+rcParams["font.size"] = 15
+rcParams["mathtext.fontset"] = "custom"
+rcParams["mathtext.rm"] = "CMU Serif"
+rcParams["mathtext.it"] = "CMU Serif:italic"
+rcParams["mathtext.bf"] = "CMU Serif:bold"
 
 
 def plot_bars(design: PVDesign) -> None:
@@ -121,11 +134,12 @@ def plot_bars(design: PVDesign) -> None:
                     linewidth=1,
                     linestyle="dashed")
 
-    ax1.set_ylim(np.min(uv) * 1.2, 0)
-    ax1.set_xlabel("position / $\mu m$")
-    ax1.set_ylabel("energy / $eV$")
+    ax1.set_ylim(np.min(uv) * 1.5, 0)
+    ax1.set_xlabel("position / μm")
+    ax1.set_ylabel("energy / eV")
     ax1.legend()
 
+    plt.tight_layout()
     plt.show()
 
 
@@ -161,15 +175,16 @@ def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False) -> None:
                  color="lightgray",
                  label="Fermi level")
 
-    plt.xlabel("position / $\mu m$")
-    plt.ylabel("energy / $eV$")
+    plt.xlabel("position / μm")
+    plt.ylabel("energy / eV")
     plt.legend()
+    plt.tight_layout()
     plt.show()
 
 
 def plot_iv_curve(voltages: Array, currents: Array) -> None:
 
-    currents = 1e3 * currents # A / cm^2 -> mA / cm^2
+    currents = 1e3 * currents  # A / cm^2 -> mA / cm^2
     coef = spline.qspline(voltages, currents)
 
     a, b, c = coef
@@ -194,19 +209,19 @@ def plot_iv_curve(voltages: Array, currents: Array) -> None:
                      edgecolor="lightgray",
                      hatch="/",
                      linestyle="--")
-    plt.text(
-        vmax / 2,
-        jmax / 2,
-        f"$FF = {round(FF, 2)}\%$\n$MPP = {round(pmax * 10, 2)} W / m^2$",
-        ha="center",
-        va="center")
+    plt.text(vmax / 2,
+             jmax / 2,
+             f"$FF = {round(FF, 2)}\%$\n$MPP = {round(pmax * 10, 2)}$ W/m$^2$",
+             ha="center",
+             va="center")
     plt.gca().add_patch(rect)
     plt.plot(vint, jint, color="black")
     plt.scatter(voltages, currents, color="black", marker=".")
-    plt.xlabel("bias / $V$")
-    plt.ylabel("current density / $mA/cm^2$")
+    plt.xlabel("bias / V")
+    plt.ylabel("current density / mA/cm$^2$")
     plt.xlim(left=0)
     plt.ylim(bottom=0)
+    plt.tight_layout()
     plt.show()
 
 
@@ -221,8 +236,9 @@ def plot_charge(design: PVDesign, pot: Potentials):
     plt.plot(x, p, label="hole", color="cornflowerblue")
 
     plt.yscale("log")
-    plt.xlabel("position / $\mu m$")
-    plt.ylabel("density / $cm^{-3}$")
+    plt.xlabel("position / μm")
+    plt.ylabel("density / cm$^{-3}$")
     plt.legend()
 
+    plt.tight_layout()
     plt.show()
