@@ -81,14 +81,47 @@ def analyzeAdam(filename):
     grads = np.array(grads)
 
     return effs, value, param, grads
+
+
+def analyzeRandom(filename):
+
+    value = []
+    param = []
+
+    with open(filename, "r") as f:
+        for line in f.readlines():
+            if line.startswith("value = "):
+                y = ast.literal_eval(line.strip("value = "))
+                value.append(y)
+            elif line.startswith("param = "):
+                x = ast.literal_eval(line.strip("param = "))
+                param.append(x)
+    
+    value = np.array(value)
+    param = np.array(param)
+
+    return value, param
     
 
 if __name__ == "__main__":
 
+    vrand, prand = analyzeRandom("logs/sample_psc_100iter.log")
+    brand = np.minimum.accumulate(vrand)
     e, v, p, g = analyzeAdam("logs/adam_psc_sched_200iter.log")
+    e = e[:100]
+    v = v[:100]
+    p = p[:100]
+    g = g[:100]
 
-    plt.plot(v)
-    plt.plot(-e, linestyle="--")
+    plt.plot(v, color="black", label="adam")
+    plt.plot(-e, linestyle="--", color="black")
+    plt.scatter(np.arange(100), vrand, color="black", marker=".")
+    plt.plot(brand, linestyle="--", color="black", label="random")
+    plt.ylim(top=0)
+    plt.xlabel("iterations")
+    plt.ylabel("objective / %")
+    plt.legend()
+    plt.tight_layout()
     plt.show()
 
     fig, axs = plt.subplots(4, 4)
