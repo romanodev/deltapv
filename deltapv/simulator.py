@@ -140,7 +140,7 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     return pot
 
 
-def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> dict:
+def simulate(design: PVDesign, ls: LightSource, optics: bool = True, n_steps: i64 = None) -> dict:
 
     pot_eq = equilibrium(design, ls)
 
@@ -189,7 +189,11 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True) -> dict:
         voltages = np.append(voltages, dv * vstep)
         vstep += 1
 
-        if currents.size > 2:
+        if n_steps is not None:
+            if vstep == n_steps:
+                break
+
+        if currents.size > 2 and n_steps is None:
             ll, l = currents[-2], currents[-1]
             if (ll * l <= 0) or l < 0:
                 break

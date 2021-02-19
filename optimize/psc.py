@@ -151,7 +151,7 @@ def penalty(x, sigma=1e4):
     return pen
 
 
-def x2des(params):
+def x2des(params, perov=Perov):
 
     Eg_ETM = params[0]
     Chi_ETM = params[1]
@@ -195,7 +195,7 @@ def x2des(params):
     des = deltapv.simulator.create_design(grid)
 
     des = deltapv.simulator.add_material(des, ETM, region_ETM)
-    des = deltapv.simulator.add_material(des, Perov, region_Perov)
+    des = deltapv.simulator.add_material(des, perov, region_Perov)
     des = deltapv.simulator.add_material(des, HTM, region_HTM)
     des = deltapv.simulator.doping(des, Nd_ETM, region_ETM)
     des = deltapv.simulator.doping(des, -Na_HTM, region_HTM)
@@ -212,8 +212,6 @@ def f(params):
     results = deltapv.simulator.simulate(des, ls)
     eff = results["eff"] * 100
     pen = penalty(params)
-    """deltapv.plotting.plot_bars(des)
-    deltapv.plotting.plot_band_diagram(des, results["eq"], eq=True)"""
 
     return -eff + pen
 
@@ -290,5 +288,72 @@ def random_sampling(niters, key, filename=None):
     return growth, key
 
 
+def get_j(params):
+    params = np.array(params)
+    des = x2des(params)
+    ls = deltapv.simulator.incident_light()
+    results = deltapv.simulator.simulate(des, ls)
+    _, j = results["iv"]
+    return j
+
+
+def residual(Eg_P, params, target_j):
+    perov = deltapv.materials.create_material(Eg=Eg_P,
+                                              Chi=Chi_P,
+                                              eps=eps_P,
+                                              Nc=Nc_P,
+                                              Nv=Nv_P,
+                                              mn=mn_P,
+                                              mp=mp_P,
+                                              tn=tau,
+                                              tp=tau,
+                                              Br=Br_P,
+                                              A=A)
+    des = x2des(params, perov=perov)
+    ls = deltapv.simulator.incident_light()
+    results = deltapv.simulator.simulate(des, ls, n_steps=target_j.size)
+    _, j = results["iv"]
+    rss = np.sum((j - target_j)**2)
+    return rss
+
+
+dr = value_and_grad(residual, argnums=0)
+
+
+def adam_rss(x0, params, target_j, tol=1e-4, lr=1., clip=0.1, filename=None):
+    if filename is not None:
+        h = logging.FileHandler(f"logs/{filename}")
+        logger.addHandler(h)
+    
+    growth = []
+    step = 0
+    curr = x0
+    while True:
+        logger.info(f"param = {float(curr)}")
+        value, grads = dr(curr, params, target_j)
+        logger.info(f"value = {value}")
+        logger.info(f"grads = {float(grads)}")
+        growth.append(value)
+        curr = curr - np.clip(lr * grads, -clip, clip)
+        step += 1
+        if growth[-1] < tol:
+            break
+
+    logger.info("done")
+    logger.info("growth:")
+    logger.info([float(i) for i in growth])
+
+    if filename is not None:
+        logger.removeHandler(h)
+
+    return growth
+
+
 if __name__ == "__main__":
-    growth, key = random_sampling(100, key, filename="sample_psc_100iter.log")
+    xbest = np.array([3.11175831653894, 4.06922613882224, 18.470300248774052, 17.894398807699652, 19.46316233456612, 1.5306940120726813, 2.8446084349718, 2.4867967038099623, 2.480896596274107, 5.929943056131635, 18.893101742129485, 17.089140529325114, 1.160131214931764, 1.3368722429004896, 19.21313623607783, 18.899271011127297])
+    target_j = get_j(xbest)
+
+    growth = adam_rss(1.03, xbest, target_j, lr=1.0, clip=0.1, tol=1e-6, filename="discoverybay_1p03_lowtol.log")
+
+    plt.plot(growth)
+    plt.show()

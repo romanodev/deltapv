@@ -101,11 +101,36 @@ def analyzeRandom(filename):
     param = np.array(param)
 
     return value, param
+
+
+def analyzeDiscovery(filename):
+
+    value = []
+    param = []
+    grads = []
+
+    with open(filename, "r") as f:
+        for line in f.readlines():
+            if line.startswith("value = "):
+                y = ast.literal_eval(line.strip("value = "))
+                value.append(y)
+            elif line.startswith("param = "):
+                x = ast.literal_eval(line.strip("param = "))
+                param.append(x)
+            elif line.startswith("grads = "):
+                dydx = ast.literal_eval(line.strip("grads = "))
+                grads.append(dydx)
+    
+    value = np.array(value)
+    param = np.array(param)
+    grads = np.array(grads)
+
+    return value, param, grads
     
 
 if __name__ == "__main__":
 
-    vrand, prand = analyzeRandom("logs/sample_psc_100iter.log")
+    """vrand, prand = analyzeRandom("logs/sample_psc_100iter.log")
     brand = np.minimum.accumulate(vrand)
     e, v, p, g = analyzeAdam("logs/adam_psc_sched_200iter.log")
     e = e[:100]
@@ -138,4 +163,22 @@ if __name__ == "__main__":
         axs[j, k].plot(traj)
         axs[j, k].set_title(psc.PARAMS[i])
     fig.tight_layout()
+    plt.show()"""
+
+    v, p, g = analyzeDiscovery("logs/discoverybay_1p03.log")
+
+    plt.plot(p, color="black")
+    plt.xlabel("iterations")
+    plt.ylabel("$E_{g, P}$ / eV")
+    plt.tight_layout()
+    plt.show()
+
+    ax1 = plt.gca()
+    ax1.plot(v, color="black")
+    ax2 = plt.gca().twinx()
+    ax2.plot(g, color="black", linestyle="--")
+    ax1.set_xlabel("iterations")
+    ax1.set_ylabel("rss")
+    ax2.set_ylabel("rss derivative")
+    plt.tight_layout()
     plt.show()
