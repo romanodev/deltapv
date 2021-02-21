@@ -349,7 +349,57 @@ def adam_rss(x0, params, target_j, tol=1e-4, lr=1., clip=0.1, filename=None):
     return growth
 
 
+def df_fd(x, eps=1e-2):
+
+    value = f(x)
+    grads = np.zeros_like(x)
+
+    for i in range(n_params):
+        try:
+            xnew = x.at[i].add(eps)
+            vnew = f(xnew)
+            grads = grads.at[i].set((vnew - value) / eps)
+        except:
+            logger.error("fd failed! setting derivative to zero")
+    
+    return value, grads
+
+
+def adam_fd(x0, niters, lr=1e-1, b1=0.9, b2=0.999, filename=None):
+    if filename is not None:
+        h = logging.FileHandler(f"logs/{filename}")
+        logger.addHandler(h)
+    opt_init, opt_update, get_params = optimizers.adam(lr,
+                                                       b1=b1,
+                                                       b2=b2,
+                                                       eps=1e-8)
+    opt_state = opt_init(x0)
+    growth = []
+
+    def take_step(step, opt_state):
+        param = get_params(opt_state)
+        logger.info(f"param = {list(param)}")
+        logger.info(f"feasible = {feasible(param)}")
+        value, grads = df_fd(param)
+        logger.info(f"value = {value}")
+        logger.info(f"grads = {list(grads)}")
+        opt_state = opt_update(step, grads, opt_state)
+        return value, opt_state
+
+    for step in range(niters):
+        value, opt_state = take_step(step, opt_state)
+        growth.append(value)
+
+    logger.info("done")
+    logger.info("growth:")
+    logger.info([float(i) for i in growth])
+
+    if filename is not None:
+        logger.removeHandler(h)
+
+    return growth
+
+
 if __name__ == "__main__":
-    """x0, key = sample(key)
-    adam(x0, 200, lr=1e-2, b1=0.1, b2=0.1, filename="adam_psc_lr1em2_b11em1_b21em1_200iter.log")"""
-    random_sampling(200, key, filename="sample_psc_200iter.log")
+    x0, key = sample(key)
+    adam_fd(x0, 200, lr=1e-2, b1=0.1, b2=0.1, filename="adam_psc_fd_lr1em2_b11em1_b21em1_200iter.log")
