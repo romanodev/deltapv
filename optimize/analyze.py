@@ -130,22 +130,22 @@ def analyzeDiscovery(filename):
 
 if __name__ == "__main__":
 
-    """vrand, prand = analyzeRandom("logs/sample_psc_100iter.log")
-    brand = np.minimum.accumulate(vrand)
-    e, v, p, g = analyzeAdam("logs/adam_psc_sched_200iter.log")
-    e = e[:100]
-    v = v[:100]
-    p = p[:100]
-    g = g[:100]
+    vrand, prand = analyzeRandom("logs/sample_psc_200iter.log")
+    vrand = -vrand
+    brand = np.maximum.accumulate(vrand)
+
+    e, v, p, g = analyzeAdam("logs/adam_psc_lr1em2_b11em1_b21em1_200iter.log")
+    v = -v
+    g = -g
 
     plt.plot(v, color="black", label="adam")
-    plt.plot(-e, linestyle="--", color="black")
-    plt.scatter(np.arange(100), vrand, color="black", marker=".")
+    plt.plot(e, linestyle="--", color="black")
+    plt.scatter(np.arange(200), vrand, color="black", marker=".")
     plt.plot(brand, linestyle="--", color="black", label="random")
-    plt.ylim(top=0)
+    plt.ylim(bottom=0)
     plt.xlabel("iterations")
     plt.ylabel("objective / %")
-    plt.legend()
+    plt.legend(loc="lower right")
     plt.tight_layout()
     plt.show()
 
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         axs[j, k].plot(traj)
         axs[j, k].set_title(psc.PARAMS[i])
     fig.tight_layout()
-    plt.show()"""
+    plt.show()
 
     """v, p, g = analyzeDiscovery("logs/discoverybay_1p03.log")
 
@@ -182,8 +182,3 @@ if __name__ == "__main__":
     ax2.set_ylabel("rss derivative")
     plt.tight_layout()
     plt.show()"""
-
-    e, v, p, g = analyzeAdam("logs/adam_psc_lr1em2_b11em1_b21em1_200iter.log")
-    plt.plot(-v, color="black")
-    plt.plot(e, color="black", linestyle="--")
-    plt.show()
