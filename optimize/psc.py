@@ -230,13 +230,13 @@ def sample(key):
             return sample, key
 
 
-def adam(x0, niters, lr=1e-2, filename=None):
+def adam(x0, niters, lr=1e-1, b1=0.9, b2=0.999, filename=None):
     if filename is not None:
         h = logging.FileHandler(f"logs/{filename}")
         logger.addHandler(h)
     opt_init, opt_update, get_params = optimizers.adam(lr,
-                                                       b1=0.9,
-                                                       b2=0.999,
+                                                       b1=b1,
+                                                       b2=b2,
                                                        eps=1e-8)
     opt_state = opt_init(x0)
     growth = []
@@ -350,10 +350,5 @@ def adam_rss(x0, params, target_j, tol=1e-4, lr=1., clip=0.1, filename=None):
 
 
 if __name__ == "__main__":
-    xbest = np.array([3.11175831653894, 4.06922613882224, 18.470300248774052, 17.894398807699652, 19.46316233456612, 1.5306940120726813, 2.8446084349718, 2.4867967038099623, 2.480896596274107, 5.929943056131635, 18.893101742129485, 17.089140529325114, 1.160131214931764, 1.3368722429004896, 19.21313623607783, 18.899271011127297])
-    target_j = get_j(xbest)
-
-    growth = adam_rss(1.03, xbest, target_j, lr=1.0, clip=0.1, tol=1e-6, filename="discoverybay_1p03_lowtol.log")
-
-    plt.plot(growth)
-    plt.show()
+    x0, key = sample(key)
+    adam(x0, 200, lr=1e-2, b1=0.1, b2=0.1, filename="adam_psc_lr1em2_b11em1_b21em1_200iter.log")

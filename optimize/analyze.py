@@ -165,7 +165,7 @@ if __name__ == "__main__":
     fig.tight_layout()
     plt.show()"""
 
-    v, p, g = analyzeDiscovery("logs/discoverybay_1p03.log")
+    """v, p, g = analyzeDiscovery("logs/discoverybay_1p03.log")
 
     plt.plot(p, color="black")
     plt.xlabel("iterations")
@@ -181,4 +181,9 @@ if __name__ == "__main__":
     ax1.set_ylabel("rss")
     ax2.set_ylabel("rss derivative")
     plt.tight_layout()
+    plt.show()"""
+
+    e, v, p, g = analyzeAdam("logs/adam_psc_lr1em2_b11em1_b21em1_200iter.log")
+    plt.plot(-v, color="black")
+    plt.plot(e, color="black", linestyle="--")
     plt.show()
