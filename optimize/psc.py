@@ -15,6 +15,9 @@ PARAMS = [
     "logmp_ETM", "Eg_HTM", "Chi_HTM", "eps_HTM", "logNc_HTM", "logNv_HTM",
     "logmn_HTM", "logmp_HTM", "logNd_ETM", "logNa_HTM"
 ]
+PARAMS_TEX = ["$E_{g, ETM}$", "$\chi_{ETM}$", "$\epsilon_{ETM}$", "$\log{N_{c, ETM}}$", "$\log{N_{v, ETM}}$", "$\log{m_{n, ETM}}$",
+"$\log{m_{p, ETM}}$", "$E_{g, HTM}$", "$\chi_{HTM}$", "$\epsilon_{HTM}$", "$\log{N_{c, HTM}}$", "$\log{N_{v, HTM}}$", "$\log{m_{n, HTM}}$",
+"$\log{m_{p, HTM}}$", "$\log{N_d}$", "$\log{N_a}$"]
 n_params = len(PARAMS)
 
 L_ETM = 5e-5

@@ -134,12 +134,17 @@ if __name__ == "__main__":
     vrand = -vrand
     brand = np.maximum.accumulate(vrand)
 
+    efd, vfd, pfd, gfd = analyzeAdam("logs/adam_psc_fd_lr1em2_b11em1_b21em1_200iter.log")
+    vfd = -vfd
+    gfd = -gfd
+
     e, v, p, g = analyzeAdam("logs/adam_psc_lr1em2_b11em1_b21em1_200iter.log")
     v = -v
     g = -g
 
-    plt.plot(v, color="black", label="adam")
-    plt.plot(e, linestyle="--", color="black")
+    plt.plot(v, color="red", alpha=0.5, label="adam")
+    # plt.plot(e, linestyle="--", color="black")
+    plt.plot(vfd, color="blue", alpha=0.5, label="adam, fd")
     plt.scatter(np.arange(200), vrand, color="black", marker=".")
     plt.plot(brand, linestyle="--", color="black", label="random")
     plt.ylim(bottom=0)
@@ -152,9 +157,9 @@ if __name__ == "__main__":
     fig, axs = plt.subplots(4, 4)
     for i, traj in enumerate(p.T):
         j, k = i // 4, i % 4
-        axs[j, k].plot(traj)
-        axs[j, k].set_title(psc.PARAMS[i])
-    fig.tight_layout()
+        axs[j, k].plot(traj, color="black")
+        axs[j, k].set_title(psc.PARAMS_TEX[i])
+    plt.subplots_adjust(wspace=0.3, hspace=0.5)
     plt.show()
 
     fig, axs = plt.subplots(4, 4)
