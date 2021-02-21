@@ -350,5 +350,6 @@ def adam_rss(x0, params, target_j, tol=1e-4, lr=1., clip=0.1, filename=None):
 
 
 if __name__ == "__main__":
-    x0, key = sample(key)
-    adam(x0, 200, lr=1e-2, b1=0.1, b2=0.1, filename="adam_psc_lr1em2_b11em1_b21em1_200iter.log")
+    """x0, key = sample(key)
+    adam(x0, 200, lr=1e-2, b1=0.1, b2=0.1, filename="adam_psc_lr1em2_b11em1_b21em1_200iter.log")"""
+    random_sampling(200, key, filename="sample_psc_200iter.log")
