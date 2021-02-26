@@ -2,10 +2,9 @@ import psc
 import numpy as np
 import matplotlib.pyplot as plt
 import ast
-
+plt.rcParams["lines.linewidth"] = 2
 import logging
 logger = logging.getLogger("deltapv")
-logger.addHandler(logging.FileHandler("logs/tsuyoi.log"))
 
 
 def analyzeRS(filename):
@@ -130,7 +129,7 @@ def analyzeDiscovery(filename):
 
 if __name__ == "__main__":
 
-    vrand, prand = analyzeRandom("logs/sample_psc_200iter.log")
+    """vrand, prand = analyzeRandom("logs/sample_psc_200iter.log")
     vrand = -vrand
     brand = np.maximum.accumulate(vrand)
 
@@ -143,7 +142,6 @@ if __name__ == "__main__":
     g = -g
 
     plt.plot(v, color="red", alpha=0.5, label="adam")
-    # plt.plot(e, linestyle="--", color="black")
     plt.plot(vfd, color="blue", alpha=0.5, label="adam, fd")
     plt.scatter(np.arange(200), vrand, color="black", marker=".")
     plt.plot(brand, linestyle="--", color="black", label="random")
@@ -152,30 +150,25 @@ if __name__ == "__main__":
     plt.ylabel("objective / %")
     plt.legend(loc="lower right")
     plt.tight_layout()
+    plt.savefig("obj_adam.png")
     plt.show()
 
-    fig, axs = plt.subplots(4, 4)
+    fig, axs = plt.subplots(4, 4, figsize=(16, 10))
     for i, traj in enumerate(p.T):
         j, k = i // 4, i % 4
         axs[j, k].plot(traj, color="black")
         axs[j, k].set_title(psc.PARAMS_TEX[i])
     plt.subplots_adjust(wspace=0.3, hspace=0.5)
-    plt.show()
+    plt.savefig("params.png")
+    plt.show()"""
 
-    fig, axs = plt.subplots(4, 4)
-    for i, traj in enumerate(g.T):
-        j, k = i // 4, i % 4
-        axs[j, k].plot(traj)
-        axs[j, k].set_title(psc.PARAMS[i])
-    fig.tight_layout()
-    plt.show()
-
-    """v, p, g = analyzeDiscovery("logs/discoverybay_1p03.log")
+    v, p, g = analyzeDiscovery("logs/discoverybay_1p03.log")
 
     plt.plot(p, color="black")
     plt.xlabel("iterations")
     plt.ylabel("$E_{g, P}$ / eV")
     plt.tight_layout()
+    plt.savefig("gap.png")
     plt.show()
 
     ax1 = plt.gca()
@@ -186,4 +179,5 @@ if __name__ == "__main__":
     ax1.set_ylabel("rss")
     ax2.set_ylabel("rss derivative")
     plt.tight_layout()
-    plt.show()"""
+    plt.savefig("rss.png")
+    plt.show()

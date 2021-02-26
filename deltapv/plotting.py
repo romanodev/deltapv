@@ -22,20 +22,29 @@ rcParams["mathtext.fontset"] = "custom"
 rcParams["mathtext.rm"] = "CMU Serif"
 rcParams["mathtext.it"] = "CMU Serif:italic"
 rcParams["mathtext.bf"] = "CMU Serif:bold"
+rcParams["lines.linewidth"] = 2
+rcParams["patch.linewidth"] = 2
+rcParams["hatch.linewidth"] = 2
+rcParams["figure.figsize"] = (8.0, 5.0)
+rcParams["figure.dpi"] = 80
+rcParams["savefig.dpi"] = 300
 
 
-def plot_bars(design: PVDesign) -> None:
+def plot_bars(design: PVDesign, filename=None) -> None:
 
     _, ax1 = plt.subplots()
-    ax1.margins(x=.2, y=.5)
     ax1.set_zorder(1)
     ax1.patch.set_visible(False)
 
     Ec = scales.energy * physics.Ec(design)
     Ev = scales.energy * physics.Ev(design)
-    EFi = scales.energy * physics.EFi(design)
     EF = scales.energy * physics.EF(design)
     dim_grid = scales.length * design.grid * 1e4
+    if design.PhiM0 > 0 and design.PhiML > 0:
+        ax1.margins(x=.2, y=.5)
+    else:
+        ax1.margins(y=.5)
+        ax1.set_xlim(0, dim_grid[-1])
 
     idx = np.concatenate(
         [np.array([0]),
@@ -89,7 +98,17 @@ def plot_bars(design: PVDesign) -> None:
                  "contact",
                  ha="center",
                  va="top")
-        ax1.axhline(y=phim0, xmin=0, xmax=1 / 7, linestyle="--", color="black")
+        ax1.axhline(y=phim0,
+                    xmin=0,
+                    xmax=1 / 7,
+                    linestyle="--",
+                    color="black",
+                    linewidth=2)
+        ax1.axvline(dim_grid[0], color="white", linewidth=2)
+        ax1.axvline(dim_grid[0],
+                    color="lightgray",
+                    linewidth=2,
+                    linestyle="dashed")
 
     if design.PhiML > 0:
         phiml = -design.PhiML * scales.energy
@@ -115,24 +134,24 @@ def plot_bars(design: PVDesign) -> None:
                  "contact",
                  ha="center",
                  va="top")
-        ax1.axhline(y=phiml, xmin=6 / 7, xmax=1, linestyle="--", color="black")
+        ax1.axhline(y=phiml,
+                    xmin=6 / 7,
+                    xmax=1,
+                    linestyle="--",
+                    color="black",
+                    linewidth=2)
+        ax1.axvline(dim_grid[-1], color="white", linewidth=2)
+        ax1.axvline(dim_grid[-1],
+                    color="lightgray",
+                    linewidth=2,
+                    linestyle="dashed")
 
     posline = np.argwhere(design.Ndop[:-1] != design.Ndop[1:]).flatten()
 
     for idx in posline:
-        ax1.axvline(dim_grid[idx], color="white", linewidth=2)
-        ax1.axvline(dim_grid[idx + 1], color="white", linewidth=2)
-        ax1.axvline(dim_grid[idx],
-                    color="lightgray",
-                    linewidth=1,
-                    linestyle="dashed")
-
-    for idx in [0, -1]:
-        ax1.axvline(dim_grid[idx], color="white", linewidth=2)
-        ax1.axvline(dim_grid[idx],
-                    color="lightgray",
-                    linewidth=1,
-                    linestyle="dashed")
+        vpos = (dim_grid[idx] + dim_grid[idx + 1]) / 2
+        ax1.axvline(vpos, color="white", linewidth=4)
+        ax1.axvline(vpos, color="lightgray", linewidth=2, linestyle="dashed")
 
     ax1.set_ylim(np.min(uv) * 1.5, 0)
     ax1.set_xlabel("position / μm")
@@ -140,10 +159,15 @@ def plot_bars(design: PVDesign) -> None:
     ax1.legend()
 
     plt.tight_layout()
+    if filename is not None:
+        plt.savefig(filename)
     plt.show()
 
 
-def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False) -> None:
+def plot_band_diagram(design: PVDesign,
+                      pot: Potentials,
+                      eq=False,
+                      filename=None) -> None:
 
     Ec = -scales.energy * (design.Chi + pot.phi)
     Ev = -scales.energy * (design.Chi + design.Eg + pot.phi)
@@ -178,11 +202,14 @@ def plot_band_diagram(design: PVDesign, pot: Potentials, eq=False) -> None:
     plt.xlabel("position / μm")
     plt.ylabel("energy / eV")
     plt.legend()
+    plt.xlim(0, x[-1])
     plt.tight_layout()
+    if filename is not None:
+        plt.savefig(filename)
     plt.show()
 
 
-def plot_iv_curve(voltages: Array, currents: Array) -> None:
+def plot_iv_curve(voltages: Array, currents: Array, filename=None) -> None:
 
     currents = 1e3 * currents  # A / cm^2 -> mA / cm^2
     coef = spline.qspline(voltages, currents)
@@ -222,10 +249,12 @@ def plot_iv_curve(voltages: Array, currents: Array) -> None:
     plt.xlim(left=0)
     plt.ylim(bottom=0)
     plt.tight_layout()
+    if filename is not None:
+        plt.savefig(filename)
     plt.show()
 
 
-def plot_charge(design: PVDesign, pot: Potentials):
+def plot_charge(design: PVDesign, pot: Potentials, filename=None):
 
     n = scales.density * physics.n(design, pot)
     p = scales.density * physics.p(design, pot)
@@ -239,6 +268,8 @@ def plot_charge(design: PVDesign, pot: Potentials):
     plt.xlabel("position / μm")
     plt.ylabel("density / cm$^{-3}$")
     plt.legend()
-
+    plt.xlim(0, x[-1])
     plt.tight_layout()
+    if filename is not None:
+        plt.savefig(filename)
     plt.show()

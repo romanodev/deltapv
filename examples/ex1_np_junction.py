@@ -29,9 +29,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     results = deltapv.simulator.simulate(des, ls)
-    
-    deltapv.plotting.plot_iv_curve(*results["iv"])
-    deltapv.plotting.plot_bars(des)
-    deltapv.plotting.plot_band_diagram(des, results["eq"], eq=True)
-    deltapv.plotting.plot_charge(des, results["eq"])
-    eff = results["eff"] * 100
+
+    deltapv.plotting.plot_iv_curve(*results["iv"], filename="iv.png")
+    deltapv.plotting.plot_bars(des, filename="bar.png")
+    deltapv.plotting.plot_band_diagram(des, results["eq"], eq=True, filename="band.png")
+    deltapv.plotting.plot_charge(des, results["eq"], filename="charge.png")
