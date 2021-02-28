@@ -3,7 +3,7 @@ import jax.numpy as np
 import argparse
 import matplotlib.pyplot as plt
 
-L = 3e-4
+L = 2e-4
 grid = np.linspace(0, L, 500)
 des = deltapv.simulator.create_design(grid)
 material = deltapv.materials.create_material(Chi=3.9,
@@ -19,7 +19,7 @@ material = deltapv.materials.create_material(Chi=3.9,
                                            A=2e4)
 des = deltapv.simulator.add_material(des, material, lambda x: True)
 des = deltapv.simulator.contacts(des, 1e7, 0, 0, 1e7)
-des = deltapv.simulator.single_pn_junction(des, 1e17, -1e15, 5e-6)
+des = deltapv.simulator.single_pn_junction(des, 1e17, -1e17, 1e-4)
 
 ls = deltapv.simulator.incident_light()
 
