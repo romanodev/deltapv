@@ -404,5 +404,15 @@ def adam_fd(x0, niters, lr=1e-1, b1=0.9, b2=0.999, filename=None):
 
 
 if __name__ == "__main__":
-    x_200 = np.array([3.616060807549081, 4.071874036024291, 19.298443460079813, 18.207622039765035, 19.087226672436604, 2.66743145596545, 2.9928606238044524, 1.289398529111755, 3.8914701307018524, 8.442654623120022, 17.64498018555781, 16.993852369951547, 0.6768045518160376, 2.192286021795225, 19.062569091210698, 17.655759159344722])
-    adam(x_200, 200, lr=1e-2, b1=0.1, b2=0.1, filename="adam_psc_polish_lr1em2_b11em1_b21em1_200iter.log")
+
+    import time
+    logger.setLevel("WARNING")
+
+    for i in range(3):
+        x0, key = sample(key)
+        t0 = time.time()
+        y, dydx = df(x0)
+        print(f"finished trial {i + 1} in {time.time() - t0} seconds")
+        print(y)
+        print(dydx)
+        print()
