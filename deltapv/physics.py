@@ -78,3 +78,15 @@ def EF(cell: PVCell) -> Array:
         -np.log(np.abs(Ndop_nz) / _ni))
 
     return EFi(cell) + dEF
+
+
+def flatband_wf(Nc, Nv, Eg, Chi, N):
+
+    kBT = scales.kB * scales.T / scales.q
+    ni = np.sqrt(Nc * Nv) * np.exp(-Eg / (2 * kBT))
+    Ec = -Chi
+    EFi = Ec - Eg / 2 + (kBT / 2) * np.log(Nc / Nv)
+    dEF = kBT * np.where(N > 0, np.log(np.abs(N) / ni),
+                         -np.log(np.abs(N) / ni))
+
+    return -EFi - dEF

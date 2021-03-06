@@ -15,9 +15,13 @@ PARAMS = [
     "logmp_ETM", "Eg_HTM", "Chi_HTM", "eps_HTM", "logNc_HTM", "logNv_HTM",
     "logmn_HTM", "logmp_HTM", "logNd_ETM", "logNa_HTM"
 ]
-PARAMS_TEX = ["$E_{g, ETM}$", "$\chi_{ETM}$", "$\epsilon_{ETM}$", "$\log{N_{c, ETM}}$", "$\log{N_{v, ETM}}$", "$\log{m_{n, ETM}}$",
-"$\log{m_{p, ETM}}$", "$E_{g, HTM}$", "$\chi_{HTM}$", "$\epsilon_{HTM}$", "$\log{N_{c, HTM}}$", "$\log{N_{v, HTM}}$", "$\log{m_{n, HTM}}$",
-"$\log{m_{p, HTM}}$", "$\log{N_d}$", "$\log{N_a}$"]
+PARAMS_TEX = [
+    "$E_{g, ETM}$", "$\chi_{ETM}$", "$\epsilon_{ETM}$", "$\log{N_{c, ETM}}$",
+    "$\log{N_{v, ETM}}$", "$\log{m_{n, ETM}}$", "$\log{m_{p, ETM}}$",
+    "$E_{g, HTM}$", "$\chi_{HTM}$", "$\epsilon_{HTM}$", "$\log{N_{c, HTM}}$",
+    "$\log{N_{v, HTM}}$", "$\log{m_{n, HTM}}$", "$\log{m_{p, HTM}}$",
+    "$\log{N_d}$", "$\log{N_a}$"
+]
 n_params = len(PARAMS)
 
 L_ETM = 5e-5
@@ -60,18 +64,6 @@ region_Perov = lambda x: np.logical_and(L_ETM < x, x <= L_ETM + L_Perov)
 region_HTM = lambda x: L_ETM + L_Perov < x
 
 
-def EF(Nc, Nv, Eg, Chi, N):
-
-    kBT = deltapv.scales.kB * deltapv.scales.T / deltapv.scales.q
-    ni = np.sqrt(Nc * Nv) * np.exp(-Eg / (2 * kBT))
-    Ec = -Chi
-    EFi = Ec - Eg / 2 + (kBT / 2) * np.log(Nc / Nv)
-    dEF = kBT * np.where(N > 0, np.log(np.abs(N) / ni),
-                         -np.log(np.abs(N) / ni))
-
-    return EFi + dEF
-
-
 def getPhis(params):
 
     params = np.array(params, dtype=np.float64)
@@ -86,8 +78,8 @@ def getPhis(params):
     Nd_ETM = 10**params[14]
     Na_HTM = 10**params[15]
 
-    PhiM0 = -EF(Nc_ETM, Nv_ETM, Eg_ETM, Chi_ETM, Nd_ETM)
-    PhiML = -EF(Nc_HTM, Nv_HTM, Eg_HTM, Chi_HTM, -Na_HTM)
+    PhiM0 = deltapv.physics.flatband_wf(Nc_ETM, Nv_ETM, Eg_ETM, Chi_ETM, Nd_ETM)
+    PhiML = deltapv.physics.flatband_wf(Nc_HTM, Nv_HTM, Eg_HTM, Chi_HTM, -Na_HTM)
 
     return PhiM0, PhiML
 
@@ -327,7 +319,7 @@ def adam_rss(x0, params, target_j, tol=1e-4, lr=1., clip=0.1, filename=None):
     if filename is not None:
         h = logging.FileHandler(f"logs/{filename}")
         logger.addHandler(h)
-    
+
     growth = []
     step = 0
     curr = x0
@@ -364,7 +356,7 @@ def df_fd(x, eps=1e-2):
             grads = grads.at[i].set((vnew - value) / eps)
         except:
             logger.error("fd failed! setting derivative to zero")
-    
+
     return value, grads
 
 
