@@ -9,6 +9,20 @@ lam_interp = np.linspace(200, 1200, 100, endpoint=False)
 
 
 def create_material(**kwargs) -> Material:
+    """Create a custom material. Possible arguments include the following:
+
+        eps: unitless
+        Chi , Eg , Et: eV
+        Nc , Nv , Ndop: cm^(-3)
+        mn , mp: cm^2 / (V s)
+        tn , tp: s
+        Br: cm^3 / s
+        Cn, Cp: cm^6 / s
+        alpha: 1 / cm. Should be given as an array of length 100, with the alphas for evenly spaced wavelengths from 200 to 1000nm
+
+    Returns:
+        Material: A material object
+    """
     return Material(**{
         key: f64(value)
         for key, value in kwargs.items() if value is not None
@@ -16,7 +30,14 @@ def create_material(**kwargs) -> Material:
 
 
 def get_alpha(name: str) -> Array:
+    """Load alpha of a material from the materials library
 
+    Args:
+        name (str): Name of material
+
+    Returns:
+        Array: Array of absorption coefficients for material
+    """
     df = pd.read_csv(
         os.path.join(os.path.dirname(__file__), f"resources/{name}.csv"))
     _lam = np.array(df[df.columns[0]])
@@ -27,6 +48,17 @@ def get_alpha(name: str) -> Array:
 
 
 def load_material(name: str) -> Material:
+    """Load a material from the materials library
+
+    Args:
+        name (str): Name of material
+
+    Raises:
+        FileNotFoundError: If material is not found, raises an error
+
+    Returns:
+        Material: Loaded material
+    """
     try:
         with open(
                 os.path.join(os.path.dirname(__file__),
@@ -39,6 +71,14 @@ def load_material(name: str) -> Material:
 
 
 def update(mat: Material, **kwargs) -> Material:
+    """Helper function for modifying a material. Keyword arguments are the same as "create_material"
+
+    Args:
+        mat (Material): Material to modify
+
+    Returns:
+        Material: Modified copy of the material
+    """
     return Material(
         **{
             key: f64(kwargs[key]) if key in kwargs else value

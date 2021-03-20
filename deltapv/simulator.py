@@ -16,7 +16,14 @@ DIM_V_INIT = 0.01
 
 
 def create_design(dim_grid: Array) -> PVDesign:
+    """Create an empty PVDesign
 
+    Args:
+        dim_grid (Array): Discretized coordinates in cm
+
+    Returns:
+        PVDesign: An empty PVDesign
+    """
     n = dim_grid.size
     grid = dim_grid / scales.units["grid"]
     init_params = {
@@ -37,7 +44,16 @@ def create_design(dim_grid: Array) -> PVDesign:
 
 def add_material(cell: PVDesign, mat: materials.Material,
                  f: Callable[[f64], bool]) -> PVDesign:
+    """Add a material to a cell on a defined region
 
+    Args:
+        cell (PVDesign): A cell
+        mat (materials.Material): Material to be added
+        f (Callable[[f64], bool]): Function that returns true when material should be added to the input position
+
+    Returns:
+        PVDesign: Cell with material added
+    """
     vf = vmap(f)
     idx = vf(cell.grid * scales.units["grid"])
 
@@ -62,7 +78,20 @@ def contacts(cell: PVDesign,
              Spr: f64,
              PhiM0: f64 = -1,
              PhiML: f64 = -1) -> PVDesign:
+    """Define contact recombination velocities and workfunctions
 
+    Args:
+        cell (PVDesign): A cell
+        Snl (f64): Electron recombination velocity at front contact
+        Snr (f64): Electron recombination velocity at back contact
+        Spl (f64): Hole recombination velocity at front contact
+        Spr (f64): Hole recombination velocity at back contact
+        PhiM0 (f64, optional): Workfunction of front contact. Defaults to -1.
+        PhiML (f64, optional): Workfunction of back contact. Defaults to -1.
+
+    Returns:
+        PVDesign: Cell with recombination velocities and workfunctions defined
+    """
     return objects.update(cell,
                           Snl=f64(Snl / scales.units["Snl"]),
                           Snr=f64(Snr / scales.units["Snr"]),
@@ -74,7 +103,17 @@ def contacts(cell: PVDesign,
 
 def single_pn_junction(cell: PVDesign, Nleft: f64, Nright: f64,
                        x: f64) -> PVDesign:
+    """Helper function for quickly defining a pn junction
 
+    Args:
+        cell (PVDesign): A cell
+        Nleft (f64): Doping concentration in 1/cm^3 on the left of the junction. Positive and negative values refer to donor and acceptor concentrations respectively
+        Nright (f64): Doping concentration in 1/cm^3 on the right of the junction
+        x (f64): Position of junction from front of cell, in cm
+
+    Returns:
+        PVDesign: Cell with pn junction defined
+    """
     idx = cell.grid * scales.units["grid"] <= x
     doping = np.where(idx, Nleft, Nright) / scales.units["Ndop"]
 
@@ -82,7 +121,16 @@ def single_pn_junction(cell: PVDesign, Nleft: f64, Nright: f64,
 
 
 def doping(cell: PVDesign, N: f64, f: Callable[[f64], bool]) -> PVDesign:
+    """Define a doping profile on a region of a cell
 
+    Args:
+        cell (PVDesign): A cell
+        N (f64): Doping concentration in 1/cm^3
+        f (Callable[[f64], bool]): Function that returns true when material should be doped at the input position
+
+    Returns:
+        PVDesign: Doped cell
+    """
     vf = vmap(f)
     idx = vf(cell.grid * scales.units["grid"])
     doping = np.where(idx, N / scales.units["Ndop"], cell.Ndop)
@@ -93,7 +141,16 @@ def doping(cell: PVDesign, N: f64, f: Callable[[f64], bool]) -> PVDesign:
 def incident_light(kind: str = "sun",
                    Lambda: Array = None,
                    P_in: Array = None) -> LightSource:
+    """Define a light source object for simulation
 
+    Args:
+        kind (str, optional): One of "sun", "white", "monochromatic", and "user". Defaults to "sun".
+        Lambda (Array, optional): Spectrum wavelengths in nm for "monochromatic" and "user" cases. Defaults to None.
+        P_in (Array, optional): Power for specified wavelengths for "monochromatic" and "user" cases. Defaults to None.
+
+    Returns:
+        LightSource: A light source object for simulation
+    """
     if kind == "sun":
         return LightSource(Lambda=sun.Lambda_eff, P_in=sun.P_in_eff)
 
@@ -116,7 +173,16 @@ def incident_light(kind: str = "sun",
 def init_cell(design: PVDesign,
               ls: LightSource,
               optics: bool = True) -> PVCell:
+    """Initialize a cell by calculating generation density with optical model
 
+    Args:
+        design (PVDesign): A cell
+        ls (LightSource): A light source
+        optics (bool, optional): Whether to use optical model to calculate the absorption coefficients. If False, model uses input absorption coefficients as specified in the PVDesign object to calculate generation density. Defaults to True.
+
+    Returns:
+        PVCell: An initialized cell ready for simulation
+    """
     G = optical.compute_G(design, ls, optics=optics)
     dgrid = np.diff(design.grid)
     params = design.__dict__.copy()
@@ -130,7 +196,15 @@ def init_cell(design: PVDesign,
 
 
 def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
+    """Solve equilibrium system for a cell
 
+    Args:
+        design (PVDesign): A cell
+        ls (LightSource): A light source
+
+    Returns:
+        Potentials: Equilibrium potential and quasi-Fermi energies
+    """
     cell = init_cell(design, ls)
     logger.info("Solving equilibrium...")
     bound_eq = bcond.boundary_eq(cell)
@@ -141,7 +215,17 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
 
 
 def simulate(design: PVDesign, ls: LightSource, optics: bool = True, n_steps: i64 = None) -> dict:
+    """Solve equilibrium and out-of-equilibrium systems for a cell.
 
+    Args:
+        design (PVDesign): A cell
+        ls (LightSource): A light source
+        optics (bool, optional): Whether to use optical model to calculate the absorption coefficients. If False, model uses input absorption coefficients as specified in the PVDesign object to calculate generation density. Defaults to True.
+        n_steps (i64, optional): How many voltage steps to solve for. May be useful when an IV curve of a specific range is needed, but unnecessary in other cases. Defaults to None.
+
+    Returns:
+        dict: Dictionary of results: "cell" is the initialized cell, "eq" is the equilibrium solution, "Voc" is the final solution beyond the open circuit voltage, "mpp" is the maximum power found in W, "eff" is the power conversion efficiency, "iv" is a tuple (v, i) of the IV curve
+    """
     pot_eq = equilibrium(design, ls)
 
     cell = init_cell(design, ls, optics=optics)

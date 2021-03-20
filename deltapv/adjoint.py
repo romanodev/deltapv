@@ -11,7 +11,16 @@ f64 = util.f64
 
 
 def solve_pdd(cell: PVCell, v: f64, pot_ini: Potentials):
+    """Solve PDD system at a specified voltage, with IFT for gradient
 
+    Args:
+        cell (PVCell): An initialized cell
+        v (f64): Voltage to solve at, in dimensionless form
+        pot_ini (Potentials): Initial guess of solution
+
+    Returns:
+        (f64, Potentials): Tuple of current found, in dimensionless form, and solution
+    """
     # Determine boundary conditions
     bound = bcond.boundary(cell, v)
 
@@ -26,7 +35,16 @@ def solve_pdd(cell: PVCell, v: f64, pot_ini: Potentials):
 
 @custom_jvp
 def solve_pdd_adjoint(cell: PVCell, v: f64, pot_ini: Potentials):
+    """Solve PDD system at a specified voltage, with adjoint method for gradient
 
+    Args:
+        cell (PVCell): An initialized cell
+        v (f64): Voltage to solve at, in dimensionless form
+        pot_ini (Potentials): Initial guess of solution
+
+    Returns:
+        (f64, Potentials): Tuple of current found, in dimensionless form, and solution
+    """
     # Determine boundary conditions
     bound = bcond.boundary(cell, v)
 
@@ -40,6 +58,16 @@ def solve_pdd_adjoint(cell: PVCell, v: f64, pot_ini: Potentials):
 
 
 def F_wb(cell, v, pot):
+    """Calculates residual of PDD system for a cell and solution guess at a specified voltage
+
+    Args:
+        cell (PVCell): An initialized cell
+        v (f64): Voltage to solve at, in dimensionless form
+        pot (Potentials): Guess of solution
+
+    Returns:
+        Array: Residual of PDD system
+    """
     bound = bcond.boundary(cell, v)
     F = residual.comp_F(cell, bound, pot)
     return F
@@ -47,7 +75,15 @@ def F_wb(cell, v, pot):
 
 @solve_pdd_adjoint.defjvp
 def solve_pdd_adjoint_jvp(primals, tangents):
+    """Custom JVP implementing adjoint method
 
+    Args:
+        primals (Tuple): Input arguments
+        tangents (Tuple): Tangent of input arguments
+
+    Returns:
+        Tuple: Value and tangent of PDD system solution
+    """
     cell, v, pot_ini = primals
     dcell, _, _ = tangents
 

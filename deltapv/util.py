@@ -44,25 +44,3 @@ def softabs(x: f64, alpha: f64 = 1) -> f64:
     sa = num / denom
 
     return sa
-
-
-if __name__ == "__main__":
-
-    import matplotlib.pyplot as plt
-
-    v = np.linspace(0, 1, 100)
-    j = 10 * (2 - np.exp(20 * (v - 0.9653426)))
-    p = v * j
-    pmax = np.max(p)
-    psmax = softmax(p, alpha=1)
-
-    plt.plot(v, j)
-    plt.plot(v, p)
-    plt.axhline(psmax)
-    plt.show()
-
-    deriv = grad(softmax)(p, alpha=1)
-    plt.plot(deriv)
-    deriv2 = grad(np.max)(p)
-    plt.plot(deriv2)
-    plt.show()
