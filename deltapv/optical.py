@@ -1,5 +1,5 @@
 from deltapv import objects, scales, physics, util
-from jax import numpy as np, vmap
+from jax import numpy as jnp, vmap
 
 PVDesign = objects.PVDesign
 LightSource = objects.LightSource
@@ -18,12 +18,12 @@ def photonflux(ls: LightSource) -> Array:
 
 def alpha(design: PVDesign, lambdax: f64) -> Array:
 
-    A_si = design.A / scales.cm / np.sqrt(scales.eV)  # 1 / (m J^(1/2))
+    A_si = design.A / scales.cm / jnp.sqrt(scales.eV)  # 1 / (m J^(1/2))
     Eg_si = design.Eg * scales.energy * scales.eV  # J
     lamb_si = lambdax * scales.nm  # m
 
-    alpha = np.where(scales.hc / lamb_si - Eg_si > 0,
-                     A_si * np.sqrt(np.abs(scales.hc / lamb_si - Eg_si)),
+    alpha = jnp.where(scales.hc / lamb_si - Eg_si > 0,
+                     A_si * jnp.sqrt(jnp.abs(scales.hc / lamb_si - Eg_si)),
                      0)  # 1 / m
 
     return alpha
@@ -34,10 +34,10 @@ def generation_lambda(design: PVDesign, phi_0: f64, alpha: Array) -> Array:
     # phi_0, alpha expected to be in SI units
 
     x = design.grid * scales.length * scales.cm  # m
-    dx = np.diff(x)  # m
+    dx = jnp.diff(x)  # m
 
-    phi = phi_0 * np.exp(-np.cumsum(
-        np.concatenate([np.zeros(1), alpha[:-1] * dx])))  # 1 / (m^2 s)
+    phi = phi_0 * jnp.exp(-jnp.cumsum(
+        jnp.concatenate([jnp.zeros(1), alpha[:-1] * dx])))  # 1 / (m^2 s)
     g = phi * alpha  # 1 / (m^3 s)
 
     return g
@@ -51,13 +51,13 @@ def compute_G(design: PVDesign, ls: LightSource, optics: bool = True) -> Array:
     if optics:
         alphas = valpha(design, ls.Lambda)  # 1 / m
     else:
-        alphas = vmap(np.interp, (None, None, 1),
-                      1)(ls.Lambda, np.linspace(200, 1000, 100), design.alpha)
+        alphas = vmap(jnp.interp, (None, None, 1),
+                      1)(ls.Lambda, jnp.linspace(200, 1000, 100), design.alpha)
         alphas = alphas / scales.cm  # 1 / m
 
     vgenlambda = vmap(generation_lambda, (None, 0, 0))
     all_generations = vgenlambda(design, phis, alphas)
-    tot_generation = np.sum(all_generations, axis=0)  # 1 / (m^3 s)
+    tot_generation = jnp.sum(all_generations, axis=0)  # 1 / (m^3 s)
     G_dim = tot_generation / 1e6 / scales.gratedens
 
     return G_dim

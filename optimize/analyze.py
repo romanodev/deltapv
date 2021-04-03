@@ -1,5 +1,5 @@
 import psc
-import numpy as np
+import numpy as jnp
 import matplotlib.pyplot as plt
 import ast
 plt.rcParams["lines.linewidth"] = 2
@@ -74,10 +74,10 @@ def analyzeAdam(filename):
                 eff = float(line.split()[-1][:-1])
                 effs.append(eff)
     
-    effs = np.array(effs)
-    value = np.array(value)
-    param = np.array(param)
-    grads = np.array(grads)
+    effs = jnp.array(effs)
+    value = jnp.array(value)
+    param = jnp.array(param)
+    grads = jnp.array(grads)
 
     return effs, value, param, grads
 
@@ -96,8 +96,8 @@ def analyzeRandom(filename):
                 x = ast.literal_eval(line.strip("param = "))
                 param.append(x)
     
-    value = np.array(value)
-    param = np.array(param)
+    value = jnp.array(value)
+    param = jnp.array(param)
 
     return value, param
 
@@ -120,9 +120,9 @@ def analyzeDiscovery(filename):
                 dydx = ast.literal_eval(line.strip("grads = "))
                 grads.append(dydx)
     
-    value = np.array(value)
-    param = np.array(param)
-    grads = np.array(grads)
+    value = jnp.array(value)
+    param = jnp.array(param)
+    grads = jnp.array(grads)
 
     return value, param, grads
     
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     """vrand, prand = analyzeRandom("logs/sample_psc_200iter.log")
     vrand = -vrand
-    brand = np.maximum.accumulate(vrand)
+    brand = jnp.maximum.accumulate(vrand)
 
     efd, vfd, pfd, gfd = analyzeAdam("logs/adam_psc_fd_lr1em2_b11em1_b21em1_200iter.log")
     vfd = -vfd
@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
     plt.plot(v, color="red", alpha=0.5, label="adam")
     plt.plot(vfd, color="blue", alpha=0.5, label="adam, fd")
-    plt.scatter(np.arange(200), vrand, color="black", marker=".")
+    plt.scatter(jnp.arange(200), vrand, color="black", marker=".")
     plt.plot(brand, linestyle="--", color="black", label="random")
     plt.ylim(bottom=0)
     plt.xlabel("iterations")

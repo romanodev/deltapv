@@ -1,5 +1,5 @@
 from deltapv import objects, physics, util
-from jax import numpy as np
+from jax import numpy as jnp
 from typing import Tuple
 
 PVCell = objects.PVCell
@@ -57,8 +57,8 @@ def comp_shr(cell: PVCell, pot: Potentials) -> Array:
     ni = physics.ni(cell)
     n = physics.n(cell, pot)
     p = physics.p(cell, pot)
-    nR = ni * np.exp(cell.Et) + n
-    pR = ni * np.exp(-cell.Et) + p
+    nR = ni * jnp.exp(cell.Et) + n
+    pR = ni * jnp.exp(-cell.Et) + p
     return (n * p - ni**2) / (cell.tp * nR + cell.tn * pR)
 
 
@@ -68,8 +68,8 @@ def comp_shr_deriv(cell: PVCell,
     ni = physics.ni(cell)
     n = physics.n(cell, pot)
     p = physics.p(cell, pot)
-    nR = ni * np.exp(cell.Et) + n
-    pR = ni * np.exp(-cell.Et) + p
+    nR = ni * jnp.exp(cell.Et) + n
+    pR = ni * jnp.exp(-cell.Et) + p
     num = n * p - ni**2
     denom = cell.tp * nR + cell.tn * pR
 
@@ -96,6 +96,6 @@ def comp_rad_deriv(cell: PVCell,
 
     DR_phin = cell.Br * (n * p)
     DR_phip = cell.Br * (-n * p)
-    DR_phi = np.zeros_like(pot.phi)
+    DR_phi = jnp.zeros_like(pot.phi)
 
     return DR_phin, DR_phip, DR_phi

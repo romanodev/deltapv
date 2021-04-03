@@ -5,7 +5,7 @@ Run
 
    .. tab:: Terminal
     
-    Create the following file `input.py`
+    Create the following file `ijnput.py`
 
     .. code-block:: python
 
@@ -20,15 +20,15 @@ Run
         HTM_THICKNESS = 0.4989e-4
         CELL_THICKNESS = ETM_THICKNESS + PEROV_THICKNESS + HTM_THICKNESS
         NUM_POINTS = 500
-        ALL_INDICES = np.arange(NUM_POINTS, dtype=int)
+        ALL_INDICES = jnp.arange(NUM_POINTS, dtype=int)
         ETM_START_INDEX = int(0)
         PEROV_START_INDEX = int(NUM_POINTS * ETM_THICKNESS // CELL_THICKNESS)
         HTM_START_INDEX = int(NUM_POINTS * (ETM_THICKNESS + PEROV_THICKNESS) // CELL_THICKNESS)
-        ETM_RANGE = np.arange(0, PEROV_START_INDEX, dtype=int)
-        PEROV_RANGE = np.arange(PEROV_START_INDEX, HTM_START_INDEX, dtype=int)
-        HTM_RANGE = np.arange(HTM_START_INDEX, NUM_POINTS, dtype=int)
+        ETM_RANGE = jnp.arange(0, PEROV_START_INDEX, dtype=int)
+        PEROV_RANGE = jnp.arange(PEROV_START_INDEX, HTM_START_INDEX, dtype=int)
+        HTM_RANGE = jnp.arange(HTM_START_INDEX, NUM_POINTS, dtype=int)
 
-        GRID = np.linspace(0, CELL_THICKNESS, num=NUM_POINTS)
+        GRID = jnp.linspace(0, CELL_THICKNESS, num=NUM_POINTS)
 
         pv_obj = deltapv(GRID)
 
@@ -72,14 +72,14 @@ Run
         pv_obj.add_material(HTM_PROP, HTM_RANGE)
 
         # Defining doping profile, generation function
-        ETM_DOPING = 3.7025e18 * np.ones(ETM_RANGE.size)
-        HTM_DOPING = -1.6092e18 * np.ones(HTM_RANGE.size)
+        ETM_DOPING = 3.7025e18 * jnp.ones(ETM_RANGE.size)
+        HTM_DOPING = -1.6092e18 * jnp.ones(HTM_RANGE.size)
         pv_obj.doping_profile(ETM_DOPING, ETM_RANGE)
         pv_obj.doping_profile(HTM_DOPING, HTM_RANGE)
 
         pv_obj.contacts(1.e8, 1.e8, 1.e8, 1.e8)
         
-        pv_obj.optical_G(type='user', G=np.zeros(NUM_POINTS, dtype=np.float32))
+        pv_obj.optical_G(type='user', G=jnp.zeros(NUM_POINTS, dtype=jnp.float32))
 
         # Computing I-V curve
         pv_obj.IV_curve()
@@ -88,4 +88,4 @@ Run
 
     .. code-block:: bash
 
-        python3 input.py
+        python3 ijnput.py

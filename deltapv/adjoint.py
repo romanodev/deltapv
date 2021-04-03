@@ -1,5 +1,5 @@
 from deltapv import objects, solver, bcond, current, residual, linalg, scales, util
-from jax import numpy as np, custom_jvp, jvp, jacfwd, jacrev, jit
+from jax import numpy as jnp, custom_jvp, jvp, jacfwd, jacrev, jit
 import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger("deltapv")
@@ -78,8 +78,8 @@ def solve_pdd_adjoint_jvp(primals, tangents):
     """Custom JVP implementing adjoint method
 
     Args:
-        primals (Tuple): Input arguments
-        tangents (Tuple): Tangent of input arguments
+        primals (Tuple): Ijnput arguments
+        tangents (Tuple): Tangent of ijnput arguments
 
     Returns:
         Tuple: Value and tangent of PDD system solution
@@ -105,11 +105,11 @@ def solve_pdd_adjoint_jvp(primals, tangents):
     spFx = residual.comp_F_deriv(cell, bound, pot)
     FxT = linalg.sparse2dense(spFx).T
 
-    lam = np.linalg.solve(FxT, gx)
+    lam = jnp.linalg.solve(FxT, gx)
 
-    dg = delg - np.dot(lam, delF)  # total derivative
+    dg = delg - jnp.dot(lam, delF)  # total derivative
 
     primals_out = flux, pot
-    tangents_out = dg, solver.vec2pot(np.zeros_like(gx))
+    tangents_out = dg, solver.vec2pot(jnp.zeros_like(gx))
 
     return primals_out, tangents_out

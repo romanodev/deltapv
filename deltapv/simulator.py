@@ -1,12 +1,13 @@
 from deltapv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util, adjoint, plotting
-from jax import numpy as np, ops, lax, vmap
-from typing import Callable, Tuple
+from jax import numpy as jnp, ops, lax, vmap
+from typing import Callable, Tuple, List, Union
 import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger("deltapv")
 
 PVCell = objects.PVCell
 PVDesign = objects.PVDesign
+Material = objects.Material
 LightSource = objects.LightSource
 Potentials = objects.Potentials
 Array = util.Array
@@ -15,7 +16,7 @@ i64 = util.i64
 DIM_V_INIT = 0.01
 
 
-def create_design(dim_grid: Array) -> PVDesign:
+def empty_design(dim_grid: Array) -> PVDesign:
     """Create an empty PVDesign
 
     Args:
@@ -27,7 +28,7 @@ def create_design(dim_grid: Array) -> PVDesign:
     n = dim_grid.size
     grid = dim_grid / scales.units["grid"]
     init_params = {
-        key: np.zeros(n)
+        key: jnp.zeros(n)
         for key in {
             "eps", "Chi", "Eg", "Nc", "Nv", "mn", "mp", "tn", "tp", "Et", "Br",
             "Cn", "Cp", "A", "Ndop"
@@ -37,19 +38,19 @@ def create_design(dim_grid: Array) -> PVDesign:
         key: f64(0)
         for key in {"Snl", "Snr", "Spl", "Spr", "PhiM0", "PhiML"}
     })
-    init_params.update({"grid": grid, "alpha": np.zeros((100, n))})
+    init_params.update({"grid": grid, "alpha": jnp.zeros((100, n))})
 
     return PVDesign(**init_params)
 
 
-def add_material(cell: PVDesign, mat: materials.Material,
+def add_material(cell: PVDesign, mat: Material,
                  f: Callable[[f64], bool]) -> PVDesign:
     """Add a material to a cell on a defined region
 
     Args:
         cell (PVDesign): A cell
-        mat (materials.Material): Material to be added
-        f (Callable[[f64], bool]): Function that returns true when material should be added to the input position
+        mat (Material): Material to be added
+        f (Callable[[f64], bool]): Function that returns true when material should be added to the ijnput position
 
     Returns:
         PVDesign: Cell with material added
@@ -60,12 +61,12 @@ def add_material(cell: PVDesign, mat: materials.Material,
     updatedict = {}
     for param, value in mat:
         if param == "alpha":
-            updatedict[param] = np.where(
+            updatedict[param] = jnp.where(
                 idx,
                 value.reshape(-1, 1) / scales.units[param],
                 getattr(cell, param))
         else:
-            updatedict[param] = np.where(idx, value / scales.units[param],
+            updatedict[param] = jnp.where(idx, value / scales.units[param],
                                          getattr(cell, param))
 
     return objects.update(cell, **updatedict)
@@ -101,41 +102,55 @@ def contacts(cell: PVDesign,
                           PhiML=f64(PhiML / scales.units["PhiML"]))
 
 
-def single_pn_junction(cell: PVDesign, Nleft: f64, Nright: f64,
-                       x: f64) -> PVDesign:
-    """Helper function for quickly defining a pn junction
-
-    Args:
-        cell (PVDesign): A cell
-        Nleft (f64): Doping concentration in 1/cm^3 on the left of the junction. Positive and negative values refer to donor and acceptor concentrations respectively
-        Nright (f64): Doping concentration in 1/cm^3 on the right of the junction
-        x (f64): Position of junction from front of cell, in cm
-
-    Returns:
-        PVDesign: Cell with pn junction defined
-    """
-    idx = cell.grid * scales.units["grid"] <= x
-    doping = np.where(idx, Nleft, Nright) / scales.units["Ndop"]
-
-    return objects.update(cell, Ndop=doping)
-
-
 def doping(cell: PVDesign, N: f64, f: Callable[[f64], bool]) -> PVDesign:
     """Define a doping profile on a region of a cell
 
     Args:
         cell (PVDesign): A cell
         N (f64): Doping concentration in 1/cm^3
-        f (Callable[[f64], bool]): Function that returns true when material should be doped at the input position
+        f (Callable[[f64], bool]): Function that returns true when material should be doped at the ijnput position
 
     Returns:
         PVDesign: Doped cell
     """
     vf = vmap(f)
     idx = vf(cell.grid * scales.units["grid"])
-    doping = np.where(idx, N / scales.units["Ndop"], cell.Ndop)
-
+    doping = jnp.where(idx, N / scales.units["Ndop"], cell.Ndop)
     return objects.update(cell, Ndop=doping)
+
+
+def make_design(n_points: i64, Ls: List[f64], mats: Union[List[Material], Material], Ns: List[f64], Snl: f64, Snr: f64, Spl: f64, Spr: f64, grid: Array = None, PhiM0: f64 = -1, PhiML: f64 = -1):
+    """Convenience function for defining a complete design.
+
+    Args:
+        n_points (i64): Number of points on a uniform grid
+        Ls (List[f64]): Thicknesses of each layer
+        mats (Union[List[Material], Material]): List of materials
+        Ns (List[f64]): List of doping densities
+        Snl (f64): Electron recombination velocity at front contact
+        Snr (f64): Electron recombination velocity at back contact
+        Spl (f64): Hole recombination velocity at front contact
+        Spr (f64): Hole recombination velocity at back contact
+        PhiM0 (f64, optional): Workfunction of front contact. Defaults to -1.
+        PhiML (f64, optional): Workfunction of back contact. Defaults to -1.
+
+    Returns:
+        PVDesign: Complete cell design defined by parameters
+    """
+    if isinstance(mats, Material):
+        mats = [mats] * len(Ls)
+    L = sum(Ls)
+    if grid is None:
+        grid = jnp.linspace(0, L, n_points)
+    des = empty_design(grid)
+    start = 0
+    for t, mat, dop in zip(Ls, mats, Ns):
+        reg = lambda x: jnp.logical_and(start <= x, x <= start + t)
+        des = add_material(des, mat, reg)
+        des = doping(des, dop, reg)
+        start = start + t
+    des = contacts(des, Snl, Snr, Spl, Spr, PhiM0=PhiM0, PhiML=PhiML)
+    return des
 
 
 def incident_light(kind: str = "sun",
@@ -155,18 +170,18 @@ def incident_light(kind: str = "sun",
         return LightSource(Lambda=sun.Lambda_eff, P_in=sun.P_in_eff)
 
     if kind == "white":
-        return LightSource(Lambda=np.linspace(4e2, 8e2, 100),
-                           P_in=2e2 * np.ones(5, dtype=np.float64))
+        return LightSource(Lambda=jnp.linspace(4e2, 8e2, 100),
+                           P_in=2e2 * jnp.ones(5, dtype=jnp.float64))
 
     if kind == "monochromatic":
         if Lambda is None:
-            Lambda = np.array([4e2])
-        return LightSource(Lambda=Lambda, P_in=np.array([1e3]))
+            Lambda = jnp.array([4e2])
+        return LightSource(Lambda=Lambda, P_in=jnp.array([1e3]))
 
     if kind == "user":
         assert Lambda is not None
         assert P_in is not None
-        P_in = 1e3 * P_in / np.sum(P_in)
+        P_in = 1e3 * P_in / jnp.sum(P_in)
         return LightSource(Lambda=Lambda, P_in=P_in)
 
 
@@ -178,13 +193,13 @@ def init_cell(design: PVDesign,
     Args:
         design (PVDesign): A cell
         ls (LightSource): A light source
-        optics (bool, optional): Whether to use optical model to calculate the absorption coefficients. If False, model uses input absorption coefficients as specified in the PVDesign object to calculate generation density. Defaults to True.
+        optics (bool, optional): Whether to use optical model to calculate the absorption coefficients. If False, model uses ijnput absorption coefficients as specified in the PVDesign object to calculate generation density. Defaults to True.
 
     Returns:
         PVCell: An initialized cell ready for simulation
     """
     G = optical.compute_G(design, ls, optics=optics)
-    dgrid = np.diff(design.grid)
+    dgrid = jnp.diff(design.grid)
     params = design.__dict__.copy()
     params["dgrid"] = dgrid
     params.pop("grid")
@@ -214,13 +229,13 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     return pot
 
 
-def simulate(design: PVDesign, ls: LightSource, optics: bool = True, n_steps: i64 = None) -> dict:
+def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool = True, n_steps: i64 = None) -> dict:
     """Solve equilibrium and out-of-equilibrium systems for a cell.
 
     Args:
         design (PVDesign): A cell
         ls (LightSource): A light source
-        optics (bool, optional): Whether to use optical model to calculate the absorption coefficients. If False, model uses input absorption coefficients as specified in the PVDesign object to calculate generation density. Defaults to True.
+        optics (bool, optional): Whether to use optical model to calculate the absorption coefficients. If False, model uses ijnput absorption coefficients as specified in the PVDesign object to calculate generation density. Defaults to True.
         n_steps (i64, optional): How many voltage steps to solve for. May be useful when an IV curve of a specific range is needed, but unnecessary in other cases. Defaults to None.
 
     Returns:
@@ -229,8 +244,8 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True, n_steps: i6
     pot_eq = equilibrium(design, ls)
 
     cell = init_cell(design, ls, optics=optics)
-    currents = np.array([], dtype=f64)
-    voltages = np.array([], dtype=f64)
+    currents = jnp.array([], dtype=f64)
+    voltages = jnp.array([], dtype=f64)
     dv = solver.vincr(cell)
     vstep = 0
 
@@ -269,8 +284,8 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True, n_steps: i6
             potl = pot
             pot = new
 
-        currents = np.append(currents, total_j)
-        voltages = np.append(voltages, dv * vstep)
+        currents = jnp.append(currents, total_j)
+        voltages = jnp.append(voltages, dv * vstep)
         vstep += 1
 
         if n_steps is not None:
@@ -287,8 +302,8 @@ def simulate(design: PVDesign, ls: LightSource, optics: bool = True, n_steps: i6
 
     pmax = spline.calcPmax(dim_voltages, dim_currents * 1e4)  # A/cm^2 -> A/m2
 
-    eff = pmax / np.sum(ls.P_in)
-    eff_print = np.round(eff * 100, 2)
+    eff = pmax / jnp.sum(ls.P_in)
+    eff_print = jnp.round(eff * 100, 2)
 
     logger.info(f"Finished simulation with efficiency {eff_print}%")
 

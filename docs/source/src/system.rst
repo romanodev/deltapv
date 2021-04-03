@@ -42,9 +42,9 @@ where,
         \begin{cases}
         R &= R_{radiative} + R_{Auger} + R_{SHR}\\
         n_{int} &= \sqrt{N_cN_v}e^{\frac{E_g}{2k_BT}} \\
-        R_{radiative} &= B(np - n_{int}^2) \\ 
-        R_{Auger} &= (C_nn + C_pp)(np-n_{int}^2) \\
-        R_{SHR} &= \frac{np-n_{int}^2}{t_n(n+n_{int}e^{\frac{E_{SHR}}{k_BT}}) + t_p(p+n_{int}e^{-\frac{E_{SHR}}{k_BT}})} 
+        R_{radiative} &= B(jnp - n_{int}^2) \\ 
+        R_{Auger} &= (C_nn + C_pp)(jnp-n_{int}^2) \\
+        R_{SHR} &= \frac{jnp-n_{int}^2}{t_n(n+n_{int}e^{\frac{E_{SHR}}{k_BT}}) + t_p(p+n_{int}e^{-\frac{E_{SHR}}{k_BT}})} 
         \end{cases}
 
     where :math:`R_{radiative}`, :math:`R_{Auger}`, and :math:`R_{SHR}` are the radiative, Auger, and Shockley-Read-Hall (SHR) recombination rate density, and :math:`n_{int}` is the intrinsic carrier density.

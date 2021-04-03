@@ -1,11 +1,11 @@
 from deltapv import dataclasses, objects
-from jax import numpy as np
+from jax import numpy as jnp
 import pandas as pd, yaml, glob, os
 
 Material = objects.Material
-Array = np.ndarray
-f64 = np.float64
-lam_interp = np.linspace(200, 1200, 100, endpoint=False)
+Array = jnp.ndarray
+f64 = jnp.float64
+lam_interp = jnp.linspace(200, 1200, 100, endpoint=False)
 
 
 def create_material(**kwargs) -> Material:
@@ -40,9 +40,9 @@ def get_alpha(name: str) -> Array:
     """
     df = pd.read_csv(
         os.path.join(os.path.dirname(__file__), f"resources/{name}.csv"))
-    _lam = np.array(df[df.columns[0]])
-    _alpha = np.array(df[df.columns[4]])
-    alpha = np.interp(lam_interp, _lam, _alpha)
+    _lam = jnp.array(df[df.columns[0]])
+    _alpha = jnp.array(df[df.columns[4]])
+    alpha = jnp.interp(lam_interp, _lam, _alpha)
 
     return alpha
 

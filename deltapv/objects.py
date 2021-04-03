@@ -1,5 +1,5 @@
 from deltapv import dataclasses, util
-from jax import numpy as np
+from jax import numpy as jnp
 from typing import Union
 
 Array = util.Array
@@ -63,8 +63,8 @@ class PVCell:
 
 
 def zero_cell(n: i64) -> PVCell:
-    nz = np.zeros(n)
-    mn1z = np.zeros(n - 1)
+    nz = jnp.zeros(n)
+    mn1z = jnp.zeros(n - 1)
     zc = PVCell(mn1z, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz, nz,
                 nz, 0., 0., 0., 0., 0., 0.)
     return zc
@@ -73,8 +73,8 @@ def zero_cell(n: i64) -> PVCell:
 @dataclasses.dataclass
 class LightSource:
 
-    Lambda: Array = np.ones(1)
-    P_in: Array = np.zeros(1)
+    Lambda: Array = jnp.ones(1)
+    P_in: Array = jnp.zeros(1)
 
 
 @dataclasses.dataclass
@@ -93,7 +93,7 @@ class Material:
     Cn: f64 = f64(0)
     Cp: f64 = f64(0)
     A: f64 = f64(0)
-    alpha: Array = np.zeros(100)
+    alpha: Array = jnp.zeros(100)
 
     def __iter__(self):
         return self.__dict__.items().__iter__()
@@ -107,7 +107,7 @@ class Potentials:
 
 
 def zero_pot(n: i64) -> Potentials:
-    nz = np.zeros(n)
+    nz = jnp.zeros(n)
     zp = Potentials(nz, nz, nz)
     return zp
 
@@ -122,7 +122,7 @@ class Boundary:
     peqL: f64
 
 
-def update(obj: Union[PVDesign, PVCell], **kwargs) -> Union[PVDesign, PVCell]:
+def update(obj: Union[PVDesign, PVCell, Material], **kwargs) -> Union[PVDesign, PVCell, Material]:
 
     return obj.__class__(
         **{

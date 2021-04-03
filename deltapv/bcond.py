@@ -1,5 +1,5 @@
 from deltapv import objects, physics, current, util
-from jax import numpy as np
+from jax import numpy as jnp
 from typing import Tuple
 
 PVCell = objects.PVCell
@@ -11,22 +11,22 @@ f64 = util.f64
 
 def boundary_phi(cell: PVCell) -> Tuple[f64, f64]:
 
-    ohm0 = np.where(
+    ohm0 = jnp.where(
         cell.Ndop[0] > 0,
-        -cell.Chi[0] + np.log(np.abs(cell.Ndop[0] / cell.Nc[0])),
-        -cell.Chi[0] - cell.Eg[0] - np.log(np.abs(-cell.Ndop[0] / cell.Nv[0])))
+        -cell.Chi[0] + jnp.log(jnp.abs(cell.Ndop[0] / cell.Nc[0])),
+        -cell.Chi[0] - cell.Eg[0] - jnp.log(jnp.abs(-cell.Ndop[0] / cell.Nv[0])))
 
-    ohmL = np.where(
+    ohmL = jnp.where(
         cell.Ndop[-1] > 0,
-        -cell.Chi[-1] + np.log(np.abs(cell.Ndop[-1] / cell.Nc[-1])),
+        -cell.Chi[-1] + jnp.log(jnp.abs(cell.Ndop[-1] / cell.Nc[-1])),
         -cell.Chi[-1] - cell.Eg[-1] -
-        np.log(np.abs(-cell.Ndop[-1] / cell.Nv[-1])))
+        jnp.log(jnp.abs(-cell.Ndop[-1] / cell.Nv[-1])))
     
     schott0 = -cell.PhiM0
     schottL = -cell.PhiML
 
-    phi0 = np.where(cell.PhiM0 > 0, schott0, ohm0)
-    phiL = np.where(cell.PhiML > 0, schottL, ohmL)
+    phi0 = jnp.where(cell.PhiM0 > 0, schott0, ohm0)
+    phiL = jnp.where(cell.PhiML > 0, schottL, ohmL)
 
     return phi0, phiL
 
@@ -41,10 +41,10 @@ def boundary_eq(cell: PVCell) -> Boundary:
 def boundary(cell: PVCell, v: f64) -> Boundary:
 
     phi0, phiLeq = boundary_phi(cell)
-    neq0 = cell.Nc[0] * np.exp(cell.Chi[0] + phi0)
-    neqL = cell.Nc[-1] * np.exp(cell.Chi[-1] + phiLeq)
-    peq0 = cell.Nv[0] * np.exp(-cell.Chi[0] - cell.Eg[0] - phi0)
-    peqL = cell.Nv[-1] * np.exp(-cell.Chi[-1] - cell.Eg[-1] - phiLeq)
+    neq0 = cell.Nc[0] * jnp.exp(cell.Chi[0] + phi0)
+    neqL = cell.Nc[-1] * jnp.exp(cell.Chi[-1] + phiLeq)
+    peq0 = cell.Nv[0] * jnp.exp(-cell.Chi[0] - cell.Eg[0] - phi0)
+    peqL = cell.Nv[-1] * jnp.exp(-cell.Chi[-1] - cell.Eg[-1] - phiLeq)
 
     return Boundary(phi0, phiLeq + v, neq0, neqL, peq0, peqL)
 

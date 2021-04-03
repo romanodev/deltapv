@@ -1,5 +1,5 @@
 from deltapv import objects, residual, linalg, physics, scales, util
-from jax import numpy as np, jit, ops, custom_jvp, jvp, jacfwd, vmap, lax
+from jax import numpy as jnp, jit, ops, custom_jvp, jvp, jacfwd, vmap, lax
 from typing import Tuple, Callable
 import matplotlib.pyplot as plt
 import logging
@@ -26,7 +26,7 @@ def eq_guess(cell: PVCell, bound_eq: Boundary) -> Potentials:
 
     N = cell.Eg.size
     phi_guess = physics.EF(cell)
-    pot_guess = Potentials(phi_guess, np.zeros(N), np.zeros(N))
+    pot_guess = Potentials(phi_guess, jnp.zeros(N), jnp.zeros(N))
 
     return pot_guess
 
@@ -43,9 +43,9 @@ def ooe_guess(cell: PVCell, pot_eq: Potentials) -> Potentials:
 @jit
 def logdamp(move: Array) -> Array:
 
-    damped = np.where(
-        np.abs(move) > 1,
-        np.log(1 + np.abs(move) * 1.72) * np.sign(move), move)
+    damped = jnp.where(
+        jnp.abs(move) > 1,
+        jnp.log(1 + jnp.abs(move) * 1.72) * jnp.sign(move), move)
 
     return damped
 
@@ -53,8 +53,8 @@ def logdamp(move: Array) -> Array:
 @jit
 def scaledamp(move: Array, threshold: f64 = 50) -> Array:
 
-    big = np.max(np.abs(move))
-    gamma = np.maximum(big, threshold)
+    big = jnp.max(jnp.abs(move))
+    gamma = jnp.maximum(big, threshold)
     damped = threshold * move / gamma
 
     return damped
@@ -64,7 +64,7 @@ def scaledamp(move: Array, threshold: f64 = 50) -> Array:
 def pot2vec(pot: Potentials) -> Array:
 
     n = pot.phi.size
-    vec = np.zeros(3 * n)
+    vec = jnp.zeros(3 * n)
     vec = vec.at[0::3].set(pot.phi_n)
     vec = vec.at[1::3].set(pot.phi_p)
     vec = vec.at[2::3].set(pot.phi)
@@ -94,7 +94,7 @@ def residnorm(cell, bound, pot, move, alpha):
 
     pot_new = modify(pot, alpha * move)
     F = residual.comp_F(cell, bound, pot_new)
-    Fnorm = np.linalg.norm(F)
+    Fnorm = jnp.linalg.norm(F)
 
     return Fnorm
 
@@ -103,10 +103,10 @@ def residnorm(cell, bound, pot, move, alpha):
 def linesearch(cell: PVCell, bound: Boundary, pot: Potentials,
                p: Array) -> Array:
 
-    alphas = np.linspace(0, 2, n_lnsrch)
+    alphas = jnp.linspace(0, 2, n_lnsrch)
     R = vmap(residnorm, (None, None, None, None, 0))(cell, bound, pot, p,
                                                      alphas)
-    alpha_best = alphas[n_lnsrch // 10:][np.argmin(R[n_lnsrch // 10:])]
+    alpha_best = alphas[n_lnsrch // 10:][jnp.argmin(R[n_lnsrch // 10:])]
 
     return alpha_best
 
@@ -166,10 +166,10 @@ def step_eq_dense(cell: PVCell, bound: Boundary,
     Feq = residual.comp_F_eq(cell, bound, pot)
     spJeq = residual.comp_F_eq_deriv(cell, bound, pot)
     Jeq = linalg.sparse2dense(spJeq)
-    p = np.linalg.solve(Jeq, -Feq)
+    p = jnp.linalg.solve(Jeq, -Feq)
 
-    error = np.max(np.abs(p))
-    resid = np.linalg.norm(Feq)
+    error = jnp.max(jnp.abs(p))
+    resid = jnp.linalg.norm(Feq)
     dx = logdamp(p)
 
     pot_new = Potentials(pot.phi + dx, pot.phi_n, pot.phi_p)
@@ -187,8 +187,8 @@ def step_eq(cell: PVCell, bound: Boundary,
     spJeq = residual.comp_F_eq_deriv(cell, bound, pot)
     p = linalg.linsol(spJeq, -Feq, tol=1e-6)
 
-    error = np.max(np.abs(p))
-    resid = np.linalg.norm(Feq)
+    error = jnp.max(jnp.abs(p))
+    resid = jnp.linalg.norm(Feq)
     dx = logdamp(p)
 
     pot_new = Potentials(pot.phi + dx, pot.phi_n, pot.phi_p)
@@ -215,7 +215,7 @@ def solve_eq_dense(cell: PVCell, bound: Boundary,
             f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
         )
 
-        if np.isnan(error) or error == 0:
+        if jnp.isnan(error) or error == 0:
             logger.critical("\tDense solver failed! It's all over.")
             raise SystemExit
 
@@ -239,7 +239,7 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
             f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
         )
 
-        if np.isnan(error) or error == 0:
+        if jnp.isnan(error) or error == 0:
             logger.error("\tSparse solver failed! Switching to dense.")
             return solve_eq_dense(cell, bound, pot_ini)
 
@@ -253,34 +253,34 @@ def solve_eq_jvp(primals, tangents):
     dcell, dbound, _ = tangents
     sol = solve_eq(cell, bound, pot_ini)
 
-    zerodpot = Potentials(np.zeros_like(sol.phi), np.zeros_like(sol.phi_n),
-                          np.zeros_like(sol.phi_p))
+    zerodpot = Potentials(jnp.zeros_like(sol.phi), jnp.zeros_like(sol.phi_n),
+                          jnp.zeros_like(sol.phi_p))
 
     _, rhs = jvp(residual.comp_F_eq, (cell, bound, sol),
                  (dcell, dbound, zerodpot))
 
     spF_eq_pot = residual.comp_F_eq_deriv(cell, bound, sol)
     F_eq_pot = linalg.sparse2dense(spF_eq_pot)
-    dF_eq = np.linalg.solve(F_eq_pot, -rhs)
+    dF_eq = jnp.linalg.solve(F_eq_pot, -rhs)
 
     primal_out = sol
-    tangent_out = Potentials(dF_eq, np.zeros_like(sol.phi_n),
-                             np.zeros_like(sol.phi_p))
+    tangent_out = Potentials(dF_eq, jnp.zeros_like(sol.phi_n),
+                             jnp.zeros_like(sol.phi_p))
 
     return primal_out, tangent_out
 
 
 @jit
 def similarity(v1, v2):
-    sim = np.dot(v1, v2) / (
-        np.maximum(np.linalg.norm(v1), np.linalg.norm(v2))**2 + 1e-3)
+    sim = jnp.dot(v1, v2) / (
+        jnp.maximum(jnp.linalg.norm(v1), jnp.linalg.norm(v2))**2 + 1e-3)
     return sim
 
 
 @jit
 def acceleration(p, pl, dxl, beta):
 
-    sim = np.maximum(similarity(p, pl), 0)
+    sim = jnp.maximum(similarity(p, pl), 0)
     dx = p + beta * sim * dxl
 
     return dx
@@ -297,12 +297,12 @@ def step_dense(cell: PVCell,
     F = residual.comp_F(cell, bound, pot)
     spJ = residual.comp_F_deriv(cell, bound, pot)
     J = linalg.sparse2dense(spJ)
-    p = logdamp(np.linalg.solve(J, -F))
+    p = logdamp(jnp.linalg.solve(J, -F))
     dx = acceleration(p, pl, dxl, beta)
     pot_new = modify(pot, dx)
 
-    error = np.max(np.abs(p))
-    resid = np.linalg.norm(F)
+    error = jnp.max(jnp.abs(p))
+    resid = jnp.linalg.norm(F)
     stats = {"error": error, "resid": resid, "p": p, "dx": dx}
 
     return pot_new, stats
@@ -314,8 +314,8 @@ def solve_dense(cell: PVCell, bound: Boundary,
     pot = pot_ini
     error = 1
     niter = 0
-    pl = np.zeros(3 * pot.phi.size)
-    dxl = np.zeros(3 * pot.phi.size)
+    pl = jnp.zeros(3 * pot.phi.size)
+    dxl = jnp.zeros(3 * pot.phi.size)
 
     while niter < 100 and error > 1e-6:
 
@@ -329,7 +329,7 @@ def solve_dense(cell: PVCell, bound: Boundary,
             f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid).ljust(25)}"
         )
 
-        if np.isnan(error) or error == 0:
+        if jnp.isnan(error) or error == 0:
             logger.critical("\tDense solver failed! It's all over.")
             raise SystemExit
 
@@ -350,8 +350,8 @@ def step(cell: PVCell,
     dx = acceleration(p, pl, dxl, beta)
     pot_new = modify(pot, dx)
 
-    error = np.max(np.abs(p))
-    resid = np.linalg.norm(F)
+    error = jnp.max(jnp.abs(p))
+    resid = jnp.linalg.norm(F)
     stats = {"error": error, "resid": resid, "p": p, "dx": dx}
 
     return pot_new, stats
@@ -363,8 +363,8 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
     pot = pot_ini
     error = 1
     niter = 0
-    pl = np.zeros(3 * pot.phi.size)
-    dxl = np.zeros(3 * pot.phi.size)
+    pl = jnp.zeros(3 * pot.phi.size)
+    dxl = jnp.zeros(3 * pot.phi.size)
 
     while niter < 100 and error > 1e-6:
 
@@ -378,7 +378,7 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
             f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid).ljust(25)}"
         )
 
-        if np.isnan(error) or error == 0:
+        if jnp.isnan(error) or error == 0:
             logger.error("\tSparse solver failed! Switching to dense.")
             return solve_dense(cell, bound, pot_ini)
 
@@ -392,15 +392,15 @@ def solve_jvp(primals, tangents):
     dcell, dbound, _ = tangents
     sol = solve(cell, bound, pot_ini)
 
-    zerodpot = Potentials(np.zeros_like(sol.phi), np.zeros_like(sol.phi_n),
-                          np.zeros_like(sol.phi_p))
+    zerodpot = Potentials(jnp.zeros_like(sol.phi), jnp.zeros_like(sol.phi_n),
+                          jnp.zeros_like(sol.phi_p))
 
     _, rhs = jvp(residual.comp_F, (cell, bound, sol),
                  (dcell, dbound, zerodpot))
 
     spF_pot = residual.comp_F_deriv(cell, bound, sol)
     F_pot = linalg.sparse2dense(spF_pot)
-    dF = np.linalg.solve(F_pot, -rhs)
+    dF = jnp.linalg.solve(F_pot, -rhs)
 
     primal_out = sol
     tangent_out = Potentials(dF[2::3], dF[0::3], dF[1::3])

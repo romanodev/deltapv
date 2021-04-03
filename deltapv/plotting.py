@@ -1,5 +1,5 @@
 from deltapv import scales, physics, objects, spline, util
-from jax import numpy as np
+from jax import numpy as jnp
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rcParams
 from matplotlib.patches import Rectangle
@@ -46,16 +46,16 @@ def plot_bars(design: PVDesign, filename=None) -> None:
         ax1.margins(y=.5)
         ax1.set_xlim(0, dim_grid[-1])
 
-    idx = np.concatenate(
-        [np.array([0]),
-         np.argwhere(Ec[:-1] != Ec[1:]).flatten() + 1])
+    idx = jnp.concatenate(
+        [jnp.array([0]),
+         jnp.argwhere(Ec[:-1] != Ec[1:]).flatten() + 1])
 
     uc = Ec[idx]
     uv = Ev[idx]
     startx = dim_grid[idx]
     starty = uv
     height = uc - uv
-    width = np.diff(np.append(startx, dim_grid[-1]))
+    width = jnp.diff(jnp.append(startx, dim_grid[-1]))
 
     for i in range(startx.size):
         x, y, w, h = startx[i], starty[i], width[i], height[i]
@@ -146,14 +146,14 @@ def plot_bars(design: PVDesign, filename=None) -> None:
                     linewidth=2,
                     linestyle="dashed")
 
-    posline = np.argwhere(design.Ndop[:-1] != design.Ndop[1:]).flatten()
+    posline = jnp.argwhere(design.Ndop[:-1] != design.Ndop[1:]).flatten()
 
     for idx in posline:
         vpos = (dim_grid[idx] + dim_grid[idx + 1]) / 2
         ax1.axvline(vpos, color="white", linewidth=4)
         ax1.axvline(vpos, color="lightgray", linewidth=2, linestyle="dashed")
 
-    ax1.set_ylim(np.min(uv) * 1.5, 0)
+    ax1.set_ylim(jnp.min(uv) * 1.5, 0)
     ax1.set_xlabel("position / μm")
     ax1.set_ylabel("energy / eV")
     ax1.legend()
@@ -216,17 +216,17 @@ def plot_iv_curve(voltages: Array, currents: Array, filename=None) -> None:
 
     a, b, c = coef
     al, bl, cl = a[-1], b[-1], c[-1]
-    discr = np.sqrt(bl**2 - 4 * al * cl)
+    discr = jnp.sqrt(bl**2 - 4 * al * cl)
     x0 = (-bl - discr) / (2 * al)
-    voc = np.clip(x0, voltages[-2], voltages[-1])
+    voc = jnp.clip(x0, voltages[-2], voltages[-1])
 
-    vint = np.linspace(0, voc, 500)
+    vint = jnp.linspace(0, voc, 500)
     jint = spline.predict(vint, voltages, coef)
-    idx = np.argmax(vint * jint)
+    idx = jnp.argmax(vint * jint)
     vmax = vint[idx]
     jmax = jint[idx]
     pmax = vmax * jmax
-    p0 = np.sum(np.diff(vint) * (jint[:-1] + jint[1:]) / 2)
+    p0 = jnp.sum(jnp.diff(vint) * (jint[:-1] + jint[1:]) / 2)
     FF = pmax / p0 * 100  # %
 
     rect = Rectangle((0, 0),

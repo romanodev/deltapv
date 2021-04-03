@@ -1,5 +1,5 @@
 from deltapv import objects, recomb, current, util
-from jax import numpy as np
+from jax import numpy as jnp
 from typing import Tuple
 
 PVCell = objects.PVCell
@@ -14,7 +14,7 @@ def ddp(cell: PVCell, pot: Potentials) -> Array:
     R = recomb.all_recomb(cell, pot)
     Jp = current.Jp(cell, pot)
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
-    return R[1:-1] - cell.G[1:-1] + np.diff(Jp) / ave_dgrid
+    return R[1:-1] - cell.G[1:-1] + jnp.diff(Jp) / ave_dgrid
 
 
 def ddp_deriv(
@@ -52,7 +52,7 @@ def ddn(cell: PVCell, pot: Potentials) -> Array:
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
 
-    return -R[1:-1] + cell.G[1:-1] + np.diff(Jn) / ave_dgrid
+    return -R[1:-1] + cell.G[1:-1] + jnp.diff(Jn) / ave_dgrid
 
 
 def ddn_deriv(

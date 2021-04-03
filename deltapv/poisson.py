@@ -1,5 +1,5 @@
 from deltapv import objects, physics, util
-from jax import numpy as np
+from jax import numpy as jnp
 from typing import Tuple
 
 PVCell = objects.PVCell
@@ -12,8 +12,8 @@ def pois(cell: PVCell, pot: Potentials) -> Array:
 
     ave_dgrid = (cell.dgrid[:-1] + cell.dgrid[1:]) / 2.
     ave_eps = (cell.eps[1:] + cell.eps[:-1]) / 2.
-    pois = (ave_eps[:-1] * np.diff(pot.phi)[:-1] / cell.dgrid[:-1] -
-            ave_eps[1:] * np.diff(pot.phi)[1:] /
+    pois = (ave_eps[:-1] * jnp.diff(pot.phi)[:-1] / cell.dgrid[:-1] -
+            ave_eps[1:] * jnp.diff(pot.phi)[1:] /
             cell.dgrid[1:]) / ave_dgrid - physics.charge(cell, pot)[1:-1]
     return pois
 

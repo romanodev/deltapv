@@ -1,36 +1,37 @@
-import deltapv
-import jax.numpy as np
+import deltapv as dpv
+import jax.numpy as jnp
 import argparse
 import matplotlib.pyplot as plt
 
-L = 2e-4
-grid = np.linspace(0, L, 500)
-des = deltapv.simulator.create_design(grid)
-material = deltapv.materials.create_material(Chi=3.9,
-                                           Eg=1.5,
-                                           eps=9.4,
-                                           Nc=8e17,
-                                           Nv=1.8e19,
-                                           mn=100,
-                                           mp=100,
-                                           Et=0,
-                                           tn=1e-8,
-                                           tp=1e-8,
-                                           A=2e4)
-des = deltapv.simulator.add_material(des, material, lambda x: True)
-des = deltapv.simulator.contacts(des, 1e7, 0, 0, 1e7)
-des = deltapv.simulator.single_pn_junction(des, 1e17, -1e17, 1e-4)
-
-ls = deltapv.simulator.incident_light()
+material = dpv.create_material(Chi=3.9,
+                               Eg=1.5,
+                               eps=9.4,
+                               Nc=8e17,
+                               Nv=1.8e19,
+                               mn=100,
+                               mp=100,
+                               Et=0,
+                               tn=1e-8,
+                               tp=1e-8,
+                               A=2e4)
+des = dpv.make_design(n_points=500,
+                      Ls=[1e-4, 1e-4],
+                      mats=material,
+                      Ns=[1e17, -1e17],
+                      Snl=1e7,
+                      Snr=0,
+                      Spl=0,
+                      Spr=1e7)
+ls = dpv.incident_light()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--save")
     args = parser.parse_args()
 
-    results = deltapv.simulator.simulate(des, ls)
+    results = dpv.simulate(des, ls)
 
-    deltapv.plotting.plot_iv_curve(*results["iv"], filename="iv.png")
-    deltapv.plotting.plot_bars(des, filename="bar.png")
-    deltapv.plotting.plot_band_diagram(des, results["eq"], eq=True, filename="band.png")
-    deltapv.plotting.plot_charge(des, results["eq"], filename="charge.png")
+    dpv.plot_iv_curve(*results["iv"])
+    dpv.plot_bars(des)
+    dpv.plot_band_diagram(des, results["eq"], eq=True)
+    dpv.plot_charge(des, results["eq"])

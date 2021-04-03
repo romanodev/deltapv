@@ -1,31 +1,35 @@
 import unittest
-import deltapv
-from jax import numpy as np
+import deltapv as dpv
+from jax import numpy as jnp
 
 L = 3e-4
-grid = np.linspace(0, L, 500)
-design = deltapv.simulator.create_design(grid)
-material = deltapv.materials.create_material(Chi=3.9,
-                                           Eg=1.5,
-                                           eps=9.4,
-                                           Nc=8e17,
-                                           Nv=1.8e19,
-                                           mn=100,
-                                           mp=100,
-                                           Et=0,
-                                           tn=1e-8,
-                                           tp=1e-8,
-                                           A=1e4)
-design = deltapv.simulator.add_material(design, material, lambda x: True)
-design = deltapv.simulator.contacts(design, 1e7, 0, 0, 1e7)
-design = deltapv.simulator.single_pn_junction(design, 1e17, -1e15, 50e-7)
-ls = deltapv.simulator.incident_light()
+J = 5e-6
+material = dpv.create_material(Chi=3.9,
+                               Eg=1.5,
+                               eps=9.4,
+                               Nc=8e17,
+                               Nv=1.8e19,
+                               mn=100,
+                               mp=100,
+                               Et=0,
+                               tn=1e-8,
+                               tp=1e-8,
+                               A=1e4)
+design = dpv.make_design(n_points=500,
+                         Ls=[J, L - J],
+                         mats=[material, material],
+                         Ns=[1e17, -1e15],
+                         Snl=1e7,
+                         Snr=0,
+                         Spl=0,
+                         Spr=1e7)
+ls = dpv.incident_light()
 
 
 class TestDeltaPV(unittest.TestCase):
     def test_iv(self):
 
-        results = deltapv.simulator.simulate(design, ls)
+        results = dpv.simulate(design, ls)
         v, j = results["iv"]
 
         v_correct = [
@@ -45,8 +49,8 @@ class TestDeltaPV(unittest.TestCase):
             0.008610345709349041, -0.018267911703588706
         ]
 
-        self.assertTrue(np.allclose(v, v_correct), "Voltages do not match!")
-        self.assertTrue(np.allclose(j, j_correct), "Currents do not match!")
+        self.assertTrue(jnp.allclose(v, v_correct), "Voltages do not match!")
+        self.assertTrue(jnp.allclose(j, j_correct), "Currents do not match!")
 
 
 if __name__ == '__main__':

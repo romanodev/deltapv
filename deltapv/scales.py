@@ -1,7 +1,7 @@
 from scipy import constants as const
-from jax import numpy as np
+from jax import numpy as jnp
 
-# Units required in inputs:
+# Units required in ijnputs:
 # grid : cm
 # eps : unitless
 # Chi , Eg , Et : eV
@@ -29,12 +29,12 @@ density = 1e19  # 1 / cm^3
 mobility = 1.  # cm^2 / (V s)
 energy = kB * T / q  # J -> eV through dividing by numerical value of q
 time = eps0 / q / density / mobility  # s
-length = np.sqrt(eps0 * kB * T / (q**2 * density))  # cm
+length = jnp.sqrt(eps0 * kB * T / (q**2 * density))  # cm
 velocity = length / time  # cm / s
 current = kB * T * density * mobility / length  # A / cm^2
 gratedens = density * mobility * kB * T / (q * length**2)  # 1 / (cm^3 s)
 
-# Scaling dictionary for input quantities:
+# Scaling dictionary for ijnput quantities:
 units = {
     "grid": length,
     "eps": 1., # relative permittivity
