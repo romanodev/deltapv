@@ -1,5 +1,7 @@
 from jax import numpy as jnp, jit, custom_jvp, grad
 from jax.experimental import optimizers
+from deltapv import spline
+import matplotlib.pyplot as plt
 
 Array = jnp.ndarray
 f64 = jnp.float64
@@ -40,17 +42,51 @@ def softabs(x: f64, alpha: f64 = 1) -> f64:
     return sa
 
 
-def dhor(y1, y2):
+def dhor(y1, y2, norm=2):
     x1 = jnp.arange(y1.size) * 0.05
     x2 = jnp.arange(y2.size) * 0.05
     ymin = 0
     ymax = min(jnp.max(y1), jnp.max(y2))
-    yint = jnp.linspace(ymin, ymax, 100)
+    yint = jnp.linspace(ymin, ymax, 100, endpoint=False)
     idx1 = jnp.argsort(y1)
     idx2 = jnp.argsort(y2)
     xint1 = jnp.interp(yint, y1[idx1], x1[idx1])
     xint2 = jnp.interp(yint, y2[idx2], x2[idx2])
-    res = jnp.sum((xint1 - xint2)**2)
+    xint1 = spline.qinterp(yint, y1[idx1], x1[idx1])
+    xint2 = spline.qinterp(yint, y2[idx2], x2[idx2])
+    res = jnp.sum(jnp.power(jnp.abs(xint1 - xint2), norm))
+    return res
+
+
+def dver(y1, y2, norm=2):
+    n = min(y1.size, y2.size)
+    res = jnp.sum(jnp.power(jnp.abs(y1[:n] - y2[:n]), norm))
+    return res
+
+
+def polar(x, y):
+    theta = jnp.arctan2(x, y)
+    r = jnp.sqrt(x**2 + y**2)
+    return theta, r
+
+
+def cartesian(theta, r):
+    x = r * jnp.sin(theta)
+    y = r * jnp.cos(theta)
+    return x, y
+
+
+def dpol(y1, y2, norm=2):
+    y1 = 10 * y1
+    y2 = 10 * y2
+    x1 = jnp.arange(y1.size) * 0.05
+    x2 = jnp.arange(y2.size) * 0.05
+    theta1, r1 = polar(x1, y1)
+    theta2, r2 = polar(x2, y2)
+    thetaint = jnp.linspace(0, jnp.pi / 2, 100)
+    rint1 = spline.qinterp(thetaint, theta1, r1)
+    rint2 = spline.qinterp(thetaint, theta2, r2)
+    res = jnp.sum(jnp.power(jnp.abs(rint1 - rint2), norm))
     return res
 
 
