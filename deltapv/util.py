@@ -108,6 +108,25 @@ def gd(df, x0, lr=1, steps=jnp.inf, tol=0, gtol=0):
     obj = jnp.array(obj)
     return xs, obj
 
+def adagrad(df, x0, lr=1,steps=jnp.inf, tol=0, gtol=0):
+    opt_init, opt_update, get_params = optimizers.adagrad(step_size=lr)
+    opt_state = opt_init(jnp.array(x0))
+    i = 0
+    y = dy = jnp.inf
+    obj = []
+    xs = []
+    while (i < steps) and (jnp.abs(y) > tol) and jnp.any(jnp.abs(dy) > gtol):
+        x = get_params(opt_state)
+        y, dy = df(x)
+        print(x, y, dy)
+        opt_state = opt_update(i, dy, opt_state)
+        xs.append(x)
+        obj.append(y)
+        i = i + 1
+    xs.append(get_params(opt_state))
+    xs = jnp.array(xs)
+    obj = jnp.array(obj)
+    return xs, obj
 
 def adam(df, x0, lr=1, b1=0.9, b2=0.999, steps=jnp.inf, tol=0, gtol=0):
     opt_init, opt_update, get_params = optimizers.adam(step_size=lr, b1=b1, b2=b2)
