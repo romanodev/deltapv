@@ -30,8 +30,8 @@ def f(x, measure="polar", norm=2.0):
         float: A measure of distance between the candidate and target IV curves.
     """
     params = {}
-    params["mn"] = 10 ** x[0]
-    params["mp"] = 10 ** x[1]
+    params["mp"] = 10 ** x[0]
+    params["Eg"] = x[1]
     J = get_iv(**params)
     if measure == "polar":
         res = dpv.util.dpol(J, J0, norm=norm)
@@ -46,10 +46,10 @@ def f(x, measure="polar", norm=2.0):
 df = value_and_grad(f)
 
 if __name__ == "__main__":
-    # xs, obj = dpv.util.adam(df, [2.0, 2.0], lr=1, b1=0.9, b2=0.999, steps=50)
-    xs, obj = dpv.util.gd(df, [2.0, 2.0], lr=1, steps=10)
-    print(xs[-1])
-    print(10**xs[-1, 0], 10**xs[-1, 1])
+    xs, obj = dpv.util.adagrad(df, [2.0, 1.2], lr=0.1, steps=50)
+    #xs, obj = dpv.util.adam(df, [2.0, 1.2], lr=0.1, b1=0.9, b2=0.999, steps=50)
+    #xs, obj = dpv.util.gd(df, [2.0, 1.2], lr=0.1, steps=10)
+    print(10**xs[0], xs[1])
     print(obj)
 
     plt.plot(obj)
