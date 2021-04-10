@@ -2,10 +2,18 @@ from jax import numpy as jnp, jit, custom_jvp, grad
 from jax.experimental import optimizers
 from deltapv import spline
 import matplotlib.pyplot as plt
+import logging
+logger = logging.getLogger("deltapv")
 
 Array = jnp.ndarray
 f64 = jnp.float64
 i64 = jnp.int64
+
+
+def print_ascii():
+    print(
+        "___________________    __\n______ \ __  __ \_ |  / /\n_  __  /__  /_/ /_ | / / \n/ /_/ / _  ____/__ |/ /  \n\__,_/  /_/     _____/   \n                         "
+    )
 
 
 @custom_jvp
@@ -90,60 +98,127 @@ def dpol(y1, y2, norm=2):
     return res
 
 
-def gd(df, x0, lr=1, steps=jnp.inf, tol=0, gtol=0):
+def gd(df, x0, lr=1, steps=jnp.inf, tol=0, gtol=0, verbose=True):
     i = 0
     y = dy = jnp.inf
     x = jnp.array(x0)
     obj = []
     xs = []
+    dys = []
+    if verbose:
+        logger.info("Starting gradient descent with:")
+        logger.info(("    x0    =" + len(x) * " {:+.2e},").format(*x)[:-1])
+        logger.info("    lr    = {:.2e}".format(lr))
+        logger.info("    steps = {:3d}".format(steps))
+        logger.info("    tol   = {:.2e}".format(tol))
+        logger.info("    gtol  = {:.2e}".format(gtol))
     while (i < steps) and (jnp.abs(y) > tol) and jnp.any(jnp.abs(dy) > gtol):
-        print(x, y, dy)
         y, dy = df(x)
         obj.append(y)
+        dys.append(dy)
         xs.append(x)
         x = x - lr * dy
         i = i + 1
-    xs.append(x)
-    xs = jnp.array(xs)
+        if verbose:
+            logger.info("iteration {:3d}".format(i))
+            logger.info("    f(x)  = {:.2e}".format(y))
+            logger.info(("    x     =" + len(x) * " {:+.2e},").format(*x)[:-1])
+            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(*dy)[:-1])
     obj = jnp.array(obj)
-    return xs, obj
+    xs = jnp.array(xs)
+    dys = jnp.array(dys)
+    result = {"f": obj, "dfdx": dys, "x": xs}
+    return result
 
-def adagrad(df, x0, lr=1,steps=jnp.inf, tol=0, gtol=0):
-    opt_init, opt_update, get_params = optimizers.adagrad(step_size=lr)
-    opt_state = opt_init(jnp.array(x0))
+
+def adagrad(df,
+            x0,
+            lr=1,
+            steps=jnp.inf,
+            tol=0,
+            gtol=0,
+            momentum=0.9,
+            verbose=True):
+    opt_init, opt_update, get_params = optimizers.adagrad(step_size=lr,
+                                                          momentum=momentum)
+    x = jnp.array(x0)
+    opt_state = opt_init(x)
     i = 0
     y = dy = jnp.inf
     obj = []
     xs = []
+    dys = []
+    if verbose:
+        logger.info("Starting Adagrad with:")
+        logger.info(("    x0       =" + len(x) * " {:+.2e},").format(*x)[:-1])
+        logger.info("    lr       = {:.2e}".format(lr))
+        logger.info("    momentum = {:.2e}".format(momentum))
+        logger.info("    steps    = {:3d}".format(steps))
+        logger.info("    tol      = {:.2e}".format(tol))
+        logger.info("    gtol     = {:.2e}".format(gtol))
     while (i < steps) and (jnp.abs(y) > tol) and jnp.any(jnp.abs(dy) > gtol):
         x = get_params(opt_state)
         y, dy = df(x)
-        print(x, y, dy)
         opt_state = opt_update(i, dy, opt_state)
         xs.append(x)
         obj.append(y)
+        dys.append(dy)
         i = i + 1
-    xs.append(get_params(opt_state))
-    xs = jnp.array(xs)
+        if verbose:
+            logger.info("iteration {:3d}".format(i))
+            logger.info("    f(x)  = {:.2e}".format(y))
+            logger.info(("    x     =" + len(x) * " {:+.2e},").format(*x)[:-1])
+            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(*dy)[:-1])
     obj = jnp.array(obj)
-    return xs, obj
+    xs = jnp.array(xs)
+    dys = jnp.array(dys)
+    result = {"f": obj, "dfdx": dys, "x": xs}
+    return result
 
-def adam(df, x0, lr=1, b1=0.9, b2=0.999, steps=jnp.inf, tol=0, gtol=0):
-    opt_init, opt_update, get_params = optimizers.adam(step_size=lr, b1=b1, b2=b2)
-    opt_state = opt_init(jnp.array(x0))
+
+def adam(df,
+         x0,
+         lr=1,
+         b1=0.9,
+         b2=0.999,
+         steps=jnp.inf,
+         tol=0,
+         gtol=0,
+         verbose=True):
+    opt_init, opt_update, get_params = optimizers.adam(step_size=lr,
+                                                       b1=b1,
+                                                       b2=b2)
+    x = jnp.array(x0)
+    opt_state = opt_init(x)
     i = 0
     y = dy = jnp.inf
     obj = []
     xs = []
+    dys = []
+    if verbose:
+        logger.info("Starting Adam with:")
+        logger.info(("    x0    =" + len(x) * " {:+.2e},").format(*x)[:-1])
+        logger.info("    lr    = {:.2e}".format(lr))
+        logger.info("    b1    = {:.2e}".format(b1))
+        logger.info("    b2    = {:.2e}".format(b2))
+        logger.info("    steps = {:3d}".format(steps))
+        logger.info("    tol   = {:.2e}".format(tol))
+        logger.info("    gtol  = {:.2e}".format(gtol))
     while (i < steps) and (jnp.abs(y) > tol) and jnp.any(jnp.abs(dy) > gtol):
         x = get_params(opt_state)
         y, dy = df(x)
-        print(x, y, dy)
         opt_state = opt_update(i, dy, opt_state)
         xs.append(x)
         obj.append(y)
+        dys.append(dy)
         i = i + 1
-    xs.append(get_params(opt_state))
-    xs = jnp.array(xs)
+        if verbose:
+            logger.info("iteration {:3d}".format(i))
+            logger.info("    f(x)  = {:.2e}".format(y))
+            logger.info(("    x     =" + len(x) * " {:+.2e},").format(*x)[:-1])
+            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(*dy)[:-1])
     obj = jnp.array(obj)
-    return xs, obj
+    xs = jnp.array(xs)
+    dys = jnp.array(dys)
+    result = {"f": obj, "dfdx": dys, "x": xs}
+    return result

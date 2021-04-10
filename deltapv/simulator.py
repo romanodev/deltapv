@@ -229,7 +229,7 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     return pot
 
 
-def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool = True, n_steps: i64 = None) -> dict:
+def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool = True, n_steps: i64 = None, verbose: bool = True) -> dict:
     """Solve equilibrium and out-of-equilibrium systems for a cell.
 
     Args:
@@ -241,6 +241,10 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
     Returns:
         dict: Dictionary of results: "cell" is the initialized cell, "eq" is the equilibrium solution, "Voc" is the final solution beyond the open circuit voltage, "mpp" is the maximum power found in W, "eff" is the power conversion efficiency, "iv" is a tuple (v, i) of the IV curve
     """
+    if not verbose:
+        temp = logger.level
+        logger.setLevel("WARNING")
+
     pot_eq = equilibrium(design, ls)
 
     cell = init_cell(design, ls, optics=optics)
@@ -253,7 +257,7 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
 
         v = dv * vstep
         scaled_v = v * scales.energy
-        logger.info(f"Solving for {scaled_v} V (Step {vstep})...")
+        logger.info("Solving for {:.2f} V (Step {:3d})...".format(scaled_v, vstep))
 
         if vstep == 0:
             # Just use a rough guess from equilibrium
@@ -262,7 +266,7 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
         elif vstep == 1:
             # Solve for a voltage close to zero for linear guess
             potl = pot
-            logger.info(f"Solving for {DIM_V_INIT} V for convergence...")
+            logger.info("Solving for {:.2f} V for convergence...".format(DIM_V_INIT))
             vinit = DIM_V_INIT / scales.energy
             _, potinit = adjoint.solve_pdd(cell, vinit, pot)
             # Generate linear guess
@@ -305,7 +309,7 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
     eff = pmax / jnp.sum(ls.P_in)
     eff_print = jnp.round(eff * 100, 2)
 
-    logger.info(f"Finished simulation with efficiency {eff_print}%")
+    logger.info(f"Finished simulation with efficiency {eff_print}%.")
 
     results = {
         "cell": cell,
@@ -315,5 +319,8 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
         "eff": eff,
         "iv": (dim_voltages, dim_currents)
     }
+
+    if not verbose:
+        logger.setLevel(temp)
 
     return results

@@ -23,13 +23,11 @@ design = dpv.make_design(n_points=500,
                          Snr=0,
                          Spl=0,
                          Spr=1e7)
-ls = dpv.incident_light()
 
 
 class TestDeltaPV(unittest.TestCase):
     def test_iv(self):
-
-        results = dpv.simulate(design, ls)
+        results = dpv.simulate(design)
         v, j = results["iv"]
 
         v_correct = [

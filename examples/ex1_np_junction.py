@@ -22,14 +22,13 @@ des = dpv.make_design(n_points=500,
                       Snr=0,
                       Spl=0,
                       Spr=1e7)
-ls = dpv.incident_light()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--save")
     args = parser.parse_args()
 
-    results = dpv.simulate(des, ls)
+    results = dpv.simulate(des)
 
     dpv.plot_iv_curve(*results["iv"])
     dpv.plot_bars(des)

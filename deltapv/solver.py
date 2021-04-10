@@ -211,12 +211,10 @@ def solve_eq_dense(cell: PVCell, bound: Boundary,
         error = stats["error"]
         resid = stats["resid"]
         niter += 1
-        logger.info(
-            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
-        )
+        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(niter, error, resid))
 
         if jnp.isnan(error) or error == 0:
-            logger.critical("\tDense solver failed! It's all over.")
+            logger.critical("    Dense solver failed! It's all over.")
             raise SystemExit
 
     return pot
@@ -235,12 +233,10 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         error = stats["error"]
         resid = stats["resid"]
         niter += 1
-        logger.info(
-            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid)}"
-        )
+        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(niter, error, resid))
 
         if jnp.isnan(error) or error == 0:
-            logger.error("\tSparse solver failed! Switching to dense.")
+            logger.error("    Sparse solver failed! Switching to dense.")
             return solve_eq_dense(cell, bound, pot_ini)
 
     return pot
@@ -325,12 +321,10 @@ def solve_dense(cell: PVCell, bound: Boundary,
         pl = stats["p"]
         dxl = stats["dx"]
         niter += 1
-        logger.info(
-            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid).ljust(25)}"
-        )
+        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(niter, error, resid))
 
         if jnp.isnan(error) or error == 0:
-            logger.critical("\tDense solver failed! It's all over.")
+            logger.critical("    Dense solver failed! It's all over.")
             raise SystemExit
 
     return pot
@@ -374,12 +368,10 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         pl = stats["p"]
         dxl = stats["dx"]
         niter += 1
-        logger.info(
-            f"\titeration: {str(niter).ljust(5)} |p|: {str(error).ljust(25)} |F|: {str(resid).ljust(25)}"
-        )
+        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(niter, error, resid))
 
         if jnp.isnan(error) or error == 0:
-            logger.error("\tSparse solver failed! Switching to dense.")
+            logger.error("    Sparse solver failed! Switching to dense.")
             return solve_dense(cell, bound, pot_ini)
 
     return pot
