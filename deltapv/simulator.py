@@ -43,8 +43,8 @@ def empty_design(dim_grid: Array) -> PVDesign:
     return PVDesign(**init_params)
 
 
-def add_material(cell: PVDesign, mat: Material,
-                 f: Callable[[f64], bool]) -> PVDesign:
+def add_material(cell: PVDesign, mat: Material, f: Callable[[f64],
+                                                            bool]) -> PVDesign:
     """Add a material to a cell on a defined region
 
     Args:
@@ -67,7 +67,7 @@ def add_material(cell: PVDesign, mat: Material,
                 getattr(cell, param))
         else:
             updatedict[param] = jnp.where(idx, value / scales.units[param],
-                                         getattr(cell, param))
+                                          getattr(cell, param))
 
     return objects.update(cell, **updatedict)
 
@@ -119,7 +119,17 @@ def doping(cell: PVDesign, N: f64, f: Callable[[f64], bool]) -> PVDesign:
     return objects.update(cell, Ndop=doping)
 
 
-def make_design(n_points: i64, Ls: List[f64], mats: Union[List[Material], Material], Ns: List[f64], Snl: f64, Snr: f64, Spl: f64, Spr: f64, grid: Array = None, PhiM0: f64 = -1, PhiML: f64 = -1):
+def make_design(n_points: i64,
+                Ls: List[f64],
+                mats: Union[List[Material], Material],
+                Ns: List[f64],
+                Snl: f64,
+                Snr: f64,
+                Spl: f64,
+                Spr: f64,
+                grid: Array = None,
+                PhiM0: f64 = -1,
+                PhiML: f64 = -1):
     """Convenience function for defining a complete design.
 
     Args:
@@ -229,7 +239,11 @@ def equilibrium(design: PVDesign, ls: LightSource) -> Potentials:
     return pot
 
 
-def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool = True, n_steps: i64 = None, verbose: bool = True) -> dict:
+def simulate(design: PVDesign,
+             ls: LightSource = incident_light(),
+             optics: bool = True,
+             n_steps: i64 = None,
+             verbose: bool = True) -> dict:
     """Solve equilibrium and out-of-equilibrium systems for a cell.
 
     Args:
@@ -257,7 +271,8 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
 
         v = dv * vstep
         scaled_v = v * scales.energy
-        logger.info("Solving for {:.2f} V (Step {:3d})...".format(scaled_v, vstep))
+        logger.info("Solving for {:.2f} V (Step {:3d})...".format(
+            scaled_v, vstep))
 
         if vstep == 0:
             # Just use a rough guess from equilibrium
@@ -266,7 +281,8 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
         elif vstep == 1:
             # Solve for a voltage close to zero for linear guess
             potl = pot
-            logger.info("Solving for {:.2f} V for convergence...".format(DIM_V_INIT))
+            logger.info(
+                "Solving for {:.2f} V for convergence...".format(DIM_V_INIT))
             vinit = DIM_V_INIT / scales.energy
             _, potinit = adjoint.solve_pdd(cell, vinit, pot)
             # Generate linear guess
@@ -300,7 +316,7 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
             ll, l = currents[-2], currents[-1]
             if (ll * l <= 0) or l < 0:
                 break
-    
+
     dim_currents = scales.current * currents
     dim_voltages = scales.energy * voltages
 
@@ -324,3 +340,64 @@ def simulate(design: PVDesign, ls: LightSource = incident_light(), optics: bool 
         logger.setLevel(temp)
 
     return results
+
+
+def eff_at_bias(design: PVDesign,
+                  bias: f64,
+                  pot_ini: Potentials,
+                  ls: LightSource = incident_light(),
+                  optics: bool = True,
+                  verbose: bool = True) -> Tuple[f64, Potentials]:
+    if not verbose:
+        temp = logger.level
+        logger.setLevel("WARNING")
+
+    cell = init_cell(design, ls, optics=optics)
+    j, pot = adjoint.solve_pdd(cell, bias / scales.energy, pot_ini)
+    current = j * scales.current
+    power = current * bias
+    eff = power * 1e4 / jnp.sum(ls.P_in)
+
+    if not verbose:
+        logger.setLevel(temp)
+
+    return eff, pot
+
+
+def ramp_up(design: PVDesign,
+            bias: f64,
+            ls: LightSource = incident_light(),
+            step_size: f64 = 0.02,
+            optics: bool = True,
+            verbose: bool = True) -> dict:
+    if not verbose:
+        temp = logger.level
+        logger.setLevel("WARNING")
+
+    pot_eq = equilibrium(design, ls)
+
+    cell = init_cell(design, ls, optics=optics)
+    nsteps = i64(jnp.ceil(bias / step_size))
+    dv = bias / jnp.where(nsteps == 0, 1, nsteps) / scales.energy
+
+    for vstep in range(nsteps + 1):
+        v = dv * vstep
+        scaled_v = v * scales.energy
+        logger.info("Solving for {:.2f} V (Step {:3d})...".format(
+            scaled_v, vstep))
+
+        if vstep == 0:
+            # Just use a rough guess from equilibrium
+            guess = solver.ooe_guess(cell, pot_eq)
+            total_j, pot = adjoint.solve_pdd(cell, v, guess)
+        else:
+            total_j, pot = adjoint.solve_pdd(cell, v, pot)
+    
+    current = total_j * scales.current
+    power = current * v
+    eff = power * 1e4 / jnp.sum(ls.P_in)
+
+    if not verbose:
+        logger.setLevel(temp)
+
+    return eff, pot

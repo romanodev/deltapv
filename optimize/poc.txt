@@ -1,0 +1,1002 @@
+___________________    __
+______ \ __  __ \_ |  / /
+_  __  /__  /_/ /_ | / / 
+/ /_/ / _  ____/__ |/ /  
+\__,_/  /_/     _____/   
+                         
+Solving equilibrium...
+    iteration   1    |p| = 2.38e+01    |F| = 5.14e+00
+    iteration   2    |p| = 1.03e+01    |F| = 3.10e+00
+    iteration   3    |p| = 7.30e+00    |F| = 8.53e-01
+    iteration   4    |p| = 4.69e+00    |F| = 4.56e-01
+    iteration   5    |p| = 2.48e+00    |F| = 2.41e-01
+    iteration   6    |p| = 8.21e-01    |F| = 8.03e-02
+    iteration   7    |p| = 2.08e-05    |F| = 3.40e-08
+    iteration   8    |p| = 1.30e-12    |F| = 1.03e-13
+Solving for 0.00 V (Step   0)...
+    iteration   1    |p| = 2.07e+00    |F| = 9.75e+01
+    iteration   2    |p| = 1.47e+00    |F| = 3.65e+01
+    iteration   3    |p| = 1.34e+00    |F| = 7.37e+00
+    iteration   4    |p| = 1.39e+00    |F| = 1.90e+00
+    iteration   5    |p| = 1.38e+00    |F| = 1.37e+00
+    iteration   6    |p| = 2.29e+00    |F| = 1.06e+00
+    iteration   7    |p| = 2.21e+00    |F| = 3.93e-01
+    iteration   8    |p| = 1.54e+00    |F| = 5.38e-01
+    iteration   9    |p| = 1.73e+00    |F| = 1.03e-01
+    iteration  10    |p| = 1.34e+00    |F| = 2.04e-01
+    iteration  11    |p| = 1.51e+00    |F| = 2.33e-02
+    iteration  12    |p| = 1.43e+00    |F| = 1.25e-01
+    iteration  13    |p| = 1.40e+00    |F| = 1.10e-01
+    iteration  14    |p| = 1.04e+00    |F| = 7.38e-03
+    iteration  15    |p| = 1.01e+00    |F| = 4.55e-02
+    iteration  16    |p| = 1.00e+00    |F| = 1.59e-02
+    iteration  17    |p| = 9.90e-01    |F| = 8.63e-03
+    iteration  18    |p| = 9.90e-01    |F| = 5.72e-03
+    iteration  19    |p| = 9.81e-01    |F| = 1.19e-05
+    iteration  20    |p| = 9.46e-01    |F| = 3.00e-04
+    iteration  21    |p| = 7.33e-01    |F| = 1.84e-04
+    iteration  22    |p| = 4.08e-01    |F| = 6.81e-05
+    iteration  23    |p| = 6.36e-02    |F| = 2.05e-09
+    iteration  24    |p| = 2.11e-03    |F| = 1.55e-13
+    iteration  25    |p| = 1.41e-03    |F| = 4.56e-11
+    iteration  26    |p| = 9.94e-07    |F| = 1.14e-13
+Solving for 0.02 V (Step   1)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 4.93e-03    |F| = 2.14e-07
+    iteration   3    |p| = 1.27e-05    |F| = 4.34e-11
+    iteration   4    |p| = 8.12e-11    |F| = 9.78e-14
+Solving for 0.04 V (Step   2)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 5.70e-03    |F| = 2.13e-07
+    iteration   3    |p| = 1.70e-05    |F| = 6.39e-11
+    iteration   4    |p| = 1.45e-10    |F| = 1.07e-13
+Solving for 0.06 V (Step   3)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 6.63e-03    |F| = 2.14e-07
+    iteration   3    |p| = 2.30e-05    |F| = 9.58e-11
+    iteration   4    |p| = 2.65e-10    |F| = 1.67e-13
+Solving for 0.08 V (Step   4)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 7.75e-03    |F| = 2.16e-07
+    iteration   3    |p| = 3.15e-05    |F| = 1.46e-10
+    iteration   4    |p| = 4.95e-10    |F| = 1.28e-13
+Solving for 0.10 V (Step   5)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 9.08e-03    |F| = 2.20e-07
+    iteration   3    |p| = 4.32e-05    |F| = 2.26e-10
+    iteration   4    |p| = 9.34e-10    |F| = 9.67e-14
+Solving for 0.12 V (Step   6)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.06e-02    |F| = 2.30e-07
+    iteration   3    |p| = 5.92e-05    |F| = 3.54e-10
+    iteration   4    |p| = 1.75e-09    |F| = 1.02e-13
+Solving for 0.14 V (Step   7)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.23e-02    |F| = 2.51e-07
+    iteration   3    |p| = 7.97e-05    |F| = 5.59e-10
+    iteration   4    |p| = 3.17e-09    |F| = 1.39e-13
+Solving for 0.16 V (Step   8)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.41e-02    |F| = 2.94e-07
+    iteration   3    |p| = 1.04e-04    |F| = 8.86e-10
+    iteration   4    |p| = 5.41e-09    |F| = 1.03e-13
+Solving for 0.18 V (Step   9)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.57e-02    |F| = 3.79e-07
+    iteration   3    |p| = 9.72e-05    |F| = 5.10e-05
+    iteration   4    |p| = 9.34e-09    |F| = 1.19e-13
+Solving for 0.20 V (Step  10)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.69e-02    |F| = 5.35e-07
+    iteration   3    |p| = 2.06e-04    |F| = 2.06e-04
+    iteration   4    |p| = 1.58e-08    |F| = 2.57e-13
+Solving for 0.22 V (Step  11)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.85e-02    |F| = 8.09e-07
+    iteration   3    |p| = 3.98e-04    |F| = 3.98e-04
+    iteration   4    |p| = 2.14e-08    |F| = 7.52e-13
+Solving for 0.24 V (Step  12)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 2.01e-02    |F| = 1.28e-06
+    iteration   3    |p| = 5.94e-04    |F| = 5.94e-04
+    iteration   4    |p| = 2.20e-08    |F| = 1.94e-12
+Solving for 0.26 V (Step  13)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 2.06e-02    |F| = 2.06e-06
+    iteration   3    |p| = 7.33e-04    |F| = 7.33e-04
+    iteration   4    |p| = 1.57e-08    |F| = 3.91e-12
+Solving for 0.28 V (Step  14)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.96e-02    |F| = 3.36e-06
+    iteration   3    |p| = 7.41e-04    |F| = 7.41e-04
+    iteration   4    |p| = 9.79e-09    |F| = 5.60e-12
+Solving for 0.30 V (Step  15)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.72e-02    |F| = 5.45e-06
+    iteration   3    |p| = 5.58e-04    |F| = 5.58e-04
+    iteration   4    |p| = 6.44e-09    |F| = 4.47e-12
+Solving for 0.32 V (Step  16)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.36e-02    |F| = 8.75e-06
+    iteration   3    |p| = 1.70e-04    |F| = 1.70e-04
+    iteration   4    |p| = 1.22e-09    |F| = 4.86e-13
+Solving for 0.34 V (Step  17)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.20e-02    |F| = 1.37e-05
+    iteration   3    |p| = 4.31e-05    |F| = 6.05e-09
+    iteration   4    |p| = 1.81e-05    |F| = 2.08e-08
+    iteration   5    |p| = 9.78e-11    |F| = 1.16e-13
+Solving for 0.36 V (Step  18)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.31e-02    |F| = 2.11e-05
+    iteration   3    |p| = 5.01e-05    |F| = 1.32e-08
+    iteration   4    |p| = 2.28e-05    |F| = 3.68e-08
+    iteration   5    |p| = 1.52e-10    |F| = 1.81e-13
+Solving for 0.38 V (Step  19)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.37e-02    |F| = 3.15e-05
+    iteration   3    |p| = 3.99e-05    |F| = 2.91e-08
+    iteration   4    |p| = 2.86e-05    |F| = 6.55e-08
+    iteration   5    |p| = 1.72e-10    |F| = 1.62e-13
+Solving for 0.40 V (Step  20)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.40e-02    |F| = 4.59e-05
+    iteration   3    |p| = 4.47e-05    |F| = 5.42e-08
+    iteration   4    |p| = 3.60e-05    |F| = 1.18e-07
+    iteration   5    |p| = 2.92e-10    |F| = 3.72e-13
+Solving for 0.42 V (Step  21)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.42e-02    |F| = 6.58e-05
+    iteration   3    |p| = 4.64e-05    |F| = 8.77e-08
+    iteration   4    |p| = 4.23e-05    |F| = 1.95e-07
+    iteration   5    |p| = 4.05e-10    |F| = 7.71e-13
+Solving for 0.44 V (Step  22)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.45e-02    |F| = 9.33e-05
+    iteration   3    |p| = 5.24e-05    |F| = 1.29e-07
+    iteration   4    |p| = 4.49e-05    |F| = 2.88e-07
+    iteration   5    |p| = 4.98e-10    |F| = 1.24e-12
+Solving for 0.46 V (Step  23)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.49e-02    |F| = 1.31e-04
+    iteration   3    |p| = 1.03e-04    |F| = 7.03e-05
+    iteration   4    |p| = 4.12e-05    |F| = 4.11e-07
+    iteration   5    |p| = 4.21e-10    |F| = 1.37e-12
+Solving for 0.48 V (Step  24)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.56e-02    |F| = 1.85e-04
+    iteration   3    |p| = 1.04e-03    |F| = 1.04e-03
+    iteration   4    |p| = 4.10e-08    |F| = 4.93e-10
+Solving for 0.50 V (Step  25)...
+    iteration   1    |p| = 7.74e-01    |F| = 7.74e-01
+    iteration   2    |p| = 1.66e-02    |F| = 2.60e-04
+    iteration   3    |p| = 2.24e-03    |F| = 2.24e-03
+    iteration   4    |p| = 1.81e-07    |F| = 3.02e-09
+called eval with x = [ 1.66178824  4.698293   19.63428032 18.83471869 19.54569869  0.72527926
+  1.62313923  2.52685247  2.51936429  6.93363494 19.41835918 18.27179349
+  0.46319949  0.205814   18.6397534  17.64372632] and v = 0.5
+    currently at 0 total pde solves
+    splitting into 0 steps
+evaluating for V = 0.50
+    returning -0.06472217283866324
+called eval with x = [ 1.6705068   4.55164501 19.63425781 18.8259889  19.54569834  0.72531059
+  1.62328176  2.64773601  2.64043671  6.93359912 19.41835918 18.26458648
+  0.46320003  0.20581571 18.64824886 17.65042041] and v = 0.48277356637148705
+    currently at 0 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.50
+evaluating for V = 0.49
+evaluating for V = 0.48
+    returning -0.07960816123949269
+called eval with x = [ 1.72189056  4.47104764 19.63424676 18.82119057 19.54569768  0.72532626
+  1.62349757  2.70353842  2.69646158  6.93358151 19.41835918 18.26100607
+  0.46320069  0.20581666 18.65293132 17.65374872] and v = 0.6248502260746942
+    currently at 2 total pde solves
+    splitting into 15 steps
+evaluating for V = 0.48
+evaluating for V = 0.49
+evaluating for V = 0.50
+evaluating for V = 0.51
+evaluating for V = 0.52
+evaluating for V = 0.53
+evaluating for V = 0.54
+evaluating for V = 0.55
+evaluating for V = 0.56
+evaluating for V = 0.57
+evaluating for V = 0.58
+evaluating for V = 0.59
+evaluating for V = 0.60
+evaluating for V = 0.61
+evaluating for V = 0.62
+evaluating for V = 0.62
+    returning -0.1032262735186054
+called eval with x = [ 1.79466292  4.23825639 19.63422257 18.80733126 19.5456956   0.72536266
+  1.6241171   2.70314433  2.69685567  6.9335429  19.41835918 18.25321957
+  0.46320244  0.2058196  18.66653842 17.66097926] and v = 0.9475145748375465
+    currently at 17 total pde solves
+    splitting into 33 steps
+evaluating for V = 0.62
+evaluating for V = 0.63
+evaluating for V = 0.64
+evaluating for V = 0.65
+evaluating for V = 0.66
+evaluating for V = 0.67
+evaluating for V = 0.68
+evaluating for V = 0.69
+evaluating for V = 0.70
+evaluating for V = 0.71
+evaluating for V = 0.72
+evaluating for V = 0.73
+evaluating for V = 0.74
+evaluating for V = 0.75
+evaluating for V = 0.76
+evaluating for V = 0.77
+evaluating for V = 0.78
+evaluating for V = 0.79
+evaluating for V = 0.80
+evaluating for V = 0.81
+evaluating for V = 0.82
+evaluating for V = 0.83
+evaluating for V = 0.84
+evaluating for V = 0.85
+evaluating for V = 0.86
+evaluating for V = 0.87
+evaluating for V = 0.88
+evaluating for V = 0.89
+evaluating for V = 0.90
+evaluating for V = 0.91
+evaluating for V = 0.92
+evaluating for V = 0.93
+evaluating for V = 0.94
+evaluating for V = 0.95
+    returning -0.1456689644710234
+called eval with x = [ 1.8636879   4.07229615 19.63421528 18.79745045 19.54569382  0.72538626
+  1.62449654  2.69729768  2.69146056  6.93354048 19.41835918 18.2520106
+  0.46320347  0.20582354 18.6763456  17.66216189] and v = 0.966454409088634
+    currently at 50 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.95
+evaluating for V = 0.96
+evaluating for V = 0.97
+    returning -0.15394832416790336
+called eval with x = [ 1.99370447  3.95806896 19.6342286  18.79064699 19.54568989  0.72539336
+  1.62502504  2.69262828  2.68748014  6.93358354 19.41835917 18.2581422
+  0.46320498  0.20583398 18.68328572 17.65667844] and v = 0.6183281618249794
+    currently at 52 total pde solves
+    splitting into 35 steps
+evaluating for V = 0.97
+evaluating for V = 0.96
+evaluating for V = 0.95
+evaluating for V = 0.94
+evaluating for V = 0.93
+evaluating for V = 0.92
+evaluating for V = 0.91
+evaluating for V = 0.90
+evaluating for V = 0.89
+evaluating for V = 0.88
+evaluating for V = 0.87
+evaluating for V = 0.86
+evaluating for V = 0.85
+evaluating for V = 0.84
+evaluating for V = 0.83
+evaluating for V = 0.82
+evaluating for V = 0.81
+evaluating for V = 0.80
+evaluating for V = 0.79
+evaluating for V = 0.78
+evaluating for V = 0.77
+evaluating for V = 0.76
+evaluating for V = 0.75
+evaluating for V = 0.74
+evaluating for V = 0.73
+evaluating for V = 0.72
+evaluating for V = 0.71
+evaluating for V = 0.70
+evaluating for V = 0.69
+evaluating for V = 0.68
+evaluating for V = 0.67
+evaluating for V = 0.66
+evaluating for V = 0.65
+evaluating for V = 0.64
+evaluating for V = 0.63
+evaluating for V = 0.62
+    returning -0.11141432221739876
+called eval with x = [ 1.90756017  4.03375179 19.63421977 18.79515472 19.54569249  0.72538865
+  1.62467487  2.69572206  2.69011742  6.93355501 19.41835918 18.25407962
+  0.46320398  0.20582706 18.67868744 17.66031158] and v = 0.8489840968689875
+    currently at 87 total pde solves
+    splitting into 24 steps
+evaluating for V = 0.62
+evaluating for V = 0.63
+evaluating for V = 0.64
+evaluating for V = 0.65
+evaluating for V = 0.66
+evaluating for V = 0.67
+evaluating for V = 0.68
+evaluating for V = 0.69
+evaluating for V = 0.70
+evaluating for V = 0.70
+evaluating for V = 0.71
+evaluating for V = 0.72
+evaluating for V = 0.73
+evaluating for V = 0.74
+evaluating for V = 0.75
+evaluating for V = 0.76
+evaluating for V = 0.77
+evaluating for V = 0.78
+evaluating for V = 0.79
+evaluating for V = 0.80
+evaluating for V = 0.81
+evaluating for V = 0.82
+evaluating for V = 0.83
+evaluating for V = 0.84
+evaluating for V = 0.85
+    returning -0.1486065362662894
+called eval with x = [ 1.8822888   4.05595416 19.63421718 18.79647711 19.54569325  0.72538727
+  1.62457215  2.69662965  2.6908911   6.93354664 19.41835918 18.25288782
+  0.46320369  0.20582503 18.67733849 17.6613774 ] and v = 0.9166495150781618
+    currently at 111 total pde solves
+    splitting into 7 steps
+evaluating for V = 0.85
+evaluating for V = 0.86
+evaluating for V = 0.87
+evaluating for V = 0.88
+evaluating for V = 0.89
+evaluating for V = 0.90
+evaluating for V = 0.91
+evaluating for V = 0.92
+    returning -0.15657460377952642
+called eval with x = [ 1.92114099  4.04311995 19.63421561 18.79571119 19.5456913   0.72538932
+  1.62482284  2.70222227  2.69691537  6.93354664 19.41835917 18.25229403
+  0.46320461  0.20582783 18.67807883 17.66197645] and v = 0.9277092167605823
+    currently at 118 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.92
+evaluating for V = 0.92
+evaluating for V = 0.93
+    returning -0.15877848884315085
+called eval with x = [ 2.26520797  3.92597464 19.63420302 18.7887244  19.54567776  0.72540739
+  1.62669586  2.7009556   2.6990444   6.9335485  19.41835917 18.24811799
+  0.46321167  0.20584989 18.68485732 17.66622084] and v = 0.9822258722214252
+    currently at 120 total pde solves
+    splitting into 6 steps
+evaluating for V = 0.93
+evaluating for V = 0.94
+evaluating for V = 0.95
+evaluating for V = 0.95
+evaluating for V = 0.96
+evaluating for V = 0.97
+evaluating for V = 0.98
+    returning -0.16461389305080018
+called eval with x = [ 3.06195229  3.9        19.63417216 18.770958   19.54564782  0.72545625
+  1.63075617  2.69712301  2.70287699  6.93355649 19.41835915 18.23980582
+  0.46322745  0.20589857 18.70210293 17.67473743] and v = 1.0674736031817904
+    currently at 126 total pde solves
+    splitting into 9 steps
+evaluating for V = 0.98
+evaluating for V = 0.99
+evaluating for V = 1.00
+evaluating for V = 1.01
+evaluating for V = 1.02
+evaluating for V = 1.03
+evaluating for V = 1.04
+evaluating for V = 1.05
+evaluating for V = 1.06
+evaluating for V = 1.07
+    returning 0.09731128183194451
+called eval with x = [ 2.36585213  3.92269354 19.63419912 18.78648016 19.54567397  0.72541356
+  1.62720876  2.70047147  2.69952853  6.93354951 19.41835917 18.247068
+  0.46321366  0.20585604 18.68703577 17.66729665] and v = 0.9929943035416143
+    currently at 135 total pde solves
+    splitting into 8 steps
+evaluating for V = 1.07
+evaluating for V = 1.06
+evaluating for V = 1.05
+evaluating for V = 1.04
+evaluating for V = 1.03
+evaluating for V = 1.02
+evaluating for V = 1.01
+evaluating for V = 1.00
+evaluating for V = 0.99
+    returning -0.16094196036998565
+called eval with x = [ 2.30309237  3.92473957 19.63420155 18.78787962 19.54567633  0.72540971
+  1.62688893  2.70077336  2.69922664  6.93354888 19.41835917 18.24772275
+  0.46321242  0.20585221 18.68567733 17.6666258 ] and v = 0.9862793172055422
+    currently at 143 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.99
+evaluating for V = 0.99
+    returning -0.16350572751701486
+called eval with x = [ 2.28020315  3.92548578 19.63420244 18.78839003 19.54567719  0.72540831
+  1.62677228  2.70088346  2.69911654  6.93354865 19.41835917 18.24796155
+  0.46321197  0.20585081 18.68518189 17.66638113] and v = 0.983830283407342
+    currently at 144 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.99
+evaluating for V = 0.98
+    returning -0.16429616663403235
+called eval with x = [ 2.27150494  3.92576935 19.63420278 18.78858398 19.54567752  0.72540777
+  1.62672795  2.7009253   2.6990747   6.93354857 19.41835917 18.24805229
+  0.46321179  0.20585028 18.68499361 17.66628815] and v = 0.9828996172342886
+    currently at 145 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.98
+evaluating for V = 0.98
+    returning -0.16457228597601992
+called eval with x = [ 2.26817976  3.92587776 19.63420291 18.78865813 19.54567764  0.72540757
+  1.62671101  2.7009413   2.6990587   6.93354853 19.41835917 18.24808698
+  0.46321173  0.20585007 18.68492164 17.66625261] and v = 0.9825438391382059
+    currently at 146 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.98
+evaluating for V = 0.98
+    returning -0.16467433054128588
+called eval with x = [ 2.26988822  4.40005407 19.6341981  18.78588393 19.54567672  0.7254211
+  1.62669543  2.64250421  2.64131296  6.93355935 19.41835917 18.25008616
+  0.46321276  0.20585178 18.68757996 17.66440801] and v = 0.9274759248949838
+    currently at 147 total pde solves
+    splitting into 6 steps
+evaluating for V = 0.98
+evaluating for V = 0.97
+evaluating for V = 0.96
+evaluating for V = 0.96
+evaluating for V = 0.95
+evaluating for V = 0.94
+evaluating for V = 0.93
+    returning -0.09028107970750095
+called eval with x = [ 2.26840517  3.98844107 19.63420227 18.7882921  19.54567752  0.72540935
+  1.62670895  2.69323105  2.69143967  6.93354996 19.41835917 18.24835076
+  0.46321187  0.2058503  18.68527238 17.66600923] and v = 0.9752781210853518
+    currently at 153 total pde solves
+    splitting into 5 steps
+evaluating for V = 0.93
+evaluating for V = 0.94
+evaluating for V = 0.95
+evaluating for V = 0.96
+evaluating for V = 0.97
+evaluating for V = 0.98
+    returning -0.16768464371874292
+called eval with x = [ 2.26933743  4.14316165 19.63420413 18.78736131 19.54567687  0.72541393
+  1.62680996  2.68178286  2.68062066  6.93355791 19.41835917 18.2487726
+  0.46321325  0.20585421 18.68626268 17.66570785] and v = 0.9571119127477333
+    currently at 158 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.98
+evaluating for V = 0.97
+evaluating for V = 0.96
+    returning -0.1694193756411528
+called eval with x = [ 2.26947028  4.0417299  19.63420648 18.7864615  19.54567527  0.72541235
+  1.62709799  2.67517583  2.67462272  6.93356306 19.41835916 18.24847786
+  0.46321475  0.2058595  18.68720466 17.66608737] and v = 0.9528925296104865
+    currently at 160 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.96
+evaluating for V = 0.95
+    returning -0.17199425470121213
+called eval with x = [ 2.27005039  4.04357886 19.63420794 18.78592533 19.54567432  0.72541298
+  1.62730528  2.67673408  2.67687259  6.9335698  19.41835916 18.24828301
+  0.46321645  0.20586475 18.68776951 17.66638932] and v = 0.9471326173636546
+    currently at 161 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.95
+evaluating for V = 0.95
+    returning -0.1723704427214174
+called eval with x = [ 2.27105601  4.04616161 19.63420936 18.78538171 19.54567305  0.72541379
+  1.62762083  2.68331238  2.68459828  6.93358005 19.41835916 18.24793117
+  0.46321926  0.20587322 18.68833606 17.66690514] and v = 0.9413677104992648
+    currently at 162 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.95
+evaluating for V = 0.94
+    returning -0.17254780973000655
+called eval with x = [ 2.27180051  4.04745244 19.63420973 18.78522221 19.54567237  0.7254142
+  1.62782528  2.68916019  2.69127279  6.93358643 19.41835915 18.24770031
+  0.46322123  0.20587905 18.68849579 17.66723916] and v = 0.9397795134652085
+    currently at 163 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.17258013766552568
+called eval with x = [ 2.27310491  4.04893534 19.63420993 18.78510274 19.54567136  0.72541475
+  1.62816236  2.69822029  2.70177971  6.93359651 19.41835915 18.24734551
+  0.46322457  0.20588894 18.68860477 17.66775792] and v = 0.9387936631499697
+    currently at 164 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.1726164544746644
+called eval with x = [ 2.27369733  4.0490641  19.63420981 18.78512466 19.54567102  0.7254149
+  1.62830077  2.69789226  2.70210774  6.93360033 19.41835915 18.24722612
+  0.46322599  0.20589317 18.68857276 17.66793989] and v = 0.9392369944175779
+    currently at 165 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.1726320068056637
+called eval with x = [ 2.27726161  4.04953104 19.63420941 18.78514292 19.54566882  0.72541589
+  1.62914739  2.69591393  2.70408607  6.93362376 19.41835914 18.24650746
+  0.4632346   0.20591882 18.68850197 17.66904242] and v = 0.940680551490583
+    currently at 166 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.17270758868285147
+called eval with x = [ 2.29870618  4.05136934 19.63420797 18.78493494 19.54565528  0.72542202
+  1.63427687  2.68400859  2.71599141  6.93376603 19.41835907 18.24218409
+  0.46328658  0.20607363 18.68841685 17.67569447] and v = 0.9459482975967726
+    currently at 167 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.95
+    returning -0.1730649368702672
+called eval with x = [ 2.38179296  4.05619827 19.63420443 18.78345497 19.54560216  0.72544615
+  1.65421501  2.63790814  2.76209186  6.93431957 19.41835884 18.22544144
+  0.4634882   0.20667409 18.6888104  17.70149442] and v = 0.9591217793139839
+    currently at 168 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.95
+evaluating for V = 0.95
+evaluating for V = 0.96
+    returning -0.1744373210776292
+called eval with x = [ 3.66469295  4.13187656 19.63415208 18.75965882 19.54478368  0.72581852
+  1.96112284  1.9097516   3.4902484   6.94284265 19.41835514 17.96755654
+  0.46659187  0.21591541 18.69594637 18.09882915] and v = 1.1521377609584735
+    currently at 170 total pde solves
+    splitting into 20 steps
+evaluating for V = 0.96
+evaluating for V = 0.97
+evaluating for V = 0.98
+evaluating for V = 0.99
+evaluating for V = 1.00
+evaluating for V = 1.01
+evaluating for V = 1.02
+evaluating for V = 1.03
+evaluating for V = 1.04
+evaluating for V = 1.05
+evaluating for V = 1.06
+evaluating for V = 1.07
+evaluating for V = 1.07
+evaluating for V = 1.08
+evaluating for V = 1.09
+evaluating for V = 1.10
+evaluating for V = 1.11
+evaluating for V = 1.12
+evaluating for V = 1.13
+evaluating for V = 1.14
+evaluating for V = 1.15
+    returning 3.1434409625387607
+called eval with x = [ 2.51008296  4.06376609 19.63419919 18.78107536 19.54552031  0.72548338
+  1.6849058   2.56509248  2.83490752  6.93517188 19.41835847 18.19965295
+  0.46379857  0.20759822 18.689524   17.7412279 ] and v = 0.9784233774784329
+    currently at 190 total pde solves
+    splitting into 18 steps
+evaluating for V = 1.15
+evaluating for V = 1.14
+evaluating for V = 1.13
+evaluating for V = 1.12
+evaluating for V = 1.11
+evaluating for V = 1.10
+evaluating for V = 1.09
+evaluating for V = 1.08
+evaluating for V = 1.07
+evaluating for V = 1.07
+evaluating for V = 1.06
+evaluating for V = 1.05
+evaluating for V = 1.04
+evaluating for V = 1.03
+evaluating for V = 1.02
+evaluating for V = 1.01
+evaluating for V = 1.00
+evaluating for V = 0.99
+evaluating for V = 0.98
+    returning -0.17299502194038469
+called eval with x = [ 2.43425253  4.05929286 19.63420229 18.78248192 19.54556869  0.72546137
+  1.6667649   2.6081328   2.7918672   6.93466809 19.41835868 18.21489616
+  0.46361512  0.20705198 18.6891022  17.717742  ] and v = 0.9670144726621229
+    currently at 208 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.98
+evaluating for V = 0.97
+evaluating for V = 0.97
+    returning -0.17427145047919793
+called eval with x = [ 2.4064764   4.05765434 19.63420342 18.78299713 19.54558641  0.72545331
+  1.66012003  2.62389816  2.77610184  6.93448356 19.41835876 18.22047964
+  0.46354792  0.2068519  18.6889477  17.70913928] and v = 0.9628354733461626
+    currently at 210 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.97
+evaluating for V = 0.96
+    returning -0.17460483157637866
+called eval with x = [ 2.40824022  4.05436883 19.63420567 18.7821785  19.54558448  0.72545429
+  1.66063112  2.62180842  2.77819158  6.93449838 19.41835876 18.22012345
+  0.46355292  0.20686588 18.68979914 17.70973289] and v = 0.9547055622723379
+    currently at 211 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.96
+evaluating for V = 0.95
+    returning -0.1757551383746849
+called eval with x = [ 2.41858257  4.04871966 19.63420855 18.78090269 19.54557662  0.72545798
+  1.66330099  2.61472477  2.78527523  6.93457373 19.41835872 18.21798542
+  0.46358047  0.20694477 18.69101509 17.71309438] and v = 0.9447695201750194
+    currently at 212 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.95
+evaluating for V = 0.94
+    returning -0.1765214225653171
+called eval with x = [ 2.43391387  4.04478433 19.63421016 18.77989439 19.54556588  0.72546296
+  1.66717003  2.60564847  2.79435153  6.93468226 19.41835868 18.21481284
+  0.46362084  0.2070607  18.69187082 17.71803385] and v = 0.9394381180825842
+    currently at 213 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.17683836552147938
+called eval with x = [ 2.47879153  4.03691398 19.63421286 18.77759622 19.54553515  0.72547719
+  1.67841683  2.58029928  2.81970072  6.93499722 19.41835853 18.20553407
+  0.46373861  0.20739888 18.69367491 17.7324433 ] and v = 0.9307650888047847
+    currently at 214 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.93
+    returning -0.17753476237773064
+called eval with x = [ 2.8370963   3.98168435 19.63422989 18.76062523 19.54529144  0.72558996
+  1.76792252  2.38135274  3.01864726  6.93750255 19.41835741 18.13154916
+  0.46467638  0.21009258 18.706604   17.84724766] and v = 0.8761405853313831
+    currently at 215 total pde solves
+    splitting into 6 steps
+evaluating for V = 0.93
+evaluating for V = 0.92
+evaluating for V = 0.91
+evaluating for V = 0.90
+evaluating for V = 0.89
+evaluating for V = 0.89
+evaluating for V = 0.88
+    returning -0.1773482754054639
+called eval with x = [ 2.65279169  4.01009334 19.63422113 18.76935476 19.5454168   0.72553195
+  1.72188263  2.48368675  2.91631325  6.93621386 19.41835799 18.16960548
+  0.46419401  0.208707   18.69995354 17.78819466] and v = 0.9042383077931622
+    currently at 221 total pde solves
+    splitting into 3 steps
+evaluating for V = 0.88
+evaluating for V = 0.89
+evaluating for V = 0.89
+evaluating for V = 0.90
+    returning -0.17909650156318288
+called eval with x = [ 2.60586857  4.01668911 19.6342175  18.77198706 19.54544908  0.72551693
+  1.71014967  2.50775453  2.88893182  6.93588541 19.41835813 18.17926829
+  0.46407287  0.20835531 18.69781678 17.77317831] and v = 0.9159128186388373
+    currently at 224 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.90
+evaluating for V = 0.91
+evaluating for V = 0.92
+    returning -0.17912659886816062
+called eval with x = [ 2.6286258   4.01349023 19.63421926 18.77071042 19.54543343  0.72552421
+  1.71584004  2.4960819   2.90221154  6.93604471 19.41835806 18.17458193
+  0.46413162  0.20852588 18.69885309 17.78046109] and v = 0.9102508005383619
+    currently at 226 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.92
+evaluating for V = 0.91
+    returning -0.17911608801013532
+called eval with x = [ 2.64024673  4.01185673 19.63422016 18.77005851 19.54542543  0.72552794
+  1.71874581  2.4901213   2.90899279  6.93612605 19.41835803 18.17218884
+  0.46416162  0.20861297 18.69938227 17.78418002] and v = 0.9073595031600725
+    currently at 227 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.91
+evaluating for V = 0.91
+    returning -0.1793646200562723
+called eval with x = [ 2.4477409   4.0353369  19.63420428 18.78116952 19.54555849  0.72546582
+  1.67060098  2.53020329  2.74757804  6.93477755 19.41835862 18.21210057
+  0.4636673   0.20717257 18.69027566 17.72228662] and v = 0.9592214665754567
+    currently at 228 total pde solves
+    splitting into 6 steps
+evaluating for V = 0.91
+evaluating for V = 0.92
+evaluating for V = 0.92
+evaluating for V = 0.93
+evaluating for V = 0.94
+evaluating for V = 0.95
+evaluating for V = 0.96
+    returning -0.17538234309783116
+called eval with x = [ 2.58852949  4.01816474 19.63421589 18.77304351 19.54546118  0.72551125
+  1.70581156  2.50088944  2.86562826  6.93576377 19.41835818 18.18291124
+  0.46402882  0.208226   18.69693576 17.76755218] and v = 0.9212923677857321
+    currently at 234 total pde solves
+    splitting into 4 steps
+evaluating for V = 0.96
+evaluating for V = 0.95
+evaluating for V = 0.94
+evaluating for V = 0.93
+evaluating for V = 0.92
+    returning -0.17934004321517882
+called eval with x = [ 2.61488973  4.01494955 19.63421807 18.77152206 19.54544296  0.72551975
+  1.71240414  2.49540093  2.88773113  6.93594843 19.4183581  18.17744604
+  0.46409651  0.20842324 18.69818274 17.77602738] and v = 0.9141907970686104
+    currently at 238 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.92
+evaluating for V = 0.91
+    returning -0.1791924599400053
+called eval with x = [ 2.63036197  4.01306238 19.63421934 18.77062903 19.54543226  0.72552475
+  1.71627367  2.49217943  2.90070449  6.93605681 19.41835806 18.17423822
+  0.46413624  0.20853901 18.69891467 17.78100193] and v = 0.9100225036922098
+    currently at 239 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.91
+evaluating for V = 0.91
+    returning -0.17915831883551525
+called eval with x = [ 2.63760205  4.0121793  19.63421994 18.77021115 19.54542726  0.72552708
+  1.71808439  2.49067195  2.90677525  6.93610752 19.41835803 18.17273716
+  0.46415483  0.20859319 18.69925717 17.78332972] and v = 0.9080719919108421
+    currently at 240 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.91
+evaluating for V = 0.91
+    returning -0.17928716721053045
+called eval with x = [ 2.63965085  4.01192941 19.63422011 18.7700929  19.54542584  0.72552774
+  1.71859678  2.49024537  2.90849315  6.93612188 19.41835803 18.17231239
+  0.46416009  0.20860852 18.69935409 17.78398843] and v = 0.907520036608513
+    currently at 241 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.91
+evaluating for V = 0.91
+    returning -0.17937891182315643
+called eval with x = [ 2.47006065  4.0329086  19.63420484 18.78025115 19.5455435   0.72547281
+  1.67619897  2.49699483  2.74476406  6.93493538 19.41835854 18.20751257
+  0.46372823  0.20734254 18.69092803 17.72945224] and v = 0.957403981252827
+    currently at 242 total pde solves
+    splitting into 5 steps
+evaluating for V = 0.91
+evaluating for V = 0.92
+evaluating for V = 0.93
+evaluating for V = 0.94
+evaluating for V = 0.95
+evaluating for V = 0.96
+    returning -0.17536089262309873
+called eval with x = [ 2.59410104  4.01756415 19.63421601 18.77282128 19.54545744  0.72551299
+  1.70720926  2.49205819  2.86451756  6.9358032  19.41835816 18.18176672
+  0.4640441   0.20826849 18.69709095 17.76934069] and v = 0.920918240818412
+    currently at 247 total pde solves
+    splitting into 4 steps
+evaluating for V = 0.96
+evaluating for V = 0.95
+evaluating for V = 0.94
+evaluating for V = 0.93
+evaluating for V = 0.92
+    returning -0.17943000552430644
+called eval with x = [ 2.61590741  4.01486659 19.63421797 18.7715151  19.54544231  0.72552005
+  1.71266088  2.49119033  2.88557029  6.93595576 19.4183581  18.17724058
+  0.46409963  0.20843127 18.6981744  17.77635311] and v = 0.9145040267216189
+    currently at 251 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.92
+evaluating for V = 0.91
+    returning -0.17926116507301504
+called eval with x = [ 2.62959298  4.01317362 19.6342192  18.77069535 19.54543282  0.72552449
+  1.7160823   2.49064566  2.89878288  6.93605151 19.41835806 18.1744
+  0.46413448  0.20853343 18.69885436 17.78075406] and v = 0.9104784988599011
+    currently at 252 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.91
+evaluating for V = 0.91
+    returning -0.17918972573862665
+called eval with x = [ 2.63666459  4.01229882 19.63421984 18.77027177 19.54542791  0.72552678
+  1.71785021  2.49036422  2.9056101   6.93610098 19.41835804 18.17293221
+  0.46415249  0.20858622 18.69920571 17.78302812] and v = 0.9083984260574132
+    currently at 253 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.91
+evaluating for V = 0.91
+    returning -0.17925415322318017
+called eval with x = [ 2.63905817  4.01200272 19.63422006 18.7701284  19.54542625  0.72552755
+  1.71844861  2.49026896  2.90792095  6.93611773 19.41835803 18.1724354
+  0.46415858  0.20860409 18.69932464 17.78379784] and v = 0.9076943711660999
+    currently at 254 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.91
+evaluating for V = 0.91
+    returning -0.17939518186787645
+called eval with x = [ 2.48365812  4.03458467 19.63420468 18.77983589 19.5455344   0.7254772
+  1.67963225  2.48743093  2.75418301  6.93503358 19.41835848 18.20458619
+  0.46376706  0.20744741 18.69116879 17.73398713] and v = 0.9576275953131844
+    currently at 255 total pde solves
+    splitting into 5 steps
+evaluating for V = 0.91
+evaluating for V = 0.92
+evaluating for V = 0.93
+evaluating for V = 0.94
+evaluating for V = 0.95
+evaluating for V = 0.96
+    returning -0.17571296851267026
+called eval with x = [ 2.59500023  4.018405   19.6342157  18.7728806  19.54545691  0.72551328
+  1.70744366  2.48946434  2.86433424  6.93581036 19.41835816 18.18155057
+  0.46404758  0.20827616 18.69701235 17.76967585] and v = 0.9218510912184511
+    currently at 260 total pde solves
+    splitting into 4 steps
+evaluating for V = 0.96
+evaluating for V = 0.95
+evaluating for V = 0.94
+evaluating for V = 0.93
+evaluating for V = 0.92
+    returning -0.17953729424659146
+called eval with x = [ 2.6126393   4.01621733 19.63421156 18.77346837 19.5454463   0.72551803
+  1.7118288   2.45232172  2.85607547  6.93593471 19.41835808 18.17779591
+  0.4641019   0.20841411 18.69610449 17.77545568] and v = 0.9348322496780516
+    currently at 264 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.92
+evaluating for V = 0.93
+evaluating for V = 0.93
+    returning -0.18069412661243703
+called eval with x = [ 2.76087648  4.00888065 19.6342011  18.77135551 19.54534949  0.72556292
+  1.74886108  2.38683043  2.98230424  6.93698118 19.41835755 18.14578882
+  0.46451858  0.20954768 18.69612764 17.82449915] and v = 0.9648005889516683
+    currently at 266 total pde solves
+    splitting into 3 steps
+evaluating for V = 0.93
+xevaluating for V = 0.94
+evaluating for V = 0.95
+evaluating for V = 0.96
+    returning -0.18202929253463013
+called eval with x = [ 2.98736865  3.98179855 19.63419959 18.76387609 19.54519854  0.72563278
+  1.80535959  2.23006496  3.09454325  6.93856707 19.41835679 18.09858152
+  0.46513477  0.21126222 18.70076758 17.89751251] and v = 0.9654746707045132
+    currently at 269 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.96
+evaluating for V = 0.97
+    returning -0.1850523185611387
+called eval with x = [ 3.09964594  3.97429947 19.6342069  18.75755046 19.5451214   0.72566917
+  1.83341466  2.1651549   3.15498721  6.93935273 19.41835639 18.07549946
+  0.46543772  0.21210433 18.70589244 17.93335249] and v = 0.936836186679328
+    currently at 270 total pde solves
+    splitting into 3 steps
+evaluating for V = 0.97
+evaluating for V = 0.96
+evaluating for V = 0.95
+evaluating for V = 0.94
+    returning -0.18793768179924933
+called eval with x = [ 3.16353759  3.97405582 19.63420448 18.75578459 19.54507898  0.72568917
+  1.84938421  2.13300353  3.20481837  6.9398046  19.4183561  18.06183062
+  0.46562469  0.21259135 18.70681869 17.95435639] and v = 0.9402835042164378
+    currently at 273 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.18864933365599276
+called eval with x = [ 4.28515616  3.93380679 19.6341716  18.72250235 19.54433378  0.72603909
+  2.12952911  1.39918846  3.9         6.94771621 19.4183512  17.82378326
+  0.46887618  0.22112548 18.72557066 18.32085237] and v = 0.9789958060118042
+    currently at 274 total pde solves
+    splitting into 4 steps
+evaluating for V = 0.94
+evaluating for V = 0.95
+evaluating for V = 0.96
+evaluating for V = 0.97
+evaluating for V = 0.98
+    returning -0.19717580766341483
+called eval with x = [ 3.31247803  3.9750405  19.6342005  18.75104414 19.54497971  0.72573619
+  1.88658346  2.05631506  3.30835224  6.94085253 19.41724966 18.02929764
+  0.46495538  0.21372381 18.70965009 18.00390604] and v = 0.9414641257860086
+    currently at 278 total pde solves
+    splitting into 4 steps
+evaluating for V = 0.98
+evaluating for V = 0.97
+evaluating for V = 0.96
+evaluating for V = 0.95
+evaluating for V = 0.94
+    returning -0.1897420702390581
+called eval with x = [ 3.8323047   3.95300404 19.63418506 18.7357906  19.54463451  0.72589807
+  2.01642048  1.70512804  3.62454551  6.94452068 19.41783835 17.91946495
+  0.46705077  0.21767947 18.71815849 18.17329111] and v = 0.9615221157764706
+    currently at 282 total pde solves
+    splitting into 3 steps
+evaluating for V = 0.94
+evaluating for V = 0.95
+evaluating for V = 0.95
+evaluating for V = 0.96
+    returning -0.19443797334923482
+called eval with x = [ 4.07124389  3.94287494 19.63417796 18.72877929 19.54447584  0.72597247
+  2.07610028  1.54370435  3.76988428  6.94620675 19.41810895 17.86898017
+  0.46801391  0.2194977  18.72206939 18.25114924] and v = 0.9707418041200598
+    currently at 285 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.96
+evaluating for V = 0.97
+    returning -0.19725864584897268
+called eval with x = [ 4.17779775  3.93835792 19.63417479 18.72565262 19.54440508  0.72600565
+  2.10271422  1.47171818  3.83469745  6.94695864 19.41822962 17.84646671
+  0.46844343  0.22030853 18.72381344 18.28586973] and v = 0.9748532829831968
+    currently at 286 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.97
+evaluating for V = 0.97
+    returning -0.1990935504405649
+called eval with x = [ 4.23260039  3.95006934 19.63417927 18.72154665 19.54436655  0.7260249
+  2.11644195  1.44789358  3.87010466  6.9473404  19.41682527 17.83391303
+  0.46717414  0.22071807 18.72738886 18.3045672 ] and v = 0.9488724813300428
+    currently at 287 total pde solves
+    splitting into 3 steps
+evaluating for V = 0.97
+evaluating for V = 0.97
+evaluating for V = 0.96
+evaluating for V = 0.95
+    returning -0.20325584184823142
+called eval with x = [ 4.18836225  3.95351094 19.63417928 18.72271244 19.5443963   0.72601124
+  2.10533151  1.42379183  3.78660179  6.94701402 19.41469045 17.84187878
+  0.46485671  0.22038167 18.72678767 18.29128618] and v = 0.9460057927530442
+    currently at 290 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.95
+evaluating for V = 0.95
+    returning -0.20550496719593359
+called eval with x = [ 4.15318732  3.96590796 19.63417828 18.72281555 19.5444199   0.72600139
+  2.09642243  1.34247726  3.64749666  6.94672486 19.40456814 17.84095512
+  0.4545199   0.22011259 18.72715994 18.2875276 ] and v = 0.9346578049929797
+    currently at 291 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.95
+evaluating for V = 0.94
+evaluating for V = 0.93
+    returning -0.17719403681551985
+called eval with x = [ 4.18484476  3.95475065 19.63417918 18.72272275 19.54439866  0.72601025
+  2.10444061  1.41566037  3.77269128  6.9469851  19.41367822 17.84178642
+  0.46382303  0.22035476 18.72682489 18.29091032] and v = 0.9448709939770378
+    currently at 293 total pde solves
+    splitting into 2 steps
+evaluating for V = 0.93
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.20557162877403595
+called eval with x = [ 4.21263665  3.96053728 19.63417839 18.72148809 19.54437982  0.72601963
+  2.11138708  1.40665633  3.79494192  6.94716745 19.41005481 17.83237457
+  0.46023824  0.22056526 18.72772002 18.3032888 ] and v = 0.940937889134216
+    currently at 295 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.20605056154484555
+called eval with x = [ 4.2336788   3.96776991 19.63417675 18.72065276 19.5443657   0.72602688
+  2.11663428  1.39696323  3.80685469  6.94730438 19.40427552 17.82232649
+  0.45449611  0.22072513 18.7282835  18.31555687] and v = 0.9389188760071292
+    currently at 296 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.20619362721199305
+called eval with x = [ 4.2420321   3.97393542 19.63417519 18.7203953  19.54436019  0.72602998
+  2.11870797  1.39332779  3.80935988  6.94735901 19.39858489 17.81503879
+  0.4488373   0.22078898 18.72842096 18.32371831] and v = 0.9387565553215238
+    currently at 297 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.2062640505506793
+called eval with x = [ 4.28633167  4.01688008 19.6341646  18.71918749 19.54433117  0.7260471
+  2.12968006  1.37673229  3.81767186  6.94765067 19.35810098 17.76637408
+  0.40859122  0.22112856 18.72896409 18.37700699] and v = 0.9390716241439828
+    currently at 298 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.94
+    returning -0.20738408281270007
+called eval with x = [ 4.76824072  4.46386872 19.63405652 18.70505189 19.54401478  0.72623241
+  2.2490723   1.16699257  3.88802102  6.95080117 18.93710607 17.24970376
+  0.          0.22481884 18.73598211 18.93710607] and v = 0.9328685561084564
+    currently at 299 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.94
+evaluating for V = 0.93
+    Sparse solver failed! Switching to dense.
+    returning -0.019789309646241073
+called eval with x = [ 4.33452258  4.06157894 19.63415379 18.71777393 19.54429954  0.72606563
+  2.14161929  1.35575832  3.82470678  6.94796572 19.31600149 17.71470705
+  0.3677321   0.22149759 18.72966589 18.4330169 ] and v = 0.9384513173404302
+    currently at 300 total pde solves
+    splitting into 1 steps
+evaluating for V = 0.93
+evaluating for V = 0.94
+    Sparse solver failed! Switching to dense.
+    Dense solver failed! It's all over.
