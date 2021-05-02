@@ -73,9 +73,14 @@ def findmax(x, coef):
     yu = quadratic(xu, coef)
     ym = quadratic(xm, coef)
 
-    ymax = jnp.max(jnp.concatenate([yl, yu, ym]))
+    xall = jnp.concatenate([xl, xu, xm])
+    yall = jnp.concatenate([yl, yu, ym])
 
-    return ymax
+    idxmax = jnp.argmax(yall)
+    ymax = yall[idxmax]
+    xmax = xall[idxmax]
+
+    return ymax, xmax
 
 
 def calcPmax_gd(v, j):
@@ -92,8 +97,8 @@ def calcPmax_gd(v, j):
 def calcPmax(v, j):
     p = v * j
     coef = qspline(v, p)
-    pmax = findmax(v, coef)
-    return pmax
+    pmax, vmax = findmax(v, coef)
+    return pmax, vmax
 
 
 def qinterp(x, xp, yp):

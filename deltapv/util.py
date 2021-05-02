@@ -1,6 +1,9 @@
 from jax import numpy as jnp, jit, custom_jvp, grad
 from jax.experimental import optimizers
-from deltapv import spline
+import jax
+import numpy as np
+from deltapv import spline, simulator
+from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 import logging
 logger = logging.getLogger("deltapv")
@@ -222,3 +225,79 @@ def adam(df,
     dys = jnp.array(dys)
     result = {"f": obj, "dfdx": dys, "x": xs}
     return result
+
+
+class StatefulOptimizer:
+    def __init__(self, x_init, convr, constr, bounds, dv=0.01):
+        self.count = 0
+        self.growth = []
+        self.dv = dv
+        self.x = x_init
+        self.bounds = bounds
+
+        dg_jnp = jax.jacobian(constr)
+        self.g = lambda x: np.array(constr(jnp.array(x)))
+        self.dg = lambda x: np.array(dg_jnp(jnp.array(x)))
+
+        def f(params, pot_ini):
+            x = params[:-1]
+            v = params[-1]
+            vprint = jnp.round(v, 2)
+            print("evaluating for V = {:.2f}".format(vprint))
+            eff, pot = simulator.eff_at_bias(convr(x), v, pot_ini, verbose=False)
+            return -eff, pot
+
+        df_jnp = jax.value_and_grad(f, has_aux=True)  # returns (p, pot), dp
+
+        def df_wrapper(params, guess):
+            (eff, sol), deff = df_jnp(jnp.array(params), guess)
+            return (float(eff), sol), np.array(deff)
+
+        self.df = df_wrapper
+
+        results = simulator.simulate(convr(jnp.array(self.x)))
+        v, i = results["iv"]
+        maxidx = jnp.argmax(v * i)
+        self.guess = results["pots"][maxidx]
+        self.v = v[maxidx]
+
+    def eval(self, params):
+        x = params[:-1]
+        v = params[-1]
+        print(f"called eval with x = {x} and v = {v}")
+        nsteps = int(np.ceil(np.abs(v - self.v) / self.dv))
+        print(f"    currently at {self.count} total pde solves")
+        print(f"    splitting into {nsteps} steps")
+        xs = np.linspace(self.x, x, nsteps + 1)
+        vs = np.linspace(self.v, v, nsteps + 1)
+        for xr, vr in zip(xs, vs):
+            (eff, self.guess), deff = self.df(np.append(xr, vr), self.guess)
+            self.x = xr
+            self.v = vr
+            self.growth.append(eff)
+        self.count += nsteps + 1
+        print("    efficiency = {:.2f}%\n".format(-100 * eff))
+        return eff, deff
+
+    def optimize(self, niters=100):
+        slsqp_res = minimize(self.eval,
+                             x0=self.get_params(),
+                             method="SLSQP",
+                             jac=True,
+                             bounds=self.bounds,
+                             constraints=[{
+                                 "type": "ineq",
+                                 "fun": self.g,
+                                 "jac": self.dg
+                             }],
+                             options={
+                                 "maxiter": niters,
+                                 "disp": True
+                             })
+        return slsqp_res
+
+    def get_params(self):
+        return np.append(self.x, self.v)
+
+    def get_growth(self):
+        return np.array(self.growth)

@@ -65,4 +65,3 @@ plt.show()
 from psc import x2des
 
 dpv.plot_bars(x2des(x[-1]))
-

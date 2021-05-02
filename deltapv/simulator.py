@@ -265,6 +265,7 @@ def simulate(design: PVDesign,
     currents = jnp.array([], dtype=f64)
     voltages = jnp.array([], dtype=f64)
     dv = solver.vincr(cell)
+    pots = []
     vstep = 0
 
     while vstep < 100:
@@ -294,16 +295,14 @@ def simulate(design: PVDesign,
             potll = potl
             guess = solver.linguess(pot, potl)
             total_j, new = adjoint.solve_pdd(cell, v, guess)
-            potl = pot
-            pot = new
+            potl, pot = pot, new
         else:
             # Generate quadratic guess from last three steps
             guess = solver.quadguess(pot, potl, potll)
             total_j, new = adjoint.solve_pdd(cell, v, guess)
-            potll = potl
-            potl = pot
-            pot = new
+            potll, potl, pot = potl, pot, new
 
+        pots.append(pot)
         currents = jnp.append(currents, total_j)
         voltages = jnp.append(voltages, dv * vstep)
         vstep += 1
@@ -320,7 +319,8 @@ def simulate(design: PVDesign,
     dim_currents = scales.current * currents
     dim_voltages = scales.energy * voltages
 
-    pmax = spline.calcPmax(dim_voltages, dim_currents * 1e4)  # A/cm^2 -> A/m2
+    pmax, vmax = spline.calcPmax(dim_voltages,
+                                 dim_currents * 1e4)  # A/cm^2 -> A/m2
 
     eff = pmax / jnp.sum(ls.P_in)
     eff_print = jnp.round(eff * 100, 2)
@@ -330,9 +330,10 @@ def simulate(design: PVDesign,
     results = {
         "cell": cell,
         "eq": pot_eq,
-        "Voc": pot,
+        "pots": pots,
         "mpp": pmax,
         "eff": eff,
+        "vmax": vmax,
         "iv": (dim_voltages, dim_currents)
     }
 
@@ -343,11 +344,11 @@ def simulate(design: PVDesign,
 
 
 def eff_at_bias(design: PVDesign,
-                  bias: f64,
-                  pot_ini: Potentials,
-                  ls: LightSource = incident_light(),
-                  optics: bool = True,
-                  verbose: bool = True) -> Tuple[f64, Potentials]:
+                bias: f64,
+                pot_ini: Potentials,
+                ls: LightSource = incident_light(),
+                optics: bool = True,
+                verbose: bool = True) -> Tuple[f64, Potentials]:
     if not verbose:
         temp = logger.level
         logger.setLevel("WARNING")
@@ -356,45 +357,6 @@ def eff_at_bias(design: PVDesign,
     j, pot = adjoint.solve_pdd(cell, bias / scales.energy, pot_ini)
     current = j * scales.current
     power = current * bias
-    eff = power * 1e4 / jnp.sum(ls.P_in)
-
-    if not verbose:
-        logger.setLevel(temp)
-
-    return eff, pot
-
-
-def ramp_up(design: PVDesign,
-            bias: f64,
-            ls: LightSource = incident_light(),
-            step_size: f64 = 0.02,
-            optics: bool = True,
-            verbose: bool = True) -> dict:
-    if not verbose:
-        temp = logger.level
-        logger.setLevel("WARNING")
-
-    pot_eq = equilibrium(design, ls)
-
-    cell = init_cell(design, ls, optics=optics)
-    nsteps = i64(jnp.ceil(bias / step_size))
-    dv = bias / jnp.where(nsteps == 0, 1, nsteps) / scales.energy
-
-    for vstep in range(nsteps + 1):
-        v = dv * vstep
-        scaled_v = v * scales.energy
-        logger.info("Solving for {:.2f} V (Step {:3d})...".format(
-            scaled_v, vstep))
-
-        if vstep == 0:
-            # Just use a rough guess from equilibrium
-            guess = solver.ooe_guess(cell, pot_eq)
-            total_j, pot = adjoint.solve_pdd(cell, v, guess)
-        else:
-            total_j, pot = adjoint.solve_pdd(cell, v, pot)
-    
-    current = total_j * scales.current
-    power = current * v
     eff = power * 1e4 / jnp.sum(ls.P_in)
 
     if not verbose:
