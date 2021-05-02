@@ -1,8 +1,8 @@
 import deltapv as dpv
 from jax import numpy as jnp, value_and_grad
-from jax.experimental import optimizers
+from scipy.optimize import minimize
+import numpy as np
 import matplotlib.pyplot as plt
-import pickle
 
 material = dpv.create_material(Eg=1.0,
                                Chi=3.0,
@@ -15,11 +15,6 @@ material = dpv.create_material(Eg=1.0,
 
 
 def get_iv(**kwargs):
-    """Gets the IV curve after changing the material parameters according to keyword arguments
-
-    Returns:
-        jnp.ndarray: Candidate IV curve
-    """
     candidate = dpv.objects.update(material, **kwargs)
     des = dpv.make_design(n_points=500,
                           Ls=[1e-4, 1e-4],
@@ -36,38 +31,64 @@ def get_iv(**kwargs):
 J0 = get_iv()
 
 
-def f(x, measure="polar", norm=2.0):
-    """Objective function.
-
-    Args:
-        x (list): Vector of parameters to pass in. It must be defined in this function how to convert the entries of x to a dictionary of parameters describing the candidate material.
-        measure (str): Either "polar", "x", "y", or "xy". "polar" interpolates in polar coordinates, "x" takes the horizontal area, "y" takes the vertical area, and "xy" takes both.
-        norm (float): The norm of the differences taken. Taking norm=2.0 corresponds to Euclidean distance.
-
-    Returns:
-        float: A measure of distance between the candidate and target IV curves.
-    """
+def f(x):
     params = {}
     params["mp"] = 10**x[0]
     params["Eg"] = x[1]
     J = get_iv(**params)
-    if measure == "polar":
-        res = dpv.util.dpol(J, J0, norm=norm)
-    elif measure == "x":
-        res = dpv.util.dhor(J, J0, norm=norm)
-    elif measure == "y":
-        res = dpv.util.dver(J, J0, norm=norm)
-    else:
-        res = dpv.util.dhor(J, J0, norm=norm) + dpv.util.dver(J, J0, norm=norm)
+    res = dpv.util.dpol(J, J0)
     return res
 
 
 df = value_and_grad(f)
 
+
+xs = []
+ys = []
+dys = []
+
+
+def f_np(x):
+    y, dy = df(x)
+    result = float(y), np.array(dy)
+    xs.append(x)
+    ys.append(float(y))
+    dys.append(np.array(dy))
+    print(result[0])
+    return result
+
+
 if __name__ == "__main__":
-    result = dpv.util.adagrad(df, [2.0, 1.2], lr=0.1, steps=100)
+    slsqp_res = minimize(f_np,
+                         x0=np.array([2.0, 1.2]),
+                         method="SLSQP",
+                         jac=True,
+                         bounds=[(1.0, 3.0), (0.5, 2.0)],
+                         options={
+                             "maxiter": 50,
+                             "disp": True
+                         })
 
-    print(result)
+    print(slsqp_res)
 
-    with open("outputs/discovery.pickle", "wb") as f:
-        pickle.dump(result, f)
+    xs = np.array(xs)
+    ys = np.array(ys)
+
+    plt.plot(ys, marker=".", color="black")
+    plt.xlabel("iterations")
+    plt.ylabel("$R(\hat{J}, J^*)$")
+    plt.yscale("log")
+    plt.tight_layout()
+    plt.savefig("optimize/results/multi_slsqp_obj.png")
+    plt.show()
+
+    plt.plot(xs[:, 0], color="cornflowerblue", marker=".", label="$\log_{10} \mu_p$")
+    plt.axhline(np.log10(160), color="cornflowerblue", linestyle="--")
+    plt.plot(xs[:, 1], color="lightcoral", marker=".", label="$E_g$")
+    plt.axhline(1, color="lightcoral", linestyle="--")
+    plt.xlabel("iterations")
+    plt.ylabel("parameter")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("optimize/results/multi_slsqp_param.png")
+    plt.show()
