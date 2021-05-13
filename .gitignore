@@ -109,6 +109,6 @@ venv.bak/
 # debugging
 debug/
 outputs/
-plots/
 optimize/results/
 optimize/discovery.py
+optimize/plot_results.py
