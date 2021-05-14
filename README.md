@@ -45,4 +45,4 @@ dpv.plot_charge(des, results["eq"])
 ![band](plots/band.png)
 ![charge](plots/charge.png)
 
-For more examples, including performing efficiency optimization of a perovskite solar cell and discovering unknown material properties in a cell, see the following Google Colab notebook: https://colab.research.google.com/drive/1d2vY01LhXUKOHasNOOZj17FO7qGgWBph?usp=sharing
+For more examples, including performing efficiency optimization of a perovskite solar cell and discovering unknown material properties in a cell, see the following Google Colab notebook: https://colab.research.google.com/drive/1d2vY01LhXUKOHasNOOZj17FO7qGgWBph?usp=sharing. For an overview on PV cells and the physics behind the drift-diffusion model, see this helpful resource: https://www.pveducation.org.
