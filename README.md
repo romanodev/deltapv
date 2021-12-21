@@ -1,8 +1,6 @@
 # ∂PV
 A photovoltaic simulator with automatic differentation, built on `JAX`. 
 
-Preprint: https://arxiv.org/abs/2105.06305
-
 
 To install via `pip`, simply use the command
 
@@ -45,11 +43,22 @@ dpv.plot_band_diagram(des, results["eq"], eq=True)
 dpv.plot_charge(des, results["eq"])
 ```
 
+
 ![iv](plots/iv.png)
 ![bars](plots/bars.png)
 ![band](plots/band.png)
 ![charge](plots/charge.png)
 
 For more examples, including performing efficiency optimization of a perovskite solar cell and discovering unknown material properties in a cell, see the following Google Colab notebook: https://colab.research.google.com/drive/1d2vY01LhXUKOHasNOOZj17FO7qGgWBph?usp=sharing. For an overview on PV cells and the physics behind the drift-diffusion model, see this helpful resource: https://www.pveducation.org.
+
+
+If you use ∂PV, please kindly cite the following paper
+
+Mann, Sean, Eric Fadel, Samuel S. Schoenholz, Ekin D. Cubuk, Steven G. Johnson, and Giuseppe Romano. 
+
+["∂ PV: An end-to-end differentiable solar-cell simulator."](https://www.sciencedirect.com/science/article/abs/pii/S0010465521003441) Computer Physics Communications (2021): 108232 [[pdf](https://arxiv.org/abs/2105.06305)].
+
+
+
 
 
