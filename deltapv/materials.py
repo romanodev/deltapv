@@ -1,11 +1,30 @@
 from deltapv import dataclasses, objects
 from jax import numpy as jnp
 import pandas as pd, yaml, glob, os
+from pathlib import Path
 
 Material = objects.Material
 Array = jnp.ndarray
 f64 = jnp.float64
 lam_interp = jnp.linspace(200, 1200, 100, endpoint=False)
+
+
+def list_materials():
+    """List materials that are saved in %s
+
+    """ % Path(__file__).parent.joinpath("resources")
+    pth = Path(__file__).parent.joinpath("resources")
+
+    try:
+        assert pth.exists()
+        for mat in pth.glob("*.yaml"):
+            print(mat.stem)
+
+    except AssertionError:
+        print("""
+Path %s does not exist. Ensure you have downloaded the resources folder from
+https://github.com/romanodev/deltapv/tree/master/deltapv/resources
+            """ % pth)
 
 
 def create_material(**kwargs) -> Material:
