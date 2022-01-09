@@ -9,7 +9,7 @@ setup(
     classifiers=["Programming Language :: Python :: 3.7"],
     long_description=open("README.rst").read(),
     install_requires=[
-        "numpy", "jax", "jaxlib", "daclasses","matplotlib", "pandas", "pyyaml", "scipy"
+        "numpy", "jax", "jaxlib", "dataclasses","matplotlib", "pandas", "pyyaml", "scipy"
     ],
     license="MIT",
     packages=["deltapv"])
