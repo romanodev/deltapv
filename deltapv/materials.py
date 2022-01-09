@@ -10,9 +10,9 @@ lam_interp = jnp.linspace(200, 1200, 100, endpoint=False)
 
 
 def list_materials():
-    """List materials that are saved in %s
-
-    """ % Path(__file__).parent.joinpath("resources")
+    """List materials that are saved in:
+    Path(__file__).parent.joinpath("resources")
+    """
     pth = Path(__file__).parent.joinpath("resources")
 
     try:
@@ -21,7 +21,7 @@ def list_materials():
             print(mat.stem)
 
     except AssertionError:
-        print("""
+        raise FileNotFoundError("""
 Path %s does not exist. Ensure you have downloaded the resources folder from
 https://github.com/romanodev/deltapv/tree/master/deltapv/resources
             """ % pth)
