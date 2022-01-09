@@ -13,6 +13,5 @@ setup(
     ],
     license="MIT",
     packages=["deltapv"],
-    package_dir={"deltapv": "deltapv/deltapv"},
     package_data={"deltapv": ["resources", "fonts"]}
     )
