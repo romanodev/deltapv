@@ -12,4 +12,8 @@ setup(
         "numpy", "jax", "jaxlib", "dataclasses","matplotlib", "pandas", "pyyaml", "scipy"
     ],
     license="MIT",
-    packages=["deltapv"])
+    packages=["deltapv"],
+    package_data={
+        "deltapv": ["resources"],
+        "deltapv": ["fonts"]
+    })
