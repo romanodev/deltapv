@@ -1,10 +1,10 @@
-from jax import numpy as jnp, jit, custom_jvp, grad
+from jax import numpy as jnp, jit, custom_jvp
 from jax.experimental import optimizers
 import jax
 import numpy as np
 from deltapv import spline, simulator
 from scipy.optimize import minimize
-import matplotlib.pyplot as plt
+
 import logging
 logger = logging.getLogger("deltapv")
 
@@ -15,7 +15,7 @@ i64 = jnp.int64
 
 def print_ascii():
     print(
-        "___________________    __\n______ \ __  __ \_ |  / /\n_  __  /__  /_/ /_ | / / \n/ /_/ / _  ____/__ |/ /  \n\__,_/  /_/     _____/   \n                         "
+        "___________________    __\n______ \ __  __ \_ |  / /\n_  __  /__  /_/ /_ | / / \n/ /_/ / _  ____/__ |/ /  \n\__,_/  /_/     _____/   \n                         "  # noqa
     )
 
 
@@ -61,8 +61,8 @@ def dhor(y1, y2, norm=2):
     yint = jnp.linspace(ymin, ymax, 100, endpoint=False)
     idx1 = jnp.argsort(y1)
     idx2 = jnp.argsort(y2)
-    xint1 = jnp.interp(yint, y1[idx1], x1[idx1])
-    xint2 = jnp.interp(yint, y2[idx2], x2[idx2])
+    _xint1 = jnp.interp(yint, y1[idx1], x1[idx1])
+    _xint2 = jnp.interp(yint, y2[idx2], x2[idx2])
     xint1 = spline.qinterp(yint, y1[idx1], x1[idx1])
     xint2 = spline.qinterp(yint, y2[idx2], x2[idx2])
     res = jnp.sum(jnp.power(jnp.abs(xint1 - xint2), norm))
@@ -125,8 +125,10 @@ def gd(df, x0, lr=1, steps=jnp.inf, tol=0, gtol=0, verbose=True):
         if verbose:
             logger.info("iteration {:3d}".format(i))
             logger.info("    f(x)  = {:.2e}".format(y))
-            logger.info(("    x     =" + len(x) * " {:+.2e},").format(*x)[:-1])
-            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(*dy)[:-1])
+            logger.info(("    x     =" + len(x) * " {:+.2e},").format(
+                *x)[:-1])
+            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(
+                *dy)[:-1])
     obj = jnp.array(obj)
     xs = jnp.array(xs)
     dys = jnp.array(dys)
@@ -170,8 +172,10 @@ def adagrad(df,
         if verbose:
             logger.info("iteration {:3d}".format(i))
             logger.info("    f(x)  = {:.2e}".format(y))
-            logger.info(("    x     =" + len(x) * " {:+.2e},").format(*x)[:-1])
-            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(*dy)[:-1])
+            logger.info(("    x     =" + len(x) * " {:+.2e},").format(
+                *x)[:-1])
+            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(
+                *dy)[:-1])
     obj = jnp.array(obj)
     xs = jnp.array(xs)
     dys = jnp.array(dys)
@@ -218,8 +222,10 @@ def adam(df,
         if verbose:
             logger.info("iteration {:3d}".format(i))
             logger.info("    f(x)  = {:.2e}".format(y))
-            logger.info(("    x     =" + len(x) * " {:+.2e},").format(*x)[:-1])
-            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(*dy)[:-1])
+            logger.info(("    x     =" + len(x) * " {:+.2e},").format(
+                *x)[:-1])
+            logger.info(("    df/dx =" + len(dy) * " {:+.2e},").format(
+                *dy)[:-1])
     obj = jnp.array(obj)
     xs = jnp.array(xs)
     dys = jnp.array(dys)
@@ -244,7 +250,8 @@ class StatefulOptimizer:
             v = params[-1]
             vprint = jnp.round(v, 2)
             print("evaluating for V = {:.2f}".format(vprint))
-            eff, pot = simulator.eff_at_bias(convr(x), v, pot_ini, verbose=False)
+            eff, pot = simulator.eff_at_bias(convr(x), v, pot_ini,
+                                             verbose=False)
             return -eff, pot
 
         df_jnp = jax.value_and_grad(f, has_aux=True)  # returns (p, pot), dp

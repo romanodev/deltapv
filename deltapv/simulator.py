@@ -1,7 +1,8 @@
-from deltapv import objects, scales, optical, sun, materials, solver, bcond, current, spline, util, adjoint, plotting
-from jax import numpy as jnp, ops, lax, vmap
+from deltapv import (objects, scales, optical, sun, solver,
+                     bcond, spline, util, adjoint)
+from jax import numpy as jnp, vmap
 from typing import Callable, Tuple, List, Union
-import matplotlib.pyplot as plt
+
 import logging
 logger = logging.getLogger("deltapv")
 
@@ -50,7 +51,8 @@ def add_material(cell: PVDesign, mat: Material, f: Callable[[f64],
     Args:
         cell (PVDesign): A cell
         mat (Material): Material to be added
-        f (Callable[[f64], bool]): Function that returns true when material should be added to the ijnput position
+        f (Callable[[f64], bool]): Function that returns true when material
+        should be added to the input position
 
     Returns:
         PVDesign: Cell with material added
@@ -108,7 +110,8 @@ def doping(cell: PVDesign, N: f64, f: Callable[[f64], bool]) -> PVDesign:
     Args:
         cell (PVDesign): A cell
         N (f64): Doping concentration in 1/cm^3
-        f (Callable[[f64], bool]): Function that returns true when material should be doped at the ijnput position
+        f (Callable[[f64], bool]): Function that returns true when material
+        should be doped at the input position
 
     Returns:
         PVDesign: Doped cell
@@ -155,7 +158,8 @@ def make_design(n_points: i64,
     des = empty_design(grid)
     start = 0
     for t, mat, dop in zip(Ls, mats, Ns):
-        reg = lambda x: jnp.logical_and(start <= x, x <= start + t)
+        def reg(x):
+            return jnp.logical_and(start <= x, x <= start + t)
         des = add_material(des, mat, reg)
         des = doping(des, dop, reg)
         start = start + t
@@ -169,9 +173,12 @@ def incident_light(kind: str = "sun",
     """Define a light source object for simulation
 
     Args:
-        kind (str, optional): One of "sun", "white", "monochromatic", and "user". Defaults to "sun".
-        Lambda (Array, optional): Spectrum wavelengths in nm for "monochromatic" and "user" cases. Defaults to None.
-        P_in (Array, optional): Power for specified wavelengths for "monochromatic" and "user" cases. Defaults to None.
+        kind (str, optional): One of "sun", "white", "monochromatic",
+            and "user". Defaults to "sun".
+        Lambda (Array, optional): Spectrum wavelengths in nm for
+            "monochromatic" and "user" cases. Defaults to None.
+        P_in (Array, optional): Power for specified wavelengths for
+            "monochromatic" and "user" cases. Defaults to None.
 
     Returns:
         LightSource: A light source object for simulation
@@ -203,7 +210,10 @@ def init_cell(design: PVDesign,
     Args:
         design (PVDesign): A cell
         ls (LightSource): A light source
-        optics (bool, optional): Whether to use optical model to calculate the absorption coefficients. If False, model uses ijnput absorption coefficients as specified in the PVDesign object to calculate generation density. Defaults to True.
+        optics (bool, optional): Whether to use optical model to calculate
+            the absorption coefficients. If False, model uses input absorption
+            coefficients as specified in the PVDesign object to calculate
+            generation density. Defaults to True.
 
     Returns:
         PVCell: An initialized cell ready for simulation
@@ -249,11 +259,20 @@ def simulate(design: PVDesign,
     Args:
         design (PVDesign): A cell
         ls (LightSource): A light source
-        optics (bool, optional): Whether to use optical model to calculate the absorption coefficients. If False, model uses ijnput absorption coefficients as specified in the PVDesign object to calculate generation density. Defaults to True.
-        n_steps (i64, optional): How many voltage steps to solve for. May be useful when an IV curve of a specific range is needed, but unnecessary in other cases. Defaults to None.
+        optics (bool, optional): Whether to use optical model to calculate
+            the absorption coefficients. If False, model uses ijnput absorption
+            coefficients as specified in the PVDesign object to calculate
+            generation density. Defaults to True.
+        n_steps (i64, optional): How many voltage steps to solve for. May be
+            useful when an IV curve of a specific range is needed, but
+            unnecessary in other cases. Defaults to None.
 
     Returns:
-        dict: Dictionary of results: "cell" is the initialized cell, "eq" is the equilibrium solution, "Voc" is the final solution beyond the open circuit voltage, "mpp" is the maximum power found in W, "eff" is the power conversion efficiency, "iv" is a tuple (v, i) of the IV curve
+        dict: Dictionary of results: "cell" is the initialized cell, "eq" is
+            the equilibrium solution, "Voc" is the final solution beyond the
+            open circuit voltage, "mpp" is the maximum power found in W, "eff"
+            is the power conversion efficiency, "iv" is a tuple (v, i) of
+            the IV curve
     """
     if not verbose:
         temp = logger.level
@@ -312,8 +331,8 @@ def simulate(design: PVDesign,
                 break
 
         if currents.size > 2 and n_steps is None:
-            ll, l = currents[-2], currents[-1]
-            if (ll * l <= 0) or l < 0:
+            ll, l = currents[-2], currents[-1]  # noqa
+            if (ll * l <= 0) or l < 0:  # noqa
                 break
 
     dim_currents = scales.current * currents

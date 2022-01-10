@@ -1,6 +1,5 @@
-from jax import numpy as jnp, grad, vmap, jit
+from jax import numpy as jnp, grad, jit
 from functools import partial
-import matplotlib.pyplot as plt
 
 
 def quadratic(x, coef):
@@ -50,7 +49,7 @@ def predict(x, xp, coef):
 
 
 def ascent(df, x0=0., lr=1., tol=1e-6, niter=100):
-
+    #  TODO: tolerance unused
     x = x0
     for _ in range(niter):
         deriv = df(x)
