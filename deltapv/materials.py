@@ -88,7 +88,10 @@ def load_material(name: str) -> Material:
                 Path(__file__).parent.joinpath(f"resources/{name}.yaml"),
                 "r") as f:
             matdict = yaml.full_load(f)
-            matdict["properties"]["alpha"] = get_alpha(name)
+            try:
+                matdict["properties"]["alpha"] = get_alpha(name)
+            except FileNotFoundError:
+                print(f"{name}.csv does not exist!")
         return create_material(**matdict["properties"])
     except FileNotFoundError:
         print (f"{name} is not an available material!")
