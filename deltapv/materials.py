@@ -31,6 +31,18 @@ https://github.com/romanodev/deltapv/tree/master/deltapv/resources
             """ % pth)
 
 
+def display_material(name: str) -> str:
+    """Neatly print material properties"""
+    try:
+        with open(
+            Path(__file__).parent.joinpath(f"resources/{name}.yaml"),
+                "r") as f:
+            matdict = yaml.full_load(f)
+            return print(yaml.dump(matdict))
+    except FileNotFoundError:
+        print (f"{name} is not an available material!")
+
+
 def create_material(**kwargs) -> Material:
     """Create a custom material. Possible arguments include the following:
 
