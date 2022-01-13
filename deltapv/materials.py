@@ -21,7 +21,12 @@ def list_materials():
 
     try:
         assert pth.exists()
-        for mat in pth.glob("*.yaml"):
+
+        print("Property Files:")
+        for mat in sorted(pth.glob("*.yaml")):
+            print(mat.stem)
+        print("Absorption Files:")
+        for mat in sorted(pth.glob("*.csv")):
             print(mat.stem)
 
     except AssertionError:
