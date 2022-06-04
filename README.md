@@ -1,6 +1,7 @@
 # ∂PV
 A photovoltaic simulator with automatic differentation, built on `JAX`. 
 
+Pull request welcome!
 
 To install via `pip`, simply use the command
 
