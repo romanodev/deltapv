@@ -1,7 +1,7 @@
 from deltapv import objects, residual, linalg, physics, scales, util
-from jax import numpy as jnp, jit, ops, custom_jvp, jvp, jacfwd, vmap, lax
-from typing import Tuple, Callable
-import matplotlib.pyplot as plt
+from jax import numpy as jnp, jit, custom_jvp, jvp, vmap, lax
+from typing import Tuple
+
 import logging
 logger = logging.getLogger("deltapv")
 
@@ -16,7 +16,7 @@ n_lnsrch = 500
 
 
 def vincr(cell: PVCell, num_vals: i64 = 20) -> f64:
-
+    # TODO: cell unused
     dv = 1 / num_vals / scales.energy
 
     return dv
@@ -211,7 +211,8 @@ def solve_eq_dense(cell: PVCell, bound: Boundary,
         error = stats["error"]
         resid = stats["resid"]
         niter += 1
-        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(niter, error, resid))
+        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(  # noqa
+            niter, error, resid))
 
         if jnp.isnan(error) or error == 0:
             logger.critical("    Dense solver failed! It's all over.")
@@ -233,7 +234,8 @@ def solve_eq(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         error = stats["error"]
         resid = stats["resid"]
         niter += 1
-        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(niter, error, resid))
+        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(  # noqa
+            niter, error, resid))
 
         if jnp.isnan(error) or error == 0:
             logger.error("    Sparse solver failed! Switching to dense.")
@@ -321,7 +323,8 @@ def solve_dense(cell: PVCell, bound: Boundary,
         pl = stats["p"]
         dxl = stats["dx"]
         niter += 1
-        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(niter, error, resid))
+        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(  # noqa
+            niter, error, resid))
 
         if jnp.isnan(error) or error == 0:
             logger.critical("    Dense solver failed! It's all over.")
@@ -368,7 +371,8 @@ def solve(cell: PVCell, bound: Boundary, pot_ini: Potentials) -> Potentials:
         pl = stats["p"]
         dxl = stats["dx"]
         niter += 1
-        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(niter, error, resid))
+        logger.info("    iteration {:3d}    |p| = {:.2e}    |F| = {:.2e}".format(  # noqa
+            niter, error, resid))
 
         if jnp.isnan(error) or error == 0:
             logger.error("    Sparse solver failed! Switching to dense.")

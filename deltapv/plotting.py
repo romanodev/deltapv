@@ -3,7 +3,6 @@ from jax import numpy as jnp
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm, rcParams
 from matplotlib.patches import Rectangle
-from matplotlib.collections import PatchCollection
 import os
 
 PVDesign = objects.PVDesign

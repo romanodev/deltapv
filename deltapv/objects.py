@@ -1,4 +1,5 @@
-from deltapv import dataclasses, util
+from deltapv import util
+from deltapv import dataclasses_dpv as dataclasses
 from jax import numpy as jnp
 from typing import Union
 
@@ -122,7 +123,10 @@ class Boundary:
     peqL: f64
 
 
-def update(obj: Union[PVDesign, PVCell, Material], **kwargs) -> Union[PVDesign, PVCell, Material]:
+def update(
+        obj: Union[PVDesign, PVCell, Material], **kwargs) -> Union[PVDesign,
+                                                                   PVCell,
+                                                                   Material]:
 
     return obj.__class__(
         **{

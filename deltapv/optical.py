@@ -1,4 +1,4 @@
-from deltapv import objects, scales, physics, util
+from deltapv import objects, scales, util
 from jax import numpy as jnp, vmap
 
 PVDesign = objects.PVDesign
@@ -9,7 +9,7 @@ f64 = util.f64
 
 def photonflux(ls: LightSource) -> Array:
 
-    I = ls.P_in  # W / m^2
+    I = ls.P_in  # W / m^2  noqa
     lamb = ls.Lambda * scales.nm  # m
     phi0 = I / (scales.hc / lamb)  # 1 / (m^2 s)
 
@@ -23,8 +23,8 @@ def alpha(design: PVDesign, lambdax: f64) -> Array:
     lamb_si = lambdax * scales.nm  # m
 
     alpha = jnp.where(scales.hc / lamb_si - Eg_si > 0,
-                     A_si * jnp.sqrt(jnp.abs(scales.hc / lamb_si - Eg_si)),
-                     0)  # 1 / m
+                      A_si * jnp.sqrt(jnp.abs(scales.hc / lamb_si - Eg_si)),
+                      0)  # 1 / m
 
     return alpha
 

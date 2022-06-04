@@ -1,8 +1,7 @@
 from deltapv import util
-from jax import numpy as jnp, ops, vmap, lax, jit
+from jax import numpy as jnp, vmap, lax, jit
 from jax.scipy.sparse.linalg import gmres
 from functools import partial
-from typing import Callable
 
 Array = util.Array
 f64 = util.f64
@@ -78,10 +77,11 @@ def spilu(m: Array) -> Array:
 
                     return vmap(jone)(jnp.arange(_W))
 
-                return lax.cond(jnp.logical_and(mik != 0, mkk != 0), processrow,
+                return lax.cond(jnp.logical_and(mik != 0, mkk != 0),
+                                processrow,
                                 lambda r: r, crow)
 
-            return lax.cond(k < i, kli, lambda k: crow, k), None
+            return lax.cond(k < i, kli, lambda _: crow, k), None
 
         rowi, _ = lax.scan(kloop, cmat[i], jnp.arange(_W))
         return cmat.at[i].set(rowi), None
@@ -115,7 +115,7 @@ def bsub(m: Array, b: Array) -> Array:
     def entry(xc, i):
         xcpad = jnp.pad(xc, pad_width=_W // 2)
         res = jnp.dot(m[i, _W // 2 + 1:],
-                     lax.dynamic_slice(xcpad, [i + _W // 2 + 1], [_W // 2]))
+                      lax.dynamic_slice(xcpad, [i + _W // 2 + 1], [_W // 2]))
         entryi = (b[i] - res) / m[i, _W // 2]
         xc = xc.at[i].set(entryi)
         return xc, None
@@ -129,7 +129,9 @@ def linsol(spmat: Array, vec: Array, tol=1e-12) -> Array:
 
     mvp = partial(spmatvec, spmat)
     fact = spilu(spmat)
-    precond = lambda b: bsub(fact, fsub(fact, b))
+
+    def precond(b):
+        return bsub(fact, fsub(fact, b))
 
     sol, _ = gmres(mvp,
                    vec,
