@@ -10,7 +10,7 @@ pip install deltapv
 
 `deltapv` features a simple interface for most common cell structures. For a simple p-n homojunction, the following code computes the IV curve:
 
-```
+```python
 import deltapv as dpv
 
 material = dpv.create_material(Chi=3.9,
@@ -36,7 +36,7 @@ results = dpv.simulate(des)
 
 Several convenient plotting functions are provided to visualize important quantities.
 
-```
+```python
 dpv.plot_iv_curve(*results["iv"])
 dpv.plot_bars(des)
 dpv.plot_band_diagram(des, results["eq"], eq=True)
