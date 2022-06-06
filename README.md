@@ -5,6 +5,7 @@ Pull request welcome!
 
 To install via `pip`, simply use the command
 
+For more examples, including performing efficiency optimization of a perovskite solar cell and discovering unknown material properties in a cell, see the following [Google Colab](https://colab.research.google.com/drive/1d2vY01LhXUKOHasNOOZj17FO7qGgWBph?usp=sharing)
 ```
 pip install deltapv
 ```
@@ -50,7 +51,7 @@ dpv.plot_charge(des, results["eq"])
 <img src="plots/charge.png" alt="charge" width="500"/>
 
 
-For more examples, including performing efficiency optimization of a perovskite solar cell and discovering unknown material properties in a cell, see the following Google Colab notebook: https://colab.research.google.com/drive/1d2vY01LhXUKOHasNOOZj17FO7qGgWBph?usp=sharing. For an overview on PV cells and the physics behind the drift-diffusion model, see this helpful resource: https://www.pveducation.org.
+For an overview on PV cells and the physics behind the drift-diffusion model, see this helpful resource: https://www.pveducation.org.
 
 
 If you use ∂PV, please kindly cite the following paper:
