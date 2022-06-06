@@ -1,11 +1,15 @@
 # ∂PV
 A photovoltaic simulator with automatic differentation, built on `JAX`. 
 
-Pull request welcome!
+Pull requests welcome!
+
+
+
+For more examples, including performing efficiency optimization of a perovskite solar cell and discovering unknown material properties in a cell, see the following [Google Colab](https://colab.research.google.com/drive/1d2vY01LhXUKOHasNOOZj17FO7qGgWBph?usp=sharing)
+
 
 To install via `pip`, simply use the command
 
-For more examples, including performing efficiency optimization of a perovskite solar cell and discovering unknown material properties in a cell, see the following [Google Colab](https://colab.research.google.com/drive/1d2vY01LhXUKOHasNOOZj17FO7qGgWBph?usp=sharing)
 ```
 pip install deltapv
 ```
