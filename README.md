@@ -3,6 +3,7 @@ A photovoltaic simulator with automatic differentation, built on `JAX`.
 
 Pull requests welcome!
 
+Currently, only inorganic materials can be simulated.
 
 
 For more examples, including performing efficiency optimization of a perovskite solar cell and discovering unknown material properties in a cell, see the following [Google Colab](https://colab.research.google.com/drive/1d2vY01LhXUKOHasNOOZj17FO7qGgWBph?usp=sharing)
