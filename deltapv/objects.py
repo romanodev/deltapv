@@ -1,14 +1,15 @@
-from deltapv import dataclasses, util
+from deltapv import equinox_objects, util
 from jax import numpy as jnp
 from typing import Union
+import equinox as eqx
 
 Array = util.Array
 f64 = util.f64
 i64 = util.i64
 
 
-@dataclasses.dataclass
-class PVDesign:
+@equinox_objects.eqx_dataclass
+class PVDesign(eqx.Module):
 
     grid: Array
     eps: Array
@@ -35,8 +36,8 @@ class PVDesign:
     PhiML: f64
 
 
-@dataclasses.dataclass
-class PVCell:
+@equinox_objects.eqx_dataclass
+class PVCell(eqx.Module):
 
     dgrid: Array
     eps: Array
@@ -70,15 +71,15 @@ def zero_cell(n: i64) -> PVCell:
     return zc
 
 
-@dataclasses.dataclass
-class LightSource:
+@equinox_objects.eqx_dataclass
+class LightSource(eqx.Module):
 
     Lambda: Array = jnp.ones(1)
     P_in: Array = jnp.zeros(1)
 
 
-@dataclasses.dataclass
-class Material:
+@equinox_objects.eqx_dataclass
+class Material(eqx.Module):
     eps: f64 = f64(1)
     Chi: f64 = f64(1)
     Eg: f64 = f64(1)
@@ -99,8 +100,8 @@ class Material:
         return self.__dict__.items().__iter__()
 
 
-@dataclasses.dataclass
-class Potentials:
+@equinox_objects.eqx_dataclass
+class Potentials(eqx.Module):
     phi: Array
     phi_n: Array
     phi_p: Array
@@ -112,8 +113,8 @@ def zero_pot(n: i64) -> Potentials:
     return zp
 
 
-@dataclasses.dataclass
-class Boundary:
+@equinox_objects.eqx_dataclass
+class Boundary(eqx.Module):
     phi0: f64
     phiL: f64
     neq0: f64

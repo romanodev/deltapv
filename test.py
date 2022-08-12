@@ -1,6 +1,6 @@
 import unittest
 import deltapv as dpv
-from jax import numpy as jnp
+#from jax import numpy as jnp
 import numpy as np
 from scipy.optimize import minimize
 from optimize import psc
@@ -50,8 +50,8 @@ class TestDeltaPV(unittest.TestCase):
             0.008610345709349041, -0.018267911703588706
         ]
 
-        self.assertTrue(jnp.allclose(v, v_correct), "Voltages do not match!")
-        self.assertTrue(jnp.allclose(j, j_correct), "Currents do not match!")
+        self.assertTrue(np.allclose(v, v_correct), "Voltages do not match!")
+        self.assertTrue(np.allclose(j, j_correct), "Currents do not match!")
 
     def test_psc(self):
         bounds = [(1, 5), (1, 5), (1, 20), (17, 20), (17, 20), (0, 3), (0, 3),
