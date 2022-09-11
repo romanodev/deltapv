@@ -123,7 +123,10 @@ class Boundary(eqx.Module):
     peqL: f64
 
 
-def update(obj: Union[PVDesign, PVCell, Material], **kwargs) -> Union[PVDesign, PVCell, Material]:
+def update(
+        obj: Union[PVDesign, PVCell, Material], **kwargs) -> Union[PVDesign,
+                                                                   PVCell,
+                                                                   Material]:
 
     return obj.__class__(
         **{

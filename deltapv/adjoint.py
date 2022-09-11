@@ -1,6 +1,6 @@
-from deltapv import objects, solver, bcond, current, residual, linalg, scales, util
-from jax import numpy as jnp, custom_jvp, jvp, jacfwd, jacrev, jit
-import matplotlib.pyplot as plt
+from deltapv import objects, solver, bcond, current, residual, linalg, util
+from jax import numpy as jnp, custom_jvp, jvp, jacrev
+
 import logging
 logger = logging.getLogger("deltapv")
 
@@ -19,7 +19,8 @@ def solve_pdd(cell: PVCell, v: f64, pot_ini: Potentials):
         pot_ini (Potentials): Initial guess of solution
 
     Returns:
-        (f64, Potentials): Tuple of current found, in dimensionless form, and solution
+        (f64, Potentials): Tuple of current found, in dimensionless form,
+        and solution
     """
     # Determine boundary conditions
     bound = bcond.boundary(cell, v)
@@ -43,7 +44,8 @@ def solve_pdd_adjoint(cell: PVCell, v: f64, pot_ini: Potentials):
         pot_ini (Potentials): Initial guess of solution
 
     Returns:
-        (f64, Potentials): Tuple of current found, in dimensionless form, and solution
+        (f64, Potentials): Tuple of current found, in dimensionless form,
+        and solution
     """
     # Determine boundary conditions
     bound = bcond.boundary(cell, v)
@@ -58,7 +60,8 @@ def solve_pdd_adjoint(cell: PVCell, v: f64, pot_ini: Potentials):
 
 
 def F_wb(cell, v, pot):
-    """Calculates residual of PDD system for a cell and solution guess at a specified voltage
+    """Calculates residual of PDD system for a cell and solution guess at a
+    specified voltage
 
     Args:
         cell (PVCell): An initialized cell

@@ -37,7 +37,7 @@ gratedens = density * mobility * kB * T / (q * length**2)  # 1 / (cm^3 s)
 # Scaling dictionary for ijnput quantities:
 units = {
     "grid": length,
-    "eps": 1., # relative permittivity
+    "eps": 1.,  # relative permittivity
     "Chi": energy,
     "Eg": energy,
     "Nc": density,

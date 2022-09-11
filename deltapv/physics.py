@@ -20,7 +20,8 @@ def n_jvp(primals, tangents):
     dcell, dpot = tangents
     expterm = jnp.exp(cell.Chi + pot.phi_n + pot.phi)
     primal_out = cell.Nc * expterm
-    tangent_out = expterm * (dcell.Nc + cell.Nc * (dcell.Chi + dpot.phi_n + dpot.phi))
+    tangent_out = expterm * (dcell.Nc + cell.Nc
+                             * (dcell.Chi + dpot.phi_n + dpot.phi))
     return primal_out, tangent_out
 
 
@@ -36,7 +37,8 @@ def p_jvp(primals, tangents):
     dcell, dpot = tangents
     expterm = jnp.exp(-cell.Chi - cell.Eg - pot.phi_p - pot.phi)
     primal_out = cell.Nv * expterm
-    tangent_out = expterm * (dcell.Nv - cell.Nv * (dcell.Chi + dcell.Eg + dpot.phi_p + dpot.phi))
+    tangent_out = expterm * (dcell.Nv - cell.Nv
+                             * (dcell.Chi + dcell.Eg + dpot.phi_p + dpot.phi))
     return primal_out, tangent_out
 
 
@@ -87,6 +89,6 @@ def flatband_wf(Nc, Nv, Eg, Chi, N):
     Ec = -Chi
     EFi = Ec - Eg / 2 + (kBT / 2) * jnp.log(Nc / Nv)
     dEF = kBT * jnp.where(N > 0, jnp.log(jnp.abs(N) / ni),
-                         -jnp.log(jnp.abs(N) / ni))
+                          -jnp.log(jnp.abs(N) / ni))
 
     return -EFi - dEF

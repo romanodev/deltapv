@@ -1,5 +1,5 @@
 from deltapv import objects, ddiff, bcond, poisson, linalg, util
-from jax import numpy as jnp, ops, jit, jacfwd
+from jax import numpy as jnp,  jit
 
 PVCell = objects.PVCell
 Potentials = objects.Potentials
@@ -21,11 +21,13 @@ def comp_F(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
     lenF = 3 + 3 * len(pois) + 3
     result = jnp.zeros(lenF, dtype=jnp.float64)
-    result = result.at[:3].set(jnp.array([ctct_0_phin, ctct_0_phip, ctct_0_phi]))
+    result = result.at[:3].set(jnp.array(
+        [ctct_0_phin, ctct_0_phip, ctct_0_phi]))
     result = result.at[3:lenF - 5:3].set(ddn)
     result = result.at[4:lenF - 4:3].set(ddp)
     result = result.at[5:lenF - 3:3].set(pois)
-    result = result.at[-3:].set(jnp.array([ctct_L_phin, ctct_L_phip, ctct_L_phi]))
+    result = result.at[-3:].set(jnp.array(
+        [ctct_L_phin, ctct_L_phip, ctct_L_phi]))
 
     return result
 
@@ -33,12 +35,15 @@ def comp_F(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 @jit
 def comp_F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
-    dde_phin_, dde_phin__, dde_phin___, dde_phip__, dde_phi_, dde_phi__, dde_phi___ = ddiff.ddn_deriv(
-        cell, pot)
-    ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___, ddp_phi_, ddp_phi__, ddp_phi___ = ddiff.ddp_deriv(
-        cell, pot)
-    dpois_phi_, dpois_phi__, dpois_phi___, dpois_dphin__, dpois_dphip__ = poisson.pois_deriv(
-        cell, pot)
+    # TODO: boundaries unused
+
+    dde_phin_, dde_phin__, dde_phin___, dde_phip__,\
+        dde_phi_, dde_phi__, dde_phi___ = ddiff.ddn_deriv(cell, pot)
+    ddp_phin__, ddp_phip_, ddp_phip__, ddp_phip___,\
+        ddp_phi_, ddp_phi__, ddp_phi___ = ddiff.ddp_deriv(cell, pot)
+    dpois_phi_, dpois_phi__, dpois_phi___, dpois_dphin__,\
+        dpois_dphip__ = poisson.pois_deriv(cell, pot)
+
     dctct_phin = bcond.contact_phin_deriv(cell, pot)
     dctct_phip = bcond.contact_phip_deriv(cell, pot)
 
@@ -60,10 +65,12 @@ def comp_F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
         jnp.array([0, 2, 3, 5]),
         jnp.array([1, 2, 4, 5]),
         jnp.array([2]),
-        jnp.array([3 * (N - 2), 3 * (N - 2) + 2, 3 * (N - 1), 3 * (N - 1) + 2]),
-        jnp.array([
-            3 * (N - 2) + 1, 3 * (N - 2) + 2, 3 * (N - 1) + 1, 3 * (N - 1) + 2
-        ]),
+        jnp.array([3 * (N - 2), 3 * (N - 2) + 2,
+                   3 * (N - 1), 3 * (N - 1) + 2
+                   ]),
+        jnp.array([3 * (N - 2) + 1, 3 * (N - 2) + 2,
+                   3 * (N - 1) + 1, 3 * (N - 1) + 2
+                   ]),
         jnp.array([3 * (N - 1) + 2]),
         jnp.arange(0, 3 * (N - 2), 3),
         jnp.arange(3, 3 * (N - 1), 3),
@@ -87,11 +94,15 @@ def comp_F_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
     ]).astype(jnp.int32)
 
     dF = jnp.concatenate([
-        jnp.array([dctct_phin[0], dctct_phin[2], dctct_phin[1], dctct_phin[3]]),
-        jnp.array([dctct_phip[0], dctct_phip[2], dctct_phip[1], dctct_phip[3]]),
+        jnp.array([dctct_phin[0], dctct_phin[2],
+                   dctct_phin[1], dctct_phin[3]]),
+        jnp.array([dctct_phip[0], dctct_phip[2],
+                   dctct_phip[1], dctct_phip[3]]),
         jnp.ones(1),
-        jnp.array([dctct_phin[4], dctct_phin[6], dctct_phin[5], dctct_phin[7]]),
-        jnp.array([dctct_phip[4], dctct_phip[6], dctct_phip[5], dctct_phip[7]]),
+        jnp.array([dctct_phin[4], dctct_phin[6],
+                   dctct_phin[5], dctct_phin[7]]),
+        jnp.array([dctct_phip[4], dctct_phip[6],
+                   dctct_phip[5], dctct_phip[7]]),
         jnp.ones(1),
         dde_phin_,
         dde_phin__,
@@ -133,6 +144,8 @@ def comp_F_eq(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
 
 @jit
 def comp_F_eq_deriv(cell: PVCell, bound: Boundary, pot: Potentials) -> Array:
+
+    # TODO: boundaries unused
 
     N = cell.Eg.size
     dpois_phi_, dpois_phi__, dpois_phi___ = poisson.pois_deriv_eq(cell, pot)

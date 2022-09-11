@@ -60,7 +60,8 @@ def Jp(cell: PVCell, pot: Potentials) -> Array:
     return mp0 * Dpsip_Dexppsip * fm / cell.dgrid
 
 
-def Jn_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array, Array]:
+def Jn_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array,
+                                                     Array, Array]:
 
     phi = pot.phi
     phi_n = pot.phi_n
@@ -113,7 +114,8 @@ def Jn_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array, Array]
     return DJnDphi_n0, DJnDphi_n1, DJnDphi0, DJnDphi1
 
 
-def Jp_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array, Array]:
+def Jp_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array,
+                                                     Array, Array]:
 
     phi = pot.phi
     phi_p = pot.phi_p
@@ -131,7 +133,7 @@ def Jp_deriv(cell: PVCell, pot: Potentials) -> Tuple[Array, Array, Array, Array]
     Dpsip_norm = jnp.where(jnp.abs(Dpsip) < 1e-5, 1e-5, Dpsip)
     Dpsip_taylor = jnp.clip(Dpsip, -1e-5, 1e-5)
 
-    expDpsip = jnp.exp(Dpsip)
+    _expDpsip = jnp.exp(Dpsip)
     expmpsi_p0 = jnp.exp(-psi_p0)
 
     Q = jnp.where(
@@ -193,11 +195,11 @@ def total_current_old(cell: PVCell, pot: Potentials) -> f64:
 
     fmn = jnp.exp(phi_n[1]) - jnp.exp(phi_n[0])
     numerator = (1 - around_zero_n) * Dpsin + around_zero_n * 1
-    denominator = (1 - around_zero_n) * (jnp.exp(Dpsin) - 1) + around_zero_n * (
-        1 + 0.5 * Dpsin + 1 / 6. * Dpsin**2)
+    denominator = (1 - around_zero_n) * (jnp.exp(Dpsin) - 1) + around_zero_n\
+        * (1 + 0.5 * Dpsin + 1 / 6. * Dpsin**2)
     Dpsin_Dexppsin = jnp.exp(psin0) * numerator / denominator
-    dfmn_dphin0 = -jnp.exp(phi_n[0])
-    dfmn_dphin1 = jnp.exp(phi_n[1])
+    _dfmn_dphin0 = -jnp.exp(phi_n[0])
+    _dfmn_dphin1 = jnp.exp(phi_n[1])
     numerator2 = (1 - around_zero_n) * (
         -Dpsin + jnp.exp(Dpsin) - 1) + around_zero_n * (
             -3 + psin0 + psin1 + 2 * psin0 * psin1 - psin0**2 - psin1**2)
@@ -212,16 +214,16 @@ def total_current_old(cell: PVCell, pot: Potentials) -> f64:
         jnp.exp(Dpsin) - 1)**2 + around_zero_n * (
             1 + 0.5 * psin0 - 0.5 * psin1 - 1 / 3. * psin0 * psin1 +
             1 / 6. * psin0**2 + 1 / 6. * psin1**2)**2
-    Dpsin_Dexppsin_dpsin0 = jnp.exp(psin0) * numerator2 / denominator2
-    Dpsin_Dexppsin_dpsin1 = jnp.exp(psin0) * numerator3 / denominator3
+    _Dpsin_Dexppsin_dpsin0 = jnp.exp(psin0) * numerator2 / denominator2
+    _Dpsin_Dexppsin_dpsin1 = jnp.exp(psin0) * numerator3 / denominator3
 
     fmp = jnp.exp(-phi_p[1]) - jnp.exp(-phi_p[0])
     _numerator = (1 - around_zero_p) * Dpsip + around_zero_p * 1
     _denominator = (1 - around_zero_p) * (jnp.exp(
         -Dpsip) - 1) + around_zero_p * (-1 + 0.5 * Dpsip - 1 / 6. * Dpsip**2)
     Dpsip_Dexppsip = jnp.exp(-psip0) * _numerator / _denominator
-    dfmp_dphip0 = jnp.exp(-phi_p[0])
-    dfmp_dphip1 = -jnp.exp(-phi_p[1])
+    _dfmp_dphip0 = jnp.exp(-phi_p[0])
+    _dfmp_dphip1 = -jnp.exp(-phi_p[1])
     _numerator2 = (1 - around_zero_p) * (
         Dpsip + jnp.exp(-Dpsip) - 1) + around_zero_p * (
             -3 + psip0 - psip1 + 2 * psip0 * psip1 - psip0**2 - psip1**2)
@@ -236,8 +238,8 @@ def total_current_old(cell: PVCell, pot: Potentials) -> f64:
         jnp.exp(-Dpsip) - 1)**2 + around_zero_p * (
             1 - 0.5 * psip0 + 0.5 * psip1 - 1 / 3. * psip0 * psip1 +
             1 / 6. * psip0**2 + 1 / 6. * psip1**2)**2
-    Dpsip_Dexppsip_dpsip0 = jnp.exp(-psip0) * _numerator2 / _denominator2
-    Dpsip_Dexppsip_dpsip1 = jnp.exp(-psip0) * _numerator3 / _denominator3
+    _Dpsip_Dexppsip_dpsip0 = jnp.exp(-psip0) * _numerator2 / _denominator2
+    _Dpsip_Dexppsip_dpsip1 = jnp.exp(-psip0) * _numerator3 / _denominator3
 
     Fcurrent = cell.mn[0] * Dpsin_Dexppsin * fmn / cell.dgrid[0] + cell.mp[
         0] * Dpsip_Dexppsip * fmp / cell.dgrid[0]
@@ -263,8 +265,8 @@ def total_current_deriv(cell: PVCell, pot: Potentials) -> dict:
 
     fmn = jnp.exp(phi_n[1]) - jnp.exp(phi_n[0])
     numerator = (1 - around_zero_n) * Dpsin + around_zero_n * 1
-    denominator = (1 - around_zero_n) * (jnp.exp(Dpsin) - 1) + around_zero_n * (
-        1 + 0.5 * Dpsin + 1 / 6. * Dpsin**2)
+    denominator = (1 - around_zero_n) * (jnp.exp(Dpsin) - 1) + around_zero_n\
+        * (1 + 0.5 * Dpsin + 1 / 6. * Dpsin**2)
     Dpsin_Dexppsin = jnp.exp(psin0) * numerator / denominator
     dfmn_dphin0 = -jnp.exp(phi_n[0])
     dfmn_dphin1 = jnp.exp(phi_n[1])
@@ -309,7 +311,7 @@ def total_current_deriv(cell: PVCell, pot: Potentials) -> dict:
     Dpsip_Dexppsip_dpsip0 = jnp.exp(-psip0) * _numerator2 / _denominator2
     Dpsip_Dexppsip_dpsip1 = jnp.exp(-psip0) * _numerator3 / _denominator3
 
-    Fcurrent = cell.mn[0] * Dpsin_Dexppsin * fmn / cell.dgrid[0] + cell.mp[
+    _Fcurrent = cell.mn[0] * Dpsin_Dexppsin * fmn / cell.dgrid[0] + cell.mp[
         0] * Dpsip_Dexppsip * fmp / cell.dgrid[0]
 
     deriv = {}
