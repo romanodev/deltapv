@@ -1,5 +1,5 @@
 from jax import numpy as jnp, jit, custom_jvp
-from jax.experimental import optimizers
+from jax.example_libraries import optimizers
 import jax
 import numpy as np
 from deltapv import spline, simulator
