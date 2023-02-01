@@ -208,8 +208,11 @@ def plot_band_diagram(design: PVDesign,
     plt.show()
 
 
-def plot_iv_curve(voltages: Array, currents: Array, filename=None) -> None:
+def plot_iv_curve(voltages: Array, currents: Array, flip=False, filename=None) -> None:
 
+    if flip:
+        voltages = -voltages
+        currents = -currents
     currents = 1e3 * currents  # A / cm^2 -> mA / cm^2
     coef = spline.qspline(voltages, currents)
 
