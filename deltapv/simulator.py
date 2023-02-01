@@ -253,7 +253,8 @@ def simulate(design: PVDesign,
              ls: LightSource = incident_light(),
              optics: bool = True,
              n_steps: i64 = None,
-             verbose: bool = True) -> dict:
+             verbose: bool = True,
+             flip: bool = False) -> dict:
     """Solve equilibrium and out-of-equilibrium systems for a cell.
 
     Args:
@@ -266,13 +267,15 @@ def simulate(design: PVDesign,
         n_steps (i64, optional): How many voltage steps to solve for. May be
             useful when an IV curve of a specific range is needed, but
             unnecessary in other cases. Defaults to None.
+        flip (bool, optional): Whether to flip the direction of the voltage
+            across the cell
 
     Returns:
         dict: Dictionary of results: "cell" is the initialized cell, "eq" is
             the equilibrium solution, "Voc" is the final solution beyond the
             open circuit voltage, "mpp" is the maximum power found in W, "eff"
             is the power conversion efficiency, "iv" is a tuple (v, i) of
-            the IV curve
+            the IV curve, "flip" is whether or not the voltage was flipped
     """
     if not verbose:
         temp = logger.level
@@ -284,6 +287,8 @@ def simulate(design: PVDesign,
     currents = jnp.array([], dtype=f64)
     voltages = jnp.array([], dtype=f64)
     dv = solver.vincr(cell)
+    if flip:
+        dv *= -1
     pots = []
     vstep = 0
 
@@ -332,8 +337,12 @@ def simulate(design: PVDesign,
 
         if currents.size > 2 and n_steps is None:
             ll, l = currents[-2], currents[-1]  # noqa
-            if (ll * l <= 0) or l < 0:  # noqa
-                break
+            if(flip):
+              if (ll * l <= 0) or l > 0:  # noqa
+                  break
+            else:
+              if (ll * l <= 0) or l < 0:  # noqa
+                  break
 
     dim_currents = scales.current * currents
     dim_voltages = scales.energy * voltages
