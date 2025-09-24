@@ -1,6 +1,8 @@
 # ∂PV
 A photovoltaic simulator with automatic differentation, built on `JAX`. 
 
+This repository is archived and no longer mantained. We plan on integrating differentiable PV simulations in a forthcoming multiphysics package.
+
 Pull requests welcome!
 
 Currently targeting inorganic materials. 
