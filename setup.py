@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="deltapv",
-    version="0.0.2",
+    version="0.0.3",
     description="Solar cell simulator with automatic differentiation",
     author=
     "Sean Mann, Eric Richard Fadel, Ekin Dogus Cubuk, Sam Schoenholz, and Giuseppe Romano",
